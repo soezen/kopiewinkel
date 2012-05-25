@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd">
+<hibernate-reverse-engineering>
+  <schema-selection match-catalog="vtidb"/>
+  <table-filter match-name="aanvragen" />
+  <table-filter match-name="criteria" />
+  <table-filter match-name="meldingen" />
+  <table-filter match-name="menuitems" />
+  <table-filter match-name="startpagina" />
+  <table-filter match-name="rechten"/>
+  <table-filter match-name="inputvelden"/>
+  <table-filter match-name="gebruikers"/>
+  <table-filter match-name="doelgroepen"/>
+  <table-filter match-name="opdrachten"/>
+  <table-filter match-name="opties"/>
+  <table-filter match-name="optietypes"/>
+  <table-filter match-name="prijzen"/>
+  <table-filter match-name="constraints"/>
+  <table-filter match-name="gebruikertypes"/>
+  <table-filter match-name="opdrachtopties"/>
+  <table-filter match-name="prijstypes"/>
+  <table-filter match-name="toewijzingen"/>
+  <table-filter match-name="opdrachttypes"/>
+  <table-filter match-name="layoutproperties"/>
+  <table-filter match-name="condities"/>
+  <table-filter match-name="opdrachtdoelgroepen"/>
+  <table-filter match-name="inputwaarden"/>
+  <table-filter match-name="opdrachttypeinput"/>
+  <table-filter match-name="leerlingen" />
+  <table-filter match-name="doelgroepleerlingen" />
+</hibernate-reverse-engineering>

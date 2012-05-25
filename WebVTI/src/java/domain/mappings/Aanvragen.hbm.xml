@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 18-feb-2012 18:51:34 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="vtidb" name="domain.Aanvraag" table="aanvragen">
+    <id name="id" type="java.lang.Integer">
+      <column name="ID"/>
+      <generator class="identity"/>
+    </id>
+    <many-to-one class="domain.Gebruiker" fetch="select" name="eigenaar">
+      <column name="Eigenaar" not-null="true"/>
+    </many-to-one>
+    <property name="type" type="domain.enums.types.AanvraagTypeEnumType">
+      <column name="Type" not-null="true"/>
+    </property>
+    <property name="status" type="domain.enums.types.AanvraagStatusEnumType">
+      <column name="Status" not-null="true"/>
+    </property>
+    <property name="aanmaakDatum" type="timestamp">
+      <column length="19" name="AanmaakDatum" not-null="true"/>
+    </property>
+    <property name="afwerkDatum" type="timestamp">
+      <column length="19" name="AfwerkDatum"/>
+    </property>
+    <property name="commentaar" type="string">
+      <column name="Commentaar"/>
+    </property>
+    <property name="veld" type="java.lang.Integer">
+      <column name="Veld"/>
+    </property>
+    <property name="correctieWaarde" type="string">
+      <column name="CorrectieWaarde"/>
+    </property>
+    <property name="bestemmelingen" type="string">
+      <column length="200" name="Bestemmelingen" not-null="true"/>
+    </property>
+  </class>
+</hibernate-mapping>

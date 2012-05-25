@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 11-feb-2012 16:48:33 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="VTIdb" name="domain.Conditie" table="condities">
+    <id name="id" type="java.lang.Integer">
+      <column name="ID"/>
+      <generator class="identity"/>
+    </id>
+    <many-to-one class="domain.Conditie" fetch="select" name="rechter">
+      <column name="Rechter"/>
+    </many-to-one>
+    <many-to-one class="domain.Conditie" fetch="select" name="linker">
+      <column name="Linker"/>
+    </many-to-one>
+    <property name="naam" type="string">
+      <column length="50" name="Naam" not-null="true" unique="true"/>
+    </property>
+    <property name="commentaar" type="string">
+      <column length="300" name="Commentaar"/>
+    </property>
+    <property name="operator" type="domain.enums.types.OperatorEnumType">
+      <column name="Connector"/>
+    </property>
+    <property name="expressie" type="int">
+      <column name="Expressie"/>
+    </property>
+  </class>
+</hibernate-mapping>

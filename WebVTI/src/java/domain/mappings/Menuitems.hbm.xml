@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 18-feb-2012 18:51:34 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="vtidb" name="domain.MenuItem" table="menuitems">
+    <id name="id" type="int">
+      <column name="ID"/>
+      <generator class="identity"/>
+    </id>
+    <property name="naam" type="string">
+      <column length="50" name="Naam" not-null="true"/>
+    </property>
+    <property name="link" type="string">
+      <column name="Link" not-null="true"/>
+    </property>
+    <property name="extern" type="boolean">
+      <column name="Extern" not-null="true"/>
+    </property>
+    <property name="volgorde" type="int">
+      <column name="Volgorde" not-null="true"/>
+    </property>
+  </class>
+</hibernate-mapping>

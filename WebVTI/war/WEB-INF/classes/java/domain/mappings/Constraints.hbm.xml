@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 11-feb-2012 16:48:33 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="VTIdb" name="domain.Constraint" table="constraints">
+    <id name="id" type="java.lang.Integer">
+      <column name="ID"/>
+      <generator class="identity"/>
+    </id>
+    <property name="type" type="domain.enums.types.ConstraintTypeEnumType">
+      <column name="Type" not-null="true"/>
+    </property>
+    <property name="constrainer" type="domain.interfaces.ConstrainerType">
+      <column name="Constrainer" not-null="true"/>
+    </property>
+    <property name="constrained" type="domain.interfaces.ConstrainableType">
+      <column name="Constrained" not-null="true"/>
+    </property>
+    <property name="standaard" type="boolean">
+      <column name="Standaard"/>
+    </property>
+    <property name="wederkerig" type="boolean">
+      <column name="Wederkerig" not-null="true"/>
+    </property>
+  </class>
+</hibernate-mapping>

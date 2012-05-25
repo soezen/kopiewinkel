@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+    <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+    <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/VTIdb</property>
+    <property name="hibernate.connection.username">beheerder</property>
+    <property name="hibernate.connection.password">admin</property>
+    <property name="current_session_context_class">thread</property>
+    <mapping resource="domain/mappings/Gebruikers.hbm.xml"/>
+    <mapping resource="domain/mappings/Layoutproperties.hbm.xml"/>
+    <mapping resource="domain/mappings/Constraints.hbm.xml"/>
+    <mapping resource="domain/mappings/Opdrachttypes.hbm.xml"/>
+    <mapping resource="domain/mappings/Gebruikertypes.hbm.xml"/>
+    <mapping resource="domain/mappings/Inputvelden.hbm.xml"/>
+    <mapping resource="domain/mappings/Inputwaarden.hbm.xml"/>
+    <mapping resource="domain/mappings/Prijstypes.hbm.xml"/>
+    <mapping resource="domain/mappings/Condities.hbm.xml"/>
+    <mapping resource="domain/mappings/Criteria.hbm.xml"/>
+    <mapping resource="domain/mappings/Opdrachttypeinput.hbm.xml"/>
+    <mapping resource="domain/mappings/Menuitems.hbm.xml"/>
+    <mapping resource="domain/mappings/Meldingen.hbm.xml"/>
+    <mapping resource="domain/mappings/Opdrachten.hbm.xml"/>
+    <mapping resource="domain/mappings/Aanvragen.hbm.xml"/>
+    <mapping resource="domain/mappings/Doelgroepen.hbm.xml"/>
+    <mapping resource="domain/mappings/Opties.hbm.xml"/>
+    <mapping resource="domain/mappings/Prijzen.hbm.xml"/>
+    <mapping resource="domain/mappings/Optietypes.hbm.xml"/>
+    <mapping resource="domain/mappings/Constrained.hbm.xml"/>
+    <mapping resource="domain/mappings/Constrainer.hbm.xml"/>
+    <mapping resource="domain/mappings/Trackable.hbm.xml"/>
+    <mapping resource="domain/mappings/Constrainable.hbm.xml"/>
+    <mapping resource="domain/mappings/Leerlingen.hbm.xml"/>
+    <mapping resource="domain/mappings/DoelgroepLeerlingen.hbm.xml" />
+  </session-factory>
+</hibernate-configuration>

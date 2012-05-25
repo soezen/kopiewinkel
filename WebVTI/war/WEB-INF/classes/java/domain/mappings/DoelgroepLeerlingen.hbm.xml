@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 11-feb-2012 16:48:33 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class catalog="VTIdb" name="domain.DoelgroepLeerling" table="doelgroepleerlingen">
+        <composite-id>
+            <key-many-to-one class="domain.Leerling" name="leerling">
+                <column name="Leerling" not-null="true"/>
+            </key-many-to-one>
+            <key-many-to-one class="domain.Doelgroep" name="doelgroep">
+                <column name="Doelgroep" not-null="true"/>
+            </key-many-to-one>
+        </composite-id>
+        <property name="groep" type="java.lang.String">
+            <column name="Groep" length="10" not-null="true" />
+        </property>
+        <property name="schooljaar" type="int">
+            <column name="Schooljaar" precision="4" scale="0" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

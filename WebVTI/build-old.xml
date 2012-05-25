@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="WebVTI" default="default" basedir=".">
+    <property name="sdk.dir" location="../appengine-java-sdk" />
+    <property name="lib.dir" location="war/WEB-INF" />
+    <property name="build.web.dir" location="build/web" />
+    <property name="mani.dir" location="src/conf" />
+    <import file="${sdk.dir}/config/user/ant-macros.xml" />
+    <description>Builds, tests, and runs the project WebVTI.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <path id="project.classpath">
+        <pathelement path="build/WEB-INF/classes" />
+        <fileset dir="build/web/WEB-INF/lib">
+            <include name="**/*.jar" />
+        </fileset>
+        <fileset dir="${sdk.dir}/lib">
+            <include name="shared/**/*.jar" />
+        </fileset>
+    </path>
+    <target name="copyjars"
+      description="Copies the App Engine JARs to the WAR.">
+        <copy
+        todir="build/web/WEB-INF/lib"
+        flatten="true">
+            <fileset dir="${sdk.dir}/lib/user">
+                <include name="**/*.jar" />
+            </fileset>
+            <fileset dir="${lib.dir}/lib">
+                <include name="**/*.jar" />
+            </fileset>
+        </copy>
+    </target>
+    <target name="copymanifest"
+        description="Copy manifest file">
+        <copy todir="build/web/META-INF" flatten="true">
+            <fileset dir="${mani.dir}">
+                <include name="**/*.MF" />
+            </fileset>
+            <fileset dir="web/META-INF">
+                <include name="**/*.xml" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="copyconfig" description="copy config file">
+        <copy todir="build/web/WEB-INF" flatten="true">
+            <fileset dir="web/WEB-INF">
+                <include name="**/*.xml" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="compile" depends="copyjars,copymanifest,copyconfig"
+      description="Compiles Java source and copies other source files to the WAR.">
+        <mkdir dir="build/web/WEB-INF/classes" />
+        <copy todir="build/web/WEB-INF/classes">
+            <fileset dir="src">
+                <exclude name="**/*.java" />
+            </fileset>
+        </copy>
+        <javac
+        srcdir="src"
+        destdir="build/web/WEB-INF/classes"
+        classpathref="project.classpath"
+        debug="on" />
+    </target>
+
+    <target name="runserver" depends="compile"
+      description="Starts the development server.">
+        <dev_appserver war="build/web" port="8888" >
+            <options>
+                <arg value="--jvm_flag=-Xdebug"/>
+                <arg value="--jvm_flag=-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=9999"/>
+            </options>
+        </dev_appserver>
+    </target>
+
+    <target name="update" depends="compile"
+      description="Uploads the application to App Engine.">
+        <appcfg action="update" war="build/web" />
+    </target>
+
+    <target name="update_indexes" depends="compile"
+      description="Uploads just the datastore index configuration to App Engine.">
+        <appcfg action="update_indexes" war="build/web" />
+    </target>
+
+    <target name="rollback" depends="compile"
+      description="Rolls back an interrupted application update.">
+        <appcfg action="rollback" war="build/web" />
+    </target>
+
+    <target name="request_logs"
+      description="Downloads log data from App Engine for the application.">
+        <appcfg action="request_logs" war="build/web">
+            <options>
+                <arg value="--num_days=5"/>
+            </options>
+            <args>
+                <arg value="logs.txt"/>
+            </args>
+        </appcfg>
+    </target>
+</project>

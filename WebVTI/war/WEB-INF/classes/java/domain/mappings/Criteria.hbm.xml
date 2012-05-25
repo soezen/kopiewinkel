@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 18-feb-2012 18:51:34 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="vtidb" name="domain.Criteria" table="criteria">
+    <id name="id" type="java.lang.Integer">
+      <column name="ID"/>
+      <generator class="identity"/>
+    </id>
+    <many-to-one class="domain.Gebruiker" fetch="select" name="eigenaar">
+      <column name="Eigenaar" not-null="true"/>
+    </many-to-one>
+    <property name="naam" type="string">
+      <column length="50" name="Naam" not-null="true"/>
+    </property>
+    <property name="tabel" type="string">
+      <column length="50" name="Tabel" not-null="true"/>
+    </property>
+    <set inverse="true" name="doelgroepen">
+      <key>
+        <column name="Criteria"/>
+      </key>
+      <one-to-many class="domain.Doelgroep"/>
+    </set>
+    <set inverse="true" name="prijzen">
+      <key>
+        <column name="Criteria"/>
+      </key>
+      <one-to-many class="domain.Prijs"/>
+    </set>
+    <set inverse="true" name="constraints">
+      <key>
+        <column name="Criteria"/>
+      </key>
+      <one-to-many class="domain.Constraint"/>
+    </set>
+    <set inverse="true" name="aanvragen">
+      <key>
+        <column name="Criteria"/>
+      </key>
+      <one-to-many class="domain.Aanvraag"/>
+    </set>
+    <set inverse="true" name="opties">
+      <key>
+        <column name="Criteria"/>
+      </key>
+      <one-to-many class="domain.Optie"/>
+    </set>
+    <set inverse="true" name="gebruikers">
+      <key>
+        <column name="Criteria"/>
+      </key>
+      <one-to-many class="domain.Gebruiker"/>
+    </set>
+    <set inverse="true" name="optieTypes">
+      <key>
+        <column name="Criteria"/>
+      </key>
+      <one-to-many class="domain.OptieType"/>
+    </set>
+    <set inverse="true" name="opdrachtTypes">
+      <key>
+        <column name="Criteria"/>
+      </key>
+      <one-to-many class="domain.OpdrachtType"/>
+    </set>
+    <set inverse="true" name="opdrachten">
+      <key>
+        <column name="Criteria"/>
+      </key>
+      <one-to-many class="domain.Opdracht"/>
+    </set>
+  </class>
+</hibernate-mapping>

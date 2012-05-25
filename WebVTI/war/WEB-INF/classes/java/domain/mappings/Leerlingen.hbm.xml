@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 11-feb-2012 16:48:33 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="VTIdb" name="domain.Leerling" table="leerlingen">
+    <id name="id" type="java.lang.Integer">
+      <column name="ID"/>
+      <generator class="identity"/>
+    </id>
+    <property name="naam" type="string">
+      <column length="50" name="Naam" not-null="true"/>
+    </property>
+    <property name="startDatum" type="date">
+      <column name="StartDatum" not-null="true"/>
+    </property>
+    <property name="eindDatum" type="date">
+      <column name="EindDatum" not-null="false"/>
+    </property>
+    <map name="doelgroepen" table="doelgroepleerlingen">
+      <key column="leerling"/>
+      <map-key column="schooljaar" type="java.lang.Integer"/>
+      <many-to-many class="domain.Doelgroep" column="doelgroep"/>
+    </map>
+  </class>
+</hibernate-mapping>

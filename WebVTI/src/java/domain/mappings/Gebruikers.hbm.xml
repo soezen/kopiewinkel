@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 11-feb-2012 16:48:33 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="VTIdb" name="domain.Gebruiker" table="gebruikers">
+    <id name="id" type="java.lang.Integer">
+      <column name="ID"/>
+      <generator class="identity"/>
+    </id>
+    <many-to-one class="domain.GebruikerType" fetch="select" name="gebruikerType">
+      <column name="GebruikerType" not-null="true"/>
+    </many-to-one>
+    <property name="naam" type="string">
+      <column length="50" name="Naam" not-null="true" unique="true"/>
+    </property>
+    <property name="wachtwoord" type="string">
+      <column length="50" name="Wachtwoord"/>
+    </property>
+    <property name="email" type="string">
+      <column length="75" name="Email"/>
+    </property>
+    <property name="actief" type="boolean">
+      <column name="Status" not-null="true"/>
+    </property>
+    <property name="laatstIngelogd" type="timestamp">
+      <column length="19" name="LaatstIngelogd"/>
+    </property>
+    <set inverse="true" name="opdrachten">
+      <key>
+        <column name="Opdrachtgever" not-null="true"/>
+      </key>
+      <one-to-many class="domain.Opdracht"/>
+    </set>
+    <set inverse="true" name="criteria">
+      <key>
+        <column name="Eigenaar" not-null="true"/>
+      </key>
+      <one-to-many class="domain.Criteria"/>
+    </set>
+    <set inverse="false" name="startpagina" table="startpagina">
+      <key>
+        <column name="Gebruiker" not-null="true"/>
+      </key>
+      <many-to-many entity-name="domain.Criteria">
+        <column name="Criteria" not-null="true"/>
+      </many-to-many>
+    </set>
+    <set inverse="false" name="doelgroepen" table="toewijzingen">
+      <key>
+        <column name="Gebruiker" not-null="true"/>
+      </key>
+      <many-to-many entity-name="domain.Doelgroep">
+        <column name="Doelgroep" not-null="true"/>
+      </many-to-many>
+    </set>
+    <set inverse="true" name="layoutProperties">
+      <key>
+        <column name="Gebruiker" not-null="true"/>
+      </key>
+      <one-to-many class="domain.LayoutProperty"/>
+    </set>
+    <set name="rechten" table="rechten">
+      <key column="gebruiker"/>
+      <element column="constrained" type="domain.interfaces.ConstrainedType"/>
+    </set>
+    <set inverse="true" name="aanvragen">
+      <key>
+        <column name="Eigenaar" not-null="true"/>
+      </key>
+      <one-to-many class="domain.Aanvraag"/>
+    </set>
+    <set inverse="true" name="meldingen">
+      <key>
+        <column name="Gebruiker" not-null="true"/>
+      </key>
+      <one-to-many class="domain.Melding"/>
+    </set>
+  </class>
+</hibernate-mapping>

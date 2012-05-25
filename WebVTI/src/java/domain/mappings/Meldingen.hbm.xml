@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 18-feb-2012 18:51:34 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="vtidb" name="domain.Melding" table="meldingen">
+    <composite-id>
+      <key-property name="gebruiker">
+        <column name="Gebruiker"/>
+      </key-property>
+      <key-property name="volgt">
+        <column name="Volgt"/>
+      </key-property>
+    </composite-id>
+    <many-to-one class="domain.interfaces.Trackable" fetch="select" insert="false" name="volgt" update="false">
+      <column name="Volgt" not-null="true"/>
+    </many-to-one>
+    <many-to-one class="domain.Gebruiker" fetch="select" insert="false" name="gebruiker" update="false">
+      <column name="Gebruiker" not-null="true"/>
+    </many-to-one>
+    <property name="gewijzigd" type="timestamp">
+      <column length="19" name="Gewijzigd" not-null="true"/>
+    </property>
+    <property name="email" type="boolean">
+      <column name="Email" not-null="true"/>
+    </property>
+  </class>
+</hibernate-mapping>

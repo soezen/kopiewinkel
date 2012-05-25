@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 18-feb-2012 18:51:34 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="vtidb" name="domain.OpdrachtTypeInput" table="opdrachttypeinput">
+    <composite-id>
+      <key-property name="inputVeldInt" type="int">
+        <column name="InputVeld"/>
+      </key-property>
+      <key-property name="opdrachtTypeInt" type="int">
+        <column name="OpdrachtType"/>
+      </key-property>
+    </composite-id>
+    <many-to-one class="domain.InputVeld" fetch="select" insert="false" name="inputVeld" update="false">
+      <column name="InputVeld" not-null="true"/>
+    </many-to-one>
+    <many-to-one class="domain.OpdrachtType" fetch="select" insert="false" name="opdrachtType" update="false">
+      <column name="OpdrachtType" not-null="true"/>
+    </many-to-one>
+    <property name="verplicht" type="boolean">
+      <column name="Verplicht" not-null="true"/>
+    </property>
+    <property name="wijzigbaar" type="boolean">
+      <column name="Wijzigbaar" not-null="true"/>
+    </property>
+    <property name="zichtbaar" type="boolean">
+      <column name="Zichtbaar" not-null="true"/>
+    </property>
+    <property name="volgorde" type="int">
+      <column name="Volgorde" not-null="true"/>
+    </property>
+  </class>
+</hibernate-mapping>

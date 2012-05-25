@@ -1,0 +1,91 @@
+/* 
+    Document   : main
+    Created on : 27-feb-2012, 17:29:44
+    Author     : soezen
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+root { 
+    display: block;
+}
+
+.txtLabel {
+    background-color: inherit;
+    font:inherit;
+    color:inherit;
+    border-right-style: none;
+    border-left-style: none;
+    border-bottom-style: none;
+    border-top-style: none;
+    border-right-width: 0px;
+    border-left-width: 0px;
+    border-bottom-width: 0px;
+    border-top-width: 0px;
+    width: 30px;
+}
+
+.top {
+    margin-bottom: 20px;
+}
+
+.klassen {
+    width: 50%;
+    height: 100%;
+    display: inline-block;
+}
+
+.velden {
+    float:left;
+    height:100%;
+    width:50%;
+}
+
+#opdrachtBody {
+    height: 100%;
+    overflow: auto;
+}
+
+#opties {
+    height:100%;
+
+    overflow: auto;
+}
+
+.errorOptieType {
+    background-color: red ! important;
+}
+
+.opties {
+    width:300px;
+    height:300px;
+    float:left;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.opties div {
+    height:70%;
+}
+
+form input[type='number']:disabled::-webkit-outer-spin-button,
+form input[type='number']:disabled::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+    color:#000000;
+}
+
+form input[type='number']:not([readonly]):disabled {
+    display: none;
+}
+
+#klassen>div>div {
+    float:left;
+    width: 300px;
+    overflow: hidden;
+}

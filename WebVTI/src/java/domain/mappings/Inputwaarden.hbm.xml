@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 11-feb-2012 16:48:33 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="VTIdb" name="domain.InputWaarde" table="inputwaarden">
+    <composite-id>
+      <key-many-to-one class="domain.Opdracht" name="opdracht">
+        <column name="Opdracht" not-null="true"/>
+      </key-many-to-one>
+      <key-many-to-one class="domain.InputVeld" name="inputVeld">
+        <column name="inputVeld" not-null="true"/>
+      </key-many-to-one>
+    </composite-id>
+    <property name="waarde" type="string">
+      <column length="50" name="Waarde" not-null="true"/>
+    </property>
+  </class>
+</hibernate-mapping>

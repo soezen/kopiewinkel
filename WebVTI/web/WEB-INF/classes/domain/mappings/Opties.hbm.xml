@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 11-feb-2012 16:48:33 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="VTIdb" name="domain.Optie" table="opties">
+    <meta attribute="implements">domain.interfaces.Constrainer</meta>
+    <id name="id" type="int">
+      <column name="ID"/>
+      <generator class="identity"/>
+    </id>
+    <many-to-one class="domain.OptieType" fetch="select" name="optieType">
+      <column name="OptieType"/>
+    </many-to-one>
+    <property name="naam" type="string">
+      <column length="50" name="Naam" not-null="true"/>
+    </property>
+    <property name="van" type="date">
+      <column length="10" name="Van" not-null="true"/>
+    </property>
+    <property name="tot" type="date">
+      <column length="10" name="Tot"/>
+    </property>
+    <property name="status" type="domain.enums.types.OptieStatusEnumType">
+      <column name="Status"/>
+    </property>
+    <property name="omschrijving" type="string">
+      <column name="Omschrijving" not-null="true"/>
+    </property>
+    <property name="volgorde" type="java.lang.Integer">
+      <column name="Volgorde" unique="true"/>
+    </property>
+  </class>
+</hibernate-mapping>

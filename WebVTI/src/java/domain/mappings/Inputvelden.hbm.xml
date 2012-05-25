@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 11-feb-2012 16:48:33 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="VTIdb" name="domain.InputVeld" table="inputvelden">
+    <id name="id" type="int">
+      <column name="ID"/>
+      <generator class="identity"/>
+    </id>
+    <property name="naam" type="string">
+      <column length="50" name="Naam" not-null="true"/>
+    </property>
+    <property name="type" type="domain.enums.types.InputVeldTypeEnumType">
+      <column name="Type" not-null="true"/>
+    </property>
+    <property name="min" type="java.lang.Integer">
+      <column name="Min"/>
+    </property>
+    <property name="max" type="java.lang.Integer">
+      <column name="Max"/>
+    </property>
+  </class>
+</hibernate-mapping>

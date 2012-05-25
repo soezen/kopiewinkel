@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 11-feb-2012 16:48:33 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="VTIdb" name="domain.LayoutProperty" table="layoutproperties">
+    <composite-id>
+      <key-property name="gebruiker">
+        <column name="Gebruiker"/>
+      </key-property>
+      <key-property name="optieType">
+        <column name="OptieType"/>
+      </key-property>
+    </composite-id>
+    <many-to-one class="domain.OptieType" fetch="select" insert="false" name="optieType" update="false">
+      <column name="OptieType" not-null="true"/>
+    </many-to-one>
+    <many-to-one class="domain.Gebruiker" fetch="select" insert="false" name="gebruiker" update="false">
+      <column name="Gebruiker" not-null="true"/>
+    </many-to-one>
+    <property name="zichtbaar" type="domain.enums.types.ZichtbaarheidEnumType">
+      <column name="Zichtbaar" not-null="true"/>
+    </property>
+    <property name="locatie" type="domain.enums.types.LocatieEnumType">
+      <column name="Locatie" not-null="true"/>
+    </property>
+    <property name="selectie" type="domain.enums.types.SelectieEnumType">
+      <column name="Selectie" not-null="true"/>
+    </property>
+    <property name="weergave" type="domain.enums.types.WeergaveEnumType">
+      <column name="Weergave" not-null="true"/>
+    </property>
+  </class>
+</hibernate-mapping>
