@@ -7,6 +7,7 @@ package database;
 import domain.OptieType;
 import domain.enums.OptieStatus;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
 /**
@@ -19,20 +20,25 @@ public class OptieTypeDB extends PriviligedEntityDB<OptieType> {
         clazz = OptieType.class;
         type = DatabaseManager.EM_OPTIE_TYPE;
     }
-    
+
     public OptieType getCurrentWithName(String naam) {
         EntityManager manager = DatabaseManager.getEntityManager(type);
-        
-        String stmt = "select ot from " + clazz.getSimpleName() + " ot "
-                + "where ot.naam = :naam "
-                + "and ot.status = :status";
-        Query query = manager.createQuery(stmt);
-        query.setParameter("naam", naam);
-        query.setParameter("status", OptieStatus.HUIDIG);
-        
-        System.out.println("QUERY: " + stmt.replaceAll(":naam", naam).replaceAll(":status", OptieStatus.HUIDIG.name()));
-        
-        return (OptieType) query.getSingleResult();
+        EntityTransaction tx = manager.getTransaction();
+        tx.begin();
+
+        try {
+            String stmt = "select ot from " + clazz.getSimpleName() + " ot "
+                    + "where ot.naam = :naam "
+                    + "and ot.status = :status";
+            Query query = manager.createQuery(stmt);
+            query.setParameter("naam", naam);
+            query.setParameter("status", OptieStatus.HUIDIG);
+
+            System.out.println("QUERY: " + stmt.replaceAll(":naam", naam).replaceAll(":status", OptieStatus.HUIDIG.name()));
+
+            return (OptieType) query.getSingleResult();
+        } finally {
+            tx.commit();
+        }
     }
-    
 }

@@ -70,12 +70,12 @@ public class TestDatabase {
 
     public GebruikerType updateNaam(GebruikerType gt) {
         gt.setNaam(gt.getNaam().replace(gt.getNaam().charAt(0), 'X'));
-        return gtdb.update(gt);
+        return gtdb.persist(gt);
     }
     
     public GebruikerType updateStandaard(GebruikerType gt) {
         gt.setStandaard(!gt.isStandaard());
-        return gtdb.update(gt);
+        return gtdb.persist(gt);
     }
     
     public boolean deleteGebruikerType(GebruikerType gt) {

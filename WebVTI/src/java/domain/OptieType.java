@@ -18,9 +18,9 @@ public class OptieType implements java.io.Serializable, Constrainer, Constrainab
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Key key;
-    @Basic(optional = false)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "OT_SEQUENCE")
     @SequenceGenerator(name = "OT_SEQUENCE")
+    @Column(nullable=false)
     private Long id;
     private String naam;
     private String omschrijving;
@@ -29,12 +29,12 @@ public class OptieType implements java.io.Serializable, Constrainer, Constrainab
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date van;
     @Temporal(javax.persistence.TemporalType.DATE)
-    @Basic(optional=true)
     @Column(nullable=true)
     private Date tot;
     private OptieStatus status;
     private Integer volgorde;
     @OneToMany(mappedBy = "optieType")
+    @Basic
     private List<Optie> opties = new ArrayList<Optie>(0);
 
     public OptieType() {

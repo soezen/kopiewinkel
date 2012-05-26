@@ -4,6 +4,9 @@
     Author     : soezen
 --%>
 
+<%@page import="domain.enums.AanvraagStatus"%>
+<%@page import="domain.enums.AanvraagType"%>
+<%@page import="database.AanvraagDB"%>
 <%@page import="domain.enums.InputVeldType"%>
 <%@page import="domain.InputVeld"%>
 <%@page import="database.InputVeldDB"%>
@@ -47,63 +50,98 @@
         <h1>Hello World!</h1>
         <ul>
             <%
+                boolean fresh = false;
+
+                // db managers
                 GebruikerTypeDB gtdb = new GebruikerTypeDB();
-             //   GebruikerType gt = new GebruikerType("Leerkrachten", false);
-             //   gtdb.persist(gt);
-                GebruikerType gt = gtdb.getWithName("Leerkrachten");
-                out.println(gt);
-                
                 GebruikerDB gdb = new GebruikerDB();
-          //      Gebruiker g = new Gebruiker(gt, "Suzan");
-          //      gdb.persist(g);
-                
-                Gebruiker gebruiker = gdb.getWithName("Suzan");
-                out.println("<br />" + gebruiker);
-                
                 MenuItemDB midb = new MenuItemDB();
-                
-        //        MenuItem mi1 = new MenuItem("Startpagina", "http://www.google.com", true, 1);
-        //        midb.persist(mi1);
-        //        MenuItem mi2 = new MenuItem("Beheer", "http://www.gmail.com", true, 2);
-        //        midb.persist(mi2);
-                
-                out.println("<br />ALL");
-                List<MenuItem> all = midb.list();
-                
-        //        gt.addRecht(mi1.getKey());
-        //        gtdb.update(gt);
-                
-                for (MenuItem item : all) {
-                    out.println("<br /> - " + item);
-                }
-                
-                out.println("<br />PRIVILIGED to ");
-                List<MenuItem> items = midb.list(gebruiker);
-                
-                for (MenuItem item : items) {
-                    out.println("<br /> - " + item);
-                }
-                
-                Date startDate = DateUtil.date(2000, 1, 1);
                 OptieTypeDB otdb = new OptieTypeDB();
-        //        otdb.persist(new OptieType("Kleur", "Kleur van het papier voor de gehele opdracht", 1, 1, startDate));
-                
-                OptieType ot = otdb.getCurrentWithName("Kleur");
-                
-                out.println("<br />" + ot);
-                
                 OptieDB odb = new OptieDB();
-        //        Optie o = new Optie(ot, "Rood", "Rood papier", startDate, OptieStatus.HUIDIG, 1);
-        //        odb.persist(o);
-                
-                out.println("<br />" + odb.getCurrentOfTypeWithName(ot, "Rood"));
-                
                 InputVeldDB ivdb = new InputVeldDB();
-          //      InputVeld iv = new InputVeld("Aantal", InputVeldType.VAST, 1, 999);
-          //      ivdb.persist(iv);
+                AanvraagDB adb = new AanvraagDB();
+                    
+                GebruikerType gt = null;
+                Gebruiker g = null;
+                MenuItem mi1 = null;
+                MenuItem mi2 = null;
+                OptieType ot = null;
+                Optie o = null;
+                InputVeld iv = null;
+                Aanvraag a = null;
                 
-                out.println("<br />" + ivdb.getWithName("Aantal"));
+                if (fresh) {
+                    gt = new GebruikerType("Leerkrachten", false);
+                    gtdb.persist(gt);                    
+                    
+                    g = new Gebruiker(gt, "Suzan");
+                    gdb.persist(g);
+                    gt = gtdb.getWithName("Leerkrachten");
+                    
+                    mi1 = new MenuItem("Startpagina", "http://www.google.com", true, 1);
+                    mi2 = new MenuItem("Beheer", "http://www.gmail.com", true, 2);
+                    midb.persist(mi1);
+                    midb.persist(mi2);
+                    
+                    gt.addRecht(mi1.getKey());
+                    gtdb.update(gt);
+                    
+                    Date startDate = DateUtil.date(2000, 1, 1);
+                    ot = new OptieType("Kleur", "Kleur van het papier voor de gehele opdracht", 1, 1, startDate);
+                    otdb.persist(ot);
+                    
+                    o = new Optie(ot, "Rood", "Rood papier", startDate, OptieStatus.HUIDIG, 1);
+                    odb.persist(o);
+                    ot = otdb.getCurrentWithName("Kleur");
+                    
+                    iv = new InputVeld("Aantal", InputVeldType.VAST, 1, 999);
+                    ivdb.persist(iv);
+                    
+                    Date aStartDate = DateUtil.date(2012, 1, 1);
+                    a = new Aanvraag(gdb.getWithName("Suzan"), AanvraagType.INFO, AanvraagStatus.NIEUW, aStartDate, "Beheerder");
+                    adb.persist(a);
+                } 
                 
+                gt = gtdb.getWithName("Leerkrachten");
+                g = gdb.getWithName("Suzan");
+                ot = otdb.getCurrentWithName("Kleur");
+                o = odb.getCurrentOfTypeWithName(ot, "Rood");
+                iv = ivdb.getWithName("Aantal");
+                
+                out.println("<br />" + gt);
+                out.println("<br />" + g);
+                out.println("<br />" + ot);           
+                out.println("<br />" + o);
+                out.println("<br />" + iv);
+                
+                out.println("<br />All MenuItems:<ul>");
+                List<MenuItem> all = midb.list();
+
+                for (MenuItem item : all) {
+                    out.println("<li>" + item + "</li>");
+                }
+                out.println("</ul>");
+
+                out.println("<br />MenuItems visible to Gebruiker:<ul>");
+                List<MenuItem> items = midb.list(g);
+
+                for (MenuItem item : items) {
+                    out.println("<li>" + item + "</li>");
+                }   
+                out.println("</ul>");
+
+                out.println("<br />Opties van OptieType:<ul>");
+
+                for (Optie optie : ot.getOpties()) {
+                    out.println("<li>" + optie + "</li>");
+                }
+                out.println("</ul>");
+
+                out.println("<br />Aanvragen voor gebruiker:<ul>");
+                for (Aanvraag aanvraag : g.getAanvragen()) {
+                    out.println("<li>" + aanvraag + "</li>");
+                }
+                out.println("</ul>");
             %>
         </ul>
     </body>

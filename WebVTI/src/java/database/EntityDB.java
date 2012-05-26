@@ -22,25 +22,25 @@ public abstract class EntityDB<E> {
 
     public List<E> list() {
         EntityManager manager = DatabaseManager.getEntityManager(type);
-        List<E> result = new ArrayList<E>();
-        
-//        try {
+        EntityTransaction tx = manager.getTransaction();
+        tx.begin();
+        try {
             Query query = manager.createQuery("select e from " + clazz.getSimpleName() + " e");
-            result = query.getResultList();
+            List<E> result = query.getResultList();
             result.size();
-//        } finally {
-//            manager.close();
-//        }
-        
-        return result;
+            return query.getResultList();
+        } finally {
+            tx.commit();
+        }
+
     }
-    
+
     public E persist(E entity) {
         System.out.println("... persisting " + entity);
         EntityManager manager = DatabaseManager.getEntityManager(type);
         manager.clear();
         EntityTransaction tx = manager.getTransaction();
-        
+
         try {
             tx.begin();
             manager.persist(entity);
@@ -51,27 +51,34 @@ public abstract class EntityDB<E> {
             System.err.println("FAIL");
             e.printStackTrace();
         } finally {
-//            manager.close();
+            if (tx.isActive()) {
+                tx.rollback();
+            }
         }
         return entity;
     }
-
+    
     public E update(E entity) {
         System.out.println("... updating " + entity);
         EntityManager manager = DatabaseManager.getEntityManager(type);
+        manager.clear();
+        EntityTransaction tx = manager.getTransaction();
 
         try {
+            tx.begin();
             manager.merge(entity);
+            manager.flush();
+            tx.commit();
             System.out.println("DONE");
         } catch (Exception e) {
             System.err.println("FAIL");
             e.printStackTrace();
         } finally {
-//            manager.close();
+            if (tx.isActive()) {
+                tx.rollback();
+            }
         }
-
         return entity;
-
     }
 
     public boolean delete(Key key) {
@@ -84,6 +91,8 @@ public abstract class EntityDB<E> {
             E dbEntity = (E) manager.find(clazz, key);
             System.out.println("... deleting " + dbEntity);
             manager.remove(dbEntity);
+            manager.flush();
+            tx.commit();
             done = true;
             System.out.println("DONE");
         } catch (Exception e) {
@@ -91,8 +100,9 @@ public abstract class EntityDB<E> {
             e.printStackTrace();
             tx.rollback();
         } finally {
-            tx.commit();
-//            manager.close();
+            if (tx.isActive()) {
+                tx.rollback();
+            }
         }
 
         return done;
