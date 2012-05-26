@@ -13,7 +13,7 @@
     <property name="graad" type="java.lang.Integer">
       <column name="Graad"/>
     </property>
-    <map collection-type="domain.custom.MultiMapType" name="leerlingen" table="doelgroepleerlingen">
+    <map collection-type="domain.custom.MultiMapType" name="groepen" table="doelgroepleerlingen">
       <key column="Doelgroep"/>
       <map-key column="Groep" type="java.lang.String"/>
       <many-to-many class="domain.Leerling" column="Leerling"/>

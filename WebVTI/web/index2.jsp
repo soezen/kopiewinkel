@@ -4,6 +4,8 @@
     Author     : soezen
 --%>
 
+<%@page import="database.SchooljaarGroepDB"%>
+<%@page import="domain.SchooljaarGroep"%>
 <%@page import="domain.Doelgroep"%>
 <%@page import="database.DoelgroepDB"%>
 <%@page import="domain.constraints.ConnectionConstraint"%>
@@ -70,6 +72,7 @@
                 ConditieDB cdb = new ConditieDB();
                 ConstraintDB csdb = new ConstraintDB();
                 DoelgroepDB ddb = new DoelgroepDB();
+                SchooljaarGroepDB sgdb = new SchooljaarGroepDB();
                     
                 GebruikerType gt = null;
                 Gebruiker g = null;
@@ -124,11 +127,16 @@
                     
                     cc = new ConnectionConstraint(ot.getKey(), oTransparant.getKey(), true, false);
                     csdb.persist(cc);    
-                
+       
                     d = new Doelgroep("Mechanica", 1);
                     ddb.persist(d);
+                
+                    SchooljaarGroep sg = new SchooljaarGroep(d, "A", 2012);
+                    sgdb.persist(sg);
+                    d = ddb.getWithNameInGrade("Mechanica", 1);
+                
                 }          
-
+             
                 gt = gtdb.getWithName("Leerkrachten");
                 g = gdb.getWithName("Suzan");
                 ot = otdb.getCurrentWithName("Kleur");
@@ -137,6 +145,7 @@
                 c = cdb.getWithName("Conditie");
                 d = ddb.getWithNameInGrade("Mechanica", 1);
                 
+                
                 out.println("<br />" + gt);
                 out.println("<br />" + g);
                 out.println("<br />" + ot);           
@@ -144,6 +153,12 @@
                 out.println("<br />" + iv);
                 out.println("<br />" + c);
                 out.println("<br />" + d);
+                
+                out.println("<br />Groepen van doelgroep:<ul>");
+                for (SchooljaarGroep sgs : d.getGroepen()) {
+                    out.println("<li>" + sgs + "</li>");
+                }
+                out.println("</ul>");
                 
                 out.println("<br />All MenuItems:<ul>");
                 List<MenuItem> all = midb.list();

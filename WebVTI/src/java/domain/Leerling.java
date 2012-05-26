@@ -17,7 +17,7 @@ public class Leerling implements java.io.Serializable {
     private String naam;
     private Date startDatum;
     private Date eindDatum;
-    private List<DoelgroepLeerling> doelgroepen = new ArrayList<DoelgroepLeerling>(0);
+    private List<SchooljaarGroep> doelgroepen = new ArrayList<SchooljaarGroep>(0);
 
     public Leerling() {
     }
@@ -49,7 +49,7 @@ public class Leerling implements java.io.Serializable {
         this.naam = naam;
     }
 
-    public List<DoelgroepLeerling> getDoelgroepen() {
+    public List<SchooljaarGroep> getDoelgroepen() {
         return doelgroepen;
     }
 
@@ -57,12 +57,12 @@ public class Leerling implements java.io.Serializable {
         return eindDatum;
     }
 
-    public void setDoelgroepen(List<DoelgroepLeerling> doelgroepen) {
+    public void setDoelgroepen(List<SchooljaarGroep> doelgroepen) {
         this.doelgroepen = doelgroepen;
     }
     
     public void addDoelgroep(Doelgroep doelgroep, int jaar, String groep) {
-        this.doelgroepen.add(new DoelgroepLeerling(this, doelgroep, groep, jaar));
+        //this.doelgroepen.add(new SchooljaarGroep(this, doelgroep, groep, jaar));
     }
 
     public Date getStartDatum() {

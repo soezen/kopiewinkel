@@ -20,8 +20,9 @@ public class Doelgroep implements java.io.Serializable {
     private Long id;
     private String naam;
     private Integer graad;
+    @OneToMany(mappedBy = "doelgroep")
     @Basic
-    private List<DoelgroepLeerling> leerlingen = new ArrayList<DoelgroepLeerling>();
+    private List<SchooljaarGroep> groepen = new ArrayList<SchooljaarGroep>();
 
     public Doelgroep() {
     }
@@ -63,21 +64,33 @@ public class Doelgroep implements java.io.Serializable {
         this.graad = graad;
     }
 
-    public List<DoelgroepLeerling> getLeerlingen() {
-        return leerlingen;
+    public List<SchooljaarGroep> getGroepen() {
+        return groepen;
     }
 
-    public void setLeerlingen(List<DoelgroepLeerling> leerlingen) {
-        this.leerlingen = leerlingen;
+    public void setGroepen(List<SchooljaarGroep> groepen) {
+        this.groepen = groepen;
     }
 
     public void addLeerling(int jaar, String groep, Leerling leerling) {
-        leerlingen.add(new DoelgroepLeerling(leerling, this, groep, jaar));
+        boolean done = false;
+        for (SchooljaarGroep sg : groepen) {
+            if (sg.getGroep().equals(groep) && sg.getSchooljaar() == jaar) {
+                sg.addLeerling(leerling);
+                done = true;
+            }
+        }
+        
+        if (!done) {
+            SchooljaarGroep sg = new SchooljaarGroep(this, groep, jaar);
+            sg.addLeerling(leerling);
+            groepen.add(sg);
+        }
     }
     
     @Override
     public String toString() {
-        return "DOELGROEP [" + id + ", " + graad + ", " + naam + ", " + leerlingen.size() + "]";
+        return "DOELGROEP [" + id + ", " + graad + ", " + naam + ", " + groepen.size() + "]";
     }
 
     // TODO move to database class
