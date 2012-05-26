@@ -1,6 +1,7 @@
 package domain;
 // Generated 11-feb-2012 16:48:29 by Hibernate Tools 3.2.1.GA
 
+import com.google.appengine.api.datastore.Key;
 import domain.enums.OptieStatus;
 import domain.interfaces.Constrainable;
 import domain.interfaces.Constrained;
@@ -13,11 +14,14 @@ import javax.persistence.*;
  */
 @Entity
 public class Optie implements java.io.Serializable, Constrainer, Constrainable, Constrained {
-
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Key key;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "OT_SEQUENCE")
+    @SequenceGenerator(name = "OT_SEQUENCE")
+    @Column(nullable=false)
     private Long id;
-    @ManyToOne
+   @ManyToOne(cascade= CascadeType.PERSIST)
     private OptieType optieType;
     private String naam;
     private String omschrijving;
@@ -49,6 +53,14 @@ public class Optie implements java.io.Serializable, Constrainer, Constrainable, 
         this.status = status;
         this.volgorde = volgorde;
         this.omschrijving = omschrijving;
+    }
+
+    public Key getKey() {
+        return key;
+    }
+
+    public void setKey(Key key) {
+        this.key = key;
     }
 
     @Override

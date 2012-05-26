@@ -5,6 +5,7 @@
 
 package domain;
 
+import com.google.appengine.api.datastore.Key;
 import domain.interfaces.Constrainable;
 
 /**
@@ -12,6 +13,7 @@ import domain.interfaces.Constrainable;
  * @author soezen
  */
 public class PrijsFormule implements Constrainable {
+    private Key key;
     private Long id;
     private String formule;
 
@@ -21,6 +23,14 @@ public class PrijsFormule implements Constrainable {
 
     public String getFormule() {
         return formule;
+    }
+
+    public Key getKey() {
+        return key;
+    }
+
+    public void setKey(Key key) {
+        this.key = key;
     }
 
     public void setFormule(String formule) {

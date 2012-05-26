@@ -1,16 +1,6 @@
 
-import utils.GlobalValues;
-import database.DatabaseManager;
 import database.GebruikerTypeDB;
-import database.OpdrachtDB;
-import domain.Doelgroep;
-import domain.DoelgroepLeerling;
 import domain.GebruikerType;
-import domain.Leerling;
-import domain.custom.PersistentMultiMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /*
  * To change this template, choose Tools | Templates

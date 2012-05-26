@@ -4,27 +4,17 @@
  */
 package utils;
 
+import domain.constraints.Constraint;
 import database.OpdrachtDB;
-import domain.Constraint;
-import domain.Gebruiker;
-import domain.InputVeld;
-import domain.InputWaarde;
-import domain.Opdracht;
-import domain.OpdrachtTypeInput;
-import domain.Optie;
-import domain.OptieType;
+import domain.*;
 import domain.enums.ConstraintType;
 import domain.enums.InputVeldType;
 import domain.interfaces.Constrainable;
 import domain.interfaces.Constrained;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
@@ -105,16 +95,17 @@ public class Validator {
     public static void checkConstraints(List<Constraint> constraints, Optie optie, Opdracht opdracht, HashMap<String, String> errors) {
         EnumMap<ConstraintType, List<Constrainable>> constrainables = new EnumMap<ConstraintType, List<Constrainable>>(ConstraintType.class);
 
-        for (Constraint constraint : constraints) {
-            if (constraint.getConstrainer().equals(optie)) {
-                List<Constrainable> l = constrainables.get(constraint.getType());
-                if (l == null) {
-                    l = new ArrayList<Constrainable>();
-                    constrainables.put(constraint.getType(), l);
-                }
-                l.add(constraint.getConstrained());
-            }
-        }
+        // TODO refactor
+//        for (Constraint constraint : constraints) {
+//            if (constraint.getConstrainer().equals(optie)) {
+//                List<Constrainable> l = constrainables.get(constraint.getType());
+//                if (l == null) {
+//                    l = new ArrayList<Constrainable>();
+//                    constrainables.put(constraint.getType(), l);
+//                }
+//                l.add(constraint.getConstrained());
+//            }
+//        }
 
         for (Entry<ConstraintType, List<Constrainable>> entry : constrainables.entrySet()) {
             switch (entry.getKey()) {

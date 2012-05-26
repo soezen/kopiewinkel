@@ -4,6 +4,10 @@
     Author     : soezen
 --%>
 
+<%@page import="domain.constraints.ConnectionConstraint"%>
+<%@page import="domain.enums.ConstraintType"%>
+<%@page import="domain.constraints.Constraint"%>
+<%@page import="database.ConstraintDB"%>
 <%@page import="database.ConditieDB"%>
 <%@page import="domain.enums.AanvraagStatus"%>
 <%@page import="domain.enums.AanvraagType"%>
@@ -51,7 +55,7 @@
         <h1>Hello World!</h1>
         <ul>
             <%
-                boolean fresh = false;
+                boolean rebuild = false;
 
                 // db managers
                 GebruikerTypeDB gtdb = new GebruikerTypeDB();
@@ -62,6 +66,7 @@
                 InputVeldDB ivdb = new InputVeldDB();
                 AanvraagDB adb = new AanvraagDB();
                 ConditieDB cdb = new ConditieDB();
+                ConstraintDB csdb = new ConstraintDB();
                     
                 GebruikerType gt = null;
                 Gebruiker g = null;
@@ -72,8 +77,9 @@
                 InputVeld iv = null;
                 Aanvraag a = null;
                 Conditie c = null;
+                ConnectionConstraint cc = null;
                 
-                if (fresh) {
+                if (rebuild) {
                     gt = new GebruikerType("Leerkrachten", false);
                     gtdb.persist(gt);                    
                     
@@ -106,8 +112,17 @@
                     
                     c = new Conditie("Conditie", "Test conditie", "expressie", false);
                     cdb.persist(c);
-                }                 
                 
+                    OptieType otAndere = new OptieType("Andere", "Verscheidene opties", -1, 0, DateUtil.date(2012, 1, 1));
+                    otdb.persist(otAndere);
+                    Optie oTransparant = new Optie(otAndere, "Transparant", "Transparant papier", DateUtil.date(2012, 1, 1), OptieStatus.HUIDIG, 1);
+                    odb.persist(oTransparant);
+                    
+                    cc = new ConnectionConstraint(ot.getKey(), oTransparant.getKey(), true, false);
+                    csdb.persist(cc);    
+                
+                }          
+
                 gt = gtdb.getWithName("Leerkrachten");
                 g = gdb.getWithName("Suzan");
                 ot = otdb.getCurrentWithName("Kleur");
@@ -148,6 +163,12 @@
                 out.println("<br />Aanvragen voor gebruiker:<ul>");
                 for (Aanvraag aanvraag : g.getAanvragen()) {
                     out.println("<li>" + aanvraag + "</li>");
+                }
+                out.println("</ul>");
+                
+                out.println("<br />Alle constraints:<ul>");
+                for (Constraint constraint : csdb.list(ConnectionConstraint.class)) {
+                    out.println("<li>" + constraint + "</li>");
                 }
                 out.println("</ul>");
             %>

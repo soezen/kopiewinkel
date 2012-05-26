@@ -32,7 +32,7 @@
       <key>
         <column name="Criteria"/>
       </key>
-      <one-to-many class="domain.Constraint"/>
+      <one-to-many class="domain.constraints.Constraint"/>
     </set>
     <set inverse="true" name="aanvragen">
       <key>

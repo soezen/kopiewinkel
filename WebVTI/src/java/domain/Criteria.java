@@ -2,6 +2,7 @@ package domain;
 // Generated 18-feb-2012 18:51:31 by Hibernate Tools 3.2.1.GA
 
 
+import domain.constraints.Constraint;
 import java.util.HashSet;
 import java.util.Set;
 

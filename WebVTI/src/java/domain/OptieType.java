@@ -33,7 +33,7 @@ public class OptieType implements java.io.Serializable, Constrainer, Constrainab
     private Date tot;
     private OptieStatus status;
     private Integer volgorde;
-    @OneToMany(mappedBy = "optieType")
+    @OneToMany(mappedBy = "optieType", cascade= CascadeType.PERSIST)
     @Basic
     private List<Optie> opties = new ArrayList<Optie>(0);
 
@@ -61,6 +61,15 @@ public class OptieType implements java.io.Serializable, Constrainer, Constrainab
         this.omschrijving = omschrijving;
     }
 
+    public void setKey(Key key) {
+        this.key = key;
+    }
+
+    public Key getKey() {
+        return key;
+    }
+
+    
     @Override
     public Long getId() {
         return this.id;

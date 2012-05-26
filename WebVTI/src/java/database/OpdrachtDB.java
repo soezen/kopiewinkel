@@ -4,6 +4,7 @@
  */
 package database;
 
+import domain.constraints.Constraint;
 import domain.*;
 import domain.enums.ConstraintType;
 import domain.enums.OpdrachtStatus;
