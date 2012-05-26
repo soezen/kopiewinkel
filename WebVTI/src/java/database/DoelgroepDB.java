@@ -31,7 +31,9 @@ public class DoelgroepDB extends IdEntityDB<Doelgroep> {
             query.setParameter("graad", grade);
 
             System.out.println("QUERY: " + stmt);
-            return (Doelgroep) query.getSingleResult();
+            Doelgroep d = (Doelgroep) query.getSingleResult();
+            d.getGroepen().get(0).getLeerlingen();
+            return d;
         } finally {
             tx.commit();
         }

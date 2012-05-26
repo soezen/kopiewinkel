@@ -4,6 +4,8 @@
     Author     : soezen
 --%>
 
+<%@page import="database.LeerlingDB"%>
+<%@page import="domain.Leerling"%>
 <%@page import="database.SchooljaarGroepDB"%>
 <%@page import="domain.SchooljaarGroep"%>
 <%@page import="domain.Doelgroep"%>
@@ -73,7 +75,8 @@
                 ConstraintDB csdb = new ConstraintDB();
                 DoelgroepDB ddb = new DoelgroepDB();
                 SchooljaarGroepDB sgdb = new SchooljaarGroepDB();
-                    
+                LeerlingDB ldb = new LeerlingDB();
+                
                 GebruikerType gt = null;
                 Gebruiker g = null;
                 MenuItem mi1 = null;
@@ -85,6 +88,7 @@
                 Conditie c = null;
                 ConnectionConstraint cc = null;
                 Doelgroep d = null;
+                Leerling l = null;
                 
                 if (rebuild) {
                     gt = new GebruikerType("Leerkrachten", false);
@@ -134,6 +138,11 @@
                     SchooljaarGroep sg = new SchooljaarGroep(d, "A", 2012);
                     sgdb.persist(sg);
                     d = ddb.getWithNameInGrade("Mechanica", 1);
+               
+                    l = new Leerling("Niels Rogge", DateUtil.date(2012, 9, 1));
+                    l.setCurrentGroep(d.getGroepen().get(0));
+                    ldb.persist(l);
+                
                 
                 }          
              
@@ -145,7 +154,6 @@
                 c = cdb.getWithName("Conditie");
                 d = ddb.getWithNameInGrade("Mechanica", 1);
                 
-                
                 out.println("<br />" + gt);
                 out.println("<br />" + g);
                 out.println("<br />" + ot);           
@@ -154,9 +162,13 @@
                 out.println("<br />" + c);
                 out.println("<br />" + d);
                 
-                out.println("<br />Groepen van doelgroep:<ul>");
-                for (SchooljaarGroep sgs : d.getGroepen()) {
-                    out.println("<li>" + sgs + "</li>");
+                out.println("<br />Leerlingen van doelgroep per groep:<ul>");
+                for (SchooljaarGroep sg : d.getGroepen()) {
+                    out.println("<li>" + sg + "</li><ul>");
+                    for (Leerling lln : sg.getLeerlingen()) {
+                        out.println("<li>" + lln + "</li>");
+                    }
+                    out.println("</ul>");
                 }
                 out.println("</ul>");
                 

@@ -17,10 +17,15 @@ public class SchooljaarGroep implements java.io.Serializable {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Key key;
+    @Basic(optional=false)
+    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="SG_SEQUENCE")
+    @SequenceGenerator(name="SG_SEQUENCE")
+    private Long id;
     @ManyToOne
     private Doelgroep doelgroep;
     private String groep;
     private int schooljaar;
+    @OneToMany(mappedBy = "currentGroep")
     @Basic
     private List<Leerling> leerlingen = new ArrayList<Leerling>();
     
