@@ -4,6 +4,8 @@
     Author     : soezen
 --%>
 
+<%@page import="domain.Doelgroep"%>
+<%@page import="database.DoelgroepDB"%>
 <%@page import="domain.constraints.ConnectionConstraint"%>
 <%@page import="domain.enums.ConstraintType"%>
 <%@page import="domain.constraints.Constraint"%>
@@ -67,6 +69,7 @@
                 AanvraagDB adb = new AanvraagDB();
                 ConditieDB cdb = new ConditieDB();
                 ConstraintDB csdb = new ConstraintDB();
+                DoelgroepDB ddb = new DoelgroepDB();
                     
                 GebruikerType gt = null;
                 Gebruiker g = null;
@@ -78,6 +81,7 @@
                 Aanvraag a = null;
                 Conditie c = null;
                 ConnectionConstraint cc = null;
+                Doelgroep d = null;
                 
                 if (rebuild) {
                     gt = new GebruikerType("Leerkrachten", false);
@@ -121,6 +125,8 @@
                     cc = new ConnectionConstraint(ot.getKey(), oTransparant.getKey(), true, false);
                     csdb.persist(cc);    
                 
+                    d = new Doelgroep("Mechanica", 1);
+                    ddb.persist(d);
                 }          
 
                 gt = gtdb.getWithName("Leerkrachten");
@@ -129,6 +135,7 @@
                 o = odb.getCurrentOfTypeWithName(ot, "Rood");
                 iv = ivdb.getWithName("Aantal");
                 c = cdb.getWithName("Conditie");
+                d = ddb.getWithNameInGrade("Mechanica", 1);
                 
                 out.println("<br />" + gt);
                 out.println("<br />" + g);
@@ -136,6 +143,7 @@
                 out.println("<br />" + o);
                 out.println("<br />" + iv);
                 out.println("<br />" + c);
+                out.println("<br />" + d);
                 
                 out.println("<br />All MenuItems:<ul>");
                 List<MenuItem> all = midb.list();

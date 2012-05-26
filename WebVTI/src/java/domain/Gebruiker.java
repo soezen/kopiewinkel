@@ -2,8 +2,9 @@ package domain;
 // Generated 11-feb-2012 16:48:29 by Hibernate Tools 3.2.1.GA
 
 import com.google.appengine.api.datastore.Key;
-import domain.interfaces.Constrained;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import javax.persistence.*;
 
 /**
