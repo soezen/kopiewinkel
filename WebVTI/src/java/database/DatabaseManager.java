@@ -16,7 +16,7 @@ public class DatabaseManager {
     
     private static final EntityManagerFactory factory = Persistence.createEntityManagerFactory("transactions-optional");
 
-    private static EntityManager[] managers = new EntityManager[10];
+    private static EntityManager[] managers = new EntityManager[11];
     
     public static final int EM_GEBRUIKER = 0;
     public static final int EM_GEBRUIKER_TYPE = 1;
@@ -28,6 +28,7 @@ public class DatabaseManager {
     public static final int EM_OPTIE_TYPE = 6;
     public static final int EM_INPUT_VELD = 8;
     public static final int EM_AANVRAAG = 0;
+    public static final int EM_CONDITIE = 10;
     
     private DatabaseManager() {
     }

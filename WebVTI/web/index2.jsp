@@ -4,6 +4,7 @@
     Author     : soezen
 --%>
 
+<%@page import="database.ConditieDB"%>
 <%@page import="domain.enums.AanvraagStatus"%>
 <%@page import="domain.enums.AanvraagType"%>
 <%@page import="database.AanvraagDB"%>
@@ -60,6 +61,7 @@
                 OptieDB odb = new OptieDB();
                 InputVeldDB ivdb = new InputVeldDB();
                 AanvraagDB adb = new AanvraagDB();
+                ConditieDB cdb = new ConditieDB();
                     
                 GebruikerType gt = null;
                 Gebruiker g = null;
@@ -69,6 +71,7 @@
                 Optie o = null;
                 InputVeld iv = null;
                 Aanvraag a = null;
+                Conditie c = null;
                 
                 if (fresh) {
                     gt = new GebruikerType("Leerkrachten", false);
@@ -100,19 +103,24 @@
                     Date aStartDate = DateUtil.date(2012, 1, 1);
                     a = new Aanvraag(gdb.getWithName("Suzan"), AanvraagType.INFO, AanvraagStatus.NIEUW, aStartDate, "Beheerder");
                     adb.persist(a);
-                } 
+                    
+                    c = new Conditie("Conditie", "Test conditie", "expressie", false);
+                    cdb.persist(c);
+                }                 
                 
                 gt = gtdb.getWithName("Leerkrachten");
                 g = gdb.getWithName("Suzan");
                 ot = otdb.getCurrentWithName("Kleur");
                 o = odb.getCurrentOfTypeWithName(ot, "Rood");
                 iv = ivdb.getWithName("Aantal");
+                c = cdb.getWithName("Conditie");
                 
                 out.println("<br />" + gt);
                 out.println("<br />" + g);
                 out.println("<br />" + ot);           
                 out.println("<br />" + o);
                 out.println("<br />" + iv);
+                out.println("<br />" + c);
                 
                 out.println("<br />All MenuItems:<ul>");
                 List<MenuItem> all = midb.list();
