@@ -5,6 +5,8 @@
 package database;
 
 import domain.OpdrachtType;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 /**
  *
@@ -14,8 +16,17 @@ public class OpdrachtTypeDB extends PriviligedEntityDB<OpdrachtType> {
 
     public OpdrachtTypeDB() {
         clazz = OpdrachtType.class;
-        type = DatabaseManager.EM_OPDRACHT_TYPE;
+        type = DatabaseManager.EM_PRIJS_KLASSE;
     }
 
-    
+    public OpdrachtType getWithName(String naam) {
+        EntityManager manager = DatabaseManager.getEntityManager(type);
+        String stmt = "select g from " + clazz.getSimpleName() + " g where g.naam = :naam";
+        Query query = manager.createQuery(stmt);
+        query.setParameter("naam", naam);
+
+        System.out.println("QUERY: " + stmt);
+
+        return (OpdrachtType) query.getSingleResult();
+    }
 }

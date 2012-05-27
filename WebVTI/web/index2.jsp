@@ -4,6 +4,9 @@
     Author     : soezen
 --%>
 
+<%@page import="domain.OpdrachtTypeInput"%>
+<%@page import="domain.OpdrachtType"%>
+<%@page import="database.OpdrachtTypeDB"%>
 <%@page import="database.PrijsKlasseDB"%>
 <%@page import="domain.PrijsKlasse"%>
 <%@page import="domain.constraints.FormuleConstraint"%>
@@ -93,7 +96,8 @@
                 PrijsDB pdb = new PrijsDB();
                 PrijsFormuleDB pfdb = new PrijsFormuleDB();
                 PrijsKlasseDB pkdb = new PrijsKlasseDB();
-
+                OpdrachtTypeDB optdb = new OpdrachtTypeDB();
+                
                 GebruikerType gt = null;
                 Gebruiker g = null;
                 MenuItem mi1 = null;
@@ -109,7 +113,8 @@
                 Prijs p = null;
                 PrijsFormule pf = null;
                 PrijsKlasse pk = null;
-
+                OpdrachtType opt = null;
+                
                 if (rebuild) {
                     gt = new GebruikerType("Leerkrachten", false);
                     gtdb.persist(gt);
@@ -186,6 +191,8 @@
                     pk.addPrijs(p);
                     pk = pkdb.persist(pk);
 
+                    opt = new OpdrachtType(pk, "Administratie", "Opdrachten voor administratie", DateUtil.date(2012, 1, 1));
+                    optdb.persist(opt);
                 }
 
                 gt = gtdb.getWithName("Leerkrachten");
@@ -196,8 +203,7 @@
                 c = cdb.getWithName("Combined");
                 d = ddb.getWithNameInGrade("Mechanica", 1);
                 pk = pkdb.getWithName("Gratis");
-
-
+                opt = optdb.getWithName("Administratie");
 
                 out.println("<br />" + gt);
                 out.println("<br />" + g);
@@ -207,7 +213,20 @@
                 out.println("<br />" + c);
                 out.println("<br />" + d);
                 out.println("<br />" + pk);
+                out.println("<br />" + opt);
+                
+//                out.println("<br />Inputvelden voor opdracht type:<ul>");
+//                for (OpdrachtTypeInput input : opt.getInputVelden()) {
+//                    out.println("<li>" + input + "</li>");
+//                }
+//                out.println("</ul>");
 
+                out.println("<br />OpdrachtType van prijs klasse: <ul>");
+                for (OpdrachtType opdrachtType : pk.getOpdrachtTypes()) {
+                    out.println("<li>" + opdrachtType + "</li>");
+                }
+                out.println("</ul>");
+                
                 out.println("<br />Prijzen uit prijs klasse:<ul>");
                 for (Key prijs : pk.getPrijzen()) {
                     out.println("<li>" + pdb.get(prijs) + "</li>");
