@@ -2,7 +2,7 @@ package domain;
 // Generated 11-feb-2012 16:48:29 by Hibernate Tools 3.2.1.GA
 
 import com.google.appengine.api.datastore.Key;
-import domain.enums.Operator;
+import java.util.List;
 import javax.persistence.*;
 
 /**
@@ -24,12 +24,11 @@ public class Conditie implements java.io.Serializable {
     @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="C_SEQUENCE")
     @SequenceGenerator(name="C_SEQUENCE")
     private Long id;
-    @OneToOne
-    private Conditie linker;
     private String naam;
     private String commentaar;
-    private Operator operator;
     private String expressie;
+    @OneToMany(mappedBy = "conditie")
+    private List<Prijs> prijzen;
 
     public Conditie() {
     }
@@ -38,51 +37,25 @@ public class Conditie implements java.io.Serializable {
      * Create a Conditie with one sub conditie and an expressie.
      * Operator cannot be NOT, it has to be AND or OR.
      * 
-     * @param naam
-     * @param commentaar
-     * @param expressie
-     * @param operator
-     * @param linker 
-     */
-    public Conditie(String naam, String commentaar, Conditie linker, Operator operator, String expressie) {
-        this.naam = naam;
-        this.commentaar = commentaar;
-        this.linker = linker;
-        this.operator = operator;
-        this.expressie = expressie;
-    }
-    
-    /**
-     * Create a Conditie with only an expressie
+     * First the upper parent has to be saved, the sub conditie will be filled in automatically when saving the child.
+     * This constructor is used for creating parent condities.
      * 
      * @param naam
      * @param commentaar
-     * @param expressie 
-     * @param not Whether the expressie has to be true or not
+     * @param expressie
      */
-    public Conditie(String naam, String commentaar, String expressie, boolean not) {
+    public Conditie(String naam, String commentaar, String expressie) {
         this.naam = naam;
         this.commentaar = commentaar;
-        if (not) {
-            operator = Operator.NOT;
-        }
         this.expressie = expressie;
     }
-
+    
     public Long getId() {
         return this.id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Conditie getSubConditie() {
-        return this.linker;
-    }
-
-    public void setSubConditie(Conditie subConditie) {
-        this.linker = subConditie;
     }
 
     public String getNaam() {
@@ -101,14 +74,6 @@ public class Conditie implements java.io.Serializable {
         this.commentaar = commentaar;
     }
 
-    public Operator getOperator() {
-        return this.operator;
-    }
-
-    public void setOperator(Operator operator) {
-        this.operator = operator;
-    }
-
     public String getExpressie() {
         return this.expressie;
     }
@@ -117,9 +82,21 @@ public class Conditie implements java.io.Serializable {
         this.expressie = expressie;
     }
 
+    public void setPrijzen(List<Prijs> prijzen) {
+        this.prijzen = prijzen;
+    }
+
+    public List<Prijs> getPrijzen() {
+        return prijzen;
+    }
+    
+    public void addPrijs(Prijs prijs) {
+        prijzen.add(prijs);
+    }
+
     @Override
     public String toString() {
-        return "CONDITIE [" + id + ", " + naam + ", " + linker + ", " + operator + ", " + expressie + "]";
+        return "CONDITIE [" + id + ", " + naam + ", " + expressie + "]";
     }
     
     

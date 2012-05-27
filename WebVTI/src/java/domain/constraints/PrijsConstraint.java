@@ -6,21 +6,24 @@ package domain.constraints;
 
 import com.google.appengine.api.datastore.Key;
 import domain.Prijs;
+import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
 
 /**
  *
  * @author Soezen
  */
+@Entity
 @MappedSuperclass
 public abstract class PrijsConstraint extends Constraint {
-    private boolean standaard;
+    protected boolean standaard;
 
     public PrijsConstraint() {
     }
 
     public PrijsConstraint(Key constrainer, Prijs constrained, boolean standaard) {
         super(constrainer, constrained.getKey());
+        System.out.println("standaard: " + standaard);
         this.standaard = standaard;
     }
     

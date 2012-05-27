@@ -7,16 +7,16 @@ package domain.constraints;
 import com.google.appengine.api.datastore.Key;
 import domain.Optie;
 import domain.Prijs;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 
 /**
  *
  * @author Soezen
  */
 @Entity
-@DiscriminatorValue("OPTIEPRIJS")
+@Inheritance(strategy= InheritanceType.TABLE_PER_CLASS)
 public class OptiePrijsConstraint extends PrijsConstraint {
 
     public OptiePrijsConstraint() {
@@ -32,6 +32,7 @@ public class OptiePrijsConstraint extends PrijsConstraint {
      */
     public OptiePrijsConstraint(Optie optie, Prijs prijs, boolean standaard) {
         super(optie.getKey(), prijs, standaard);
+        this.standaard = standaard;
     }
     
     public Key getOptieKey() {

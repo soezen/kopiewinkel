@@ -27,9 +27,11 @@ public class ConstraintDB extends IdEntityDB<Constraint> {
         EntityTransaction tx = manager.getTransaction();
         tx.begin();
         try {
-            Query query = manager.createQuery("select e from " + clazz.getSimpleName() + " e");
+            String stmt = "select e from " + clazz.getSimpleName() + " e";
+            Query query = manager.createQuery(stmt);
             List<? extends Constraint> result = query.getResultList();
             result.size();
+            System.out.println("QUERY: " + stmt);
             return query.getResultList();
         } finally {
             tx.commit();

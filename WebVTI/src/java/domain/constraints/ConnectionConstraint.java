@@ -5,7 +5,6 @@
 package domain.constraints;
 
 import com.google.appengine.api.datastore.Key;
-import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
