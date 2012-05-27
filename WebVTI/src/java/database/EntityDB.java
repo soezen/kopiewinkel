@@ -33,6 +33,11 @@ public abstract class EntityDB<E> {
         }
 
     }
+    
+    public E get(Key key) {
+        EntityManager manager = DatabaseManager.getEntityManager(type);
+        return manager.find(clazz, key);
+    }
 
     public E persist(E entity) {
         System.out.println("... persisting " + entity);

@@ -16,7 +16,7 @@ public class DatabaseManager {
     
     private static final EntityManagerFactory factory = Persistence.createEntityManagerFactory("transactions-optional");
 
-    private static EntityManager[] managers = new EntityManager[15];
+    private static EntityManager[] managers = new EntityManager[16];
     
     public static final int EM_GEBRUIKER = 0;
     public static final int EM_GEBRUIKER_TYPE = 1;
@@ -33,6 +33,7 @@ public class DatabaseManager {
     public static final int EM_DOELGROEP = 12;
     public static final int EM_PRIJS = 10;
     public static final int EM_PRIJS_FORMULE = 14;
+    public static final int EM_PRIJS_KLASSE = 15;
             
     
     private DatabaseManager() {

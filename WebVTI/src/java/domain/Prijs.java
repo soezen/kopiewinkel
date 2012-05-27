@@ -22,7 +22,6 @@ public class Prijs implements java.io.Serializable, Constrainable, Constrainer {
     @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="P_SEQUENCE")
     @SequenceGenerator(name="P_SEQUENCE")
     private Long id;
-    private PrijsKlasse prijsKlasse;
     @ManyToOne
     private Conditie conditie;
     @Temporal(javax.persistence.TemporalType.DATE)
@@ -37,16 +36,14 @@ public class Prijs implements java.io.Serializable, Constrainable, Constrainer {
     public Prijs() {
     }
 
-    public Prijs(PrijsKlasse prijsKlasse, Date van, BigDecimal bedrag, Eenheid eenheid, PrijsType type) {
-        this.prijsKlasse = prijsKlasse;
+    public Prijs(Date van, BigDecimal bedrag, Eenheid eenheid, PrijsType type) {
         this.van = van;
         this.bedrag = bedrag;
         this.eenheid = eenheid;
         this.type = type;
     }
 
-    public Prijs(PrijsKlasse prijsKlasse, Conditie conditie, Date van, Date tot, BigDecimal bedrag, Eenheid eenheid, PrijsType type) {
-        this.prijsKlasse = prijsKlasse;
+    public Prijs(Conditie conditie, Date van, Date tot, BigDecimal bedrag, Eenheid eenheid, PrijsType type) {
         this.conditie = conditie;
         this.van = van;
         this.tot = tot;
@@ -67,14 +64,6 @@ public class Prijs implements java.io.Serializable, Constrainable, Constrainer {
     @Override
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public PrijsKlasse getPrijsKlasse() {
-        return this.prijsKlasse;
-    }
-
-    public void setPrijsKlasse(PrijsKlasse prijsKlasse) {
-        this.prijsKlasse = prijsKlasse;
     }
 
     public Conditie getConditie() {
@@ -127,6 +116,6 @@ public class Prijs implements java.io.Serializable, Constrainable, Constrainer {
 
     @Override
     public String toString() {
-        return "PRIJS [" + id + ", " + bedrag + ", " + eenheid + ", " + prijsKlasse + ", " + type + ", " + van + ", " + conditie + "]";
+        return "PRIJS [" + id + ", " + bedrag + ", " + eenheid + ", " + type + ", " + van + ", " + conditie + "]";
     }   
 }

@@ -4,6 +4,8 @@
     Author     : soezen
 --%>
 
+<%@page import="database.PrijsKlasseDB"%>
+<%@page import="domain.PrijsKlasse"%>
 <%@page import="domain.constraints.FormuleConstraint"%>
 <%@page import="domain.PrijsFormule"%>
 <%@page import="database.PrijsFormuleDB"%>
@@ -90,7 +92,8 @@
                 LeerlingDB ldb = new LeerlingDB();
                 PrijsDB pdb = new PrijsDB();
                 PrijsFormuleDB pfdb = new PrijsFormuleDB();
-                
+                PrijsKlasseDB pkdb = new PrijsKlasseDB();
+
                 GebruikerType gt = null;
                 Gebruiker g = null;
                 MenuItem mi1 = null;
@@ -105,7 +108,8 @@
                 Leerling l = null;
                 Prijs p = null;
                 PrijsFormule pf = null;
-                
+                PrijsKlasse pk = null;
+
                 if (rebuild) {
                     gt = new GebruikerType("Leerkrachten", false);
                     gtdb.persist(gt);
@@ -160,20 +164,27 @@
                     c = new Conditie("Combined", "Conditie consisting of two condities", "NOT (A3)");
                     cdb.persist(c);
 
-                    p = new Prijs(null, DateUtil.date(2012, 1, 1), BigDecimal.valueOf(1.20), Eenheid.PAGINA, PrijsType.OPTIE);
+                    p = new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(1.20), Eenheid.PAGINA, PrijsType.OPTIE);
                     pdb.persist(p);
                     OptiePrijsConstraint pc = new OptiePrijsConstraint(o, p, true);
                     csdb.persist(pc);
-                    p = new Prijs(null, c, DateUtil.date(2012,1,1), null, BigDecimal.valueOf(2.0), Eenheid.OPDRACHT, PrijsType.OPDRACHT);
-                    pdb.persist(p);    
-                
+                    p = new Prijs(c, DateUtil.date(2012, 1, 1), null, BigDecimal.valueOf(2.0), Eenheid.OPDRACHT, PrijsType.OPDRACHT);
+                    pdb.persist(p);
+
                     pf = new PrijsFormule("2*X");
                     pf = pfdb.persist(pf);
-                    p = new Prijs(null, DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.52), Eenheid.PAGINA, PrijsType.FORMULE);
+                    p = new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.52), Eenheid.PAGINA, PrijsType.FORMULE);
                     p = pdb.persist(p);
 
                     FormuleConstraint fc = new FormuleConstraint(p, pf);
                     csdb.persist(fc);
+
+                    p = new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.0), Eenheid.PAGINA, PrijsType.OPTIE);
+                    p = pdb.persist(p);
+
+                    pk = new PrijsKlasse("Gratis");
+                    pk.addPrijs(p);
+                    pk = pkdb.persist(pk);
 
                 }
 
@@ -184,8 +195,10 @@
                 iv = ivdb.getWithName("Aantal");
                 c = cdb.getWithName("Combined");
                 d = ddb.getWithNameInGrade("Mechanica", 1);
-           
-                
+                pk = pkdb.getWithName("Gratis");
+
+
+
                 out.println("<br />" + gt);
                 out.println("<br />" + g);
                 out.println("<br />" + ot);
@@ -193,13 +206,20 @@
                 out.println("<br />" + iv);
                 out.println("<br />" + c);
                 out.println("<br />" + d);
+                out.println("<br />" + pk);
+
+                out.println("<br />Prijzen uit prijs klasse:<ul>");
+                for (Key prijs : pk.getPrijzen()) {
+                    out.println("<li>" + pdb.get(prijs) + "</li>");
+                }
+                out.println("</ul>");
 
                 out.println("<br />Prijzen waaraan de conditie gelinkt is:<ul>");
                 for (Prijs prijs : c.getPrijzen()) {
                     out.println("<li>" + prijs + "</li>");
                 }
                 out.println("</ul>");
-                
+
                 out.println("<br />Leerlingen van doelgroep per groep:<ul>");
                 for (SchooljaarGroep sg : d.getGroepen()) {
                     out.println("<li>" + sg + "</li><ul>");
@@ -244,13 +264,13 @@
                     out.println("<li>" + constraint + "</li>");
                 }
                 out.println("</ul>");
-                
+
                 out.println("<br />Alle prijs constraints op opties:<ul>");
                 for (Constraint constraint : csdb.list(OptiePrijsConstraint.class)) {
                     out.println("<li>" + constraint + "</li>");
                 }
                 out.println("</ul>");
-                
+
                 out.println("<br />Alle prijs formules:<ul>");
                 for (Constraint constraint : csdb.list(FormuleConstraint.class)) {
                     out.println("<li>" + constraint + "</li>");
