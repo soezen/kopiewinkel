@@ -4,6 +4,9 @@
     Author     : soezen
 --%>
 
+<%@page import="domain.constraints.FormuleConstraint"%>
+<%@page import="domain.PrijsFormule"%>
+<%@page import="database.PrijsFormuleDB"%>
 <%@page import="domain.constraints.OptiePrijsConstraint"%>
 <%@page import="domain.constraints.PrijsConstraint"%>
 <%@page import="domain.enums.Eenheid"%>
@@ -86,7 +89,8 @@
                 SchooljaarGroepDB sgdb = new SchooljaarGroepDB();
                 LeerlingDB ldb = new LeerlingDB();
                 PrijsDB pdb = new PrijsDB();
-
+                PrijsFormuleDB pfdb = new PrijsFormuleDB();
+                
                 GebruikerType gt = null;
                 Gebruiker g = null;
                 MenuItem mi1 = null;
@@ -100,6 +104,7 @@
                 Doelgroep d = null;
                 Leerling l = null;
                 Prijs p = null;
+                PrijsFormule pf = null;
                 
                 if (rebuild) {
                     gt = new GebruikerType("Leerkrachten", false);
@@ -161,6 +166,15 @@
                     csdb.persist(pc);
                     p = new Prijs(null, c, DateUtil.date(2012,1,1), null, BigDecimal.valueOf(2.0), Eenheid.OPDRACHT, PrijsType.OPDRACHT);
                     pdb.persist(p);    
+                
+                    pf = new PrijsFormule("2*X");
+                    pf = pfdb.persist(pf);
+                    p = new Prijs(null, DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.52), Eenheid.PAGINA, PrijsType.FORMULE);
+                    p = pdb.persist(p);
+
+                    FormuleConstraint fc = new FormuleConstraint(p, pf);
+                    csdb.persist(fc);
+
                 }
 
                 gt = gtdb.getWithName("Leerkrachten");
@@ -171,6 +185,7 @@
                 c = cdb.getWithName("Combined");
                 d = ddb.getWithNameInGrade("Mechanica", 1);
            
+                
                 out.println("<br />" + gt);
                 out.println("<br />" + g);
                 out.println("<br />" + ot);
@@ -232,6 +247,12 @@
                 
                 out.println("<br />Alle prijs constraints op opties:<ul>");
                 for (Constraint constraint : csdb.list(OptiePrijsConstraint.class)) {
+                    out.println("<li>" + constraint + "</li>");
+                }
+                out.println("</ul>");
+                
+                out.println("<br />Alle prijs formules:<ul>");
+                for (Constraint constraint : csdb.list(FormuleConstraint.class)) {
                     out.println("<li>" + constraint + "</li>");
                 }
                 out.println("</ul>");
