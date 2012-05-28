@@ -49,7 +49,7 @@ public class OpdrachtDB extends PriviligedEntityDB<Opdracht> {
 
         return gebruikers;
     }
-
+    
     public List<OpdrachtTypeInput> getInputVelden(OpdrachtType opdrachtType, Gebruiker gebruiker) {
         List<OpdrachtTypeInput> velden = new ArrayList<OpdrachtTypeInput>();
         if (opdrachtType != null && gebruiker != null) {

@@ -187,8 +187,7 @@ public class InputOpdrachtServlet extends HttpServlet {
                 format.setLenient(false);
                 try {
                     format.parse(input);
-                    InputWaarde iw = new InputWaarde(iv, opdracht, input);
-                    opdracht.addInputWaarde(iw);
+                    opdracht.addInputWaarde(iv, input);
                 } catch (ParseException ex) {
                     // TODO show error to user
                     ex.printStackTrace();
@@ -198,15 +197,13 @@ public class InputOpdrachtServlet extends HttpServlet {
             case GETAL:
                 try {
                     Integer.parseInt(input);
-                    InputWaarde iw = new InputWaarde(iv, opdracht, input);
-                    opdracht.addInputWaarde(iw);
+                    opdracht.addInputWaarde(iv, input);
                 } catch (NumberFormatException e) {
                     // TODO show error to user
                 }
                 break;
             case TEKST:
-                InputWaarde iw = new InputWaarde(iv, opdracht, input);
-                opdracht.addInputWaarde(iw);
+                opdracht.addInputWaarde(iv, input);
                 break;
         }
     }

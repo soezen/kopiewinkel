@@ -33,8 +33,9 @@ public class Opdracht implements java.io.Serializable, Constrained {
     private Date printDatum;
     private OpdrachtStatus status;
     private String commentaar;
-    @Basic
-    private List<Key> inputWaarden = new ArrayList<Key>(0);
+    @OneToMany(mappedBy="opdracht")
+    @Basic(fetch= FetchType.EAGER)
+    private List<InputWaarde> inputWaarden = new ArrayList<InputWaarde>(0);
     @Basic
     private List<Key> doelgroepen = new ArrayList<Key>(0);
     @Basic
@@ -52,21 +53,20 @@ public class Opdracht implements java.io.Serializable, Constrained {
         this.status = status;
     }
 
-//    public InputWaarde addInputWaarde(InputVeld veld, String waarde) {
-//        InputWaarde present = getInputWaardeFor(veld);
-//        if (present == null) {
-//            InputWaarde input = new InputWaarde(veld, this, waarde);
-//            inputWaarden.add(input);
-//            present = input;
-//        } else {
-//            present.setWaarde(waarde);
-//        }
-//        return present;
-//    }
+    public InputWaarde addInputWaarde(InputVeld veld, String waarde) {
+        InputWaarde present = getInputWaardeFor(veld);
+        if (present == null) {
+            InputWaarde input = new InputWaarde(veld, this, waarde);
+            inputWaarden.add(input);
+            present = input;
+        } else {
+            present.setWaarde(waarde);
+        }
+        return present;
+    }
     
     public void addInputWaarde(InputWaarde inputWaarde) {
-        // TODO
-   //     inputWaarden.add(inputWaarde.getKey());
+        inputWaarden.add(inputWaarde);
     }
 
     public void addDoelgroep(Doelgroep doelgroep) {
@@ -77,15 +77,14 @@ public class Opdracht implements java.io.Serializable, Constrained {
         opties.add(optie.getKey());
     }
 
-    // TODO move to service 
-//    public InputWaarde getInputWaardeFor(InputVeld veld) {
-//        for (InputWaarde waarde : inputWaarden) {
-//            if (waarde.getInputVeld().equals(veld)) {
-//                return waarde;
-//            }
-//        }
-//        return null;
-//    }
+    public InputWaarde getInputWaardeFor(InputVeld veld) {
+        for (InputWaarde waarde : inputWaarden) {
+            if (waarde.getInputVeld().equals(veld)) {
+                return waarde;
+            }
+        }
+        return null;
+    }
     
     @Override
     public Long getId() {
@@ -169,11 +168,11 @@ public class Opdracht implements java.io.Serializable, Constrained {
         this.commentaar = commentaar;
     }
 
-    public List<Key> getInputWaarden() {
+    public List<InputWaarde> getInputWaarden() {
         return this.inputWaarden;
     }
 
-    public void setInputWaarden(List<Key> inputWaarden) {
+    public void setInputWaarden(List<InputWaarde> inputWaarden) {
         this.inputWaarden = inputWaarden;
     }
     

@@ -246,11 +246,12 @@ public class Validator {
 
     public static boolean isWithinLimits(InputWaarde waarde) {
         boolean correct = false;
+        InputVeldDB ivdb = new InputVeldDB();
+        InputVeld veld = ivdb.get(waarde.getInputVeld());
+        int max = veld.getMax();
+        int min = veld.getMin();
 
-        int max = waarde.getInputVeld().getMax();
-        int min = waarde.getInputVeld().getMin();
-
-        if (waarde.getInputVeld().getType() == InputVeldType.GETAL) {
+        if (veld.getType() == InputVeldType.GETAL) {
             try {
                 int intWaarde = Integer.parseInt(waarde.getWaarde());
                 if ((intWaarde >= min || intWaarde <= max)
@@ -264,7 +265,7 @@ public class Validator {
             } catch (NumberFormatException e) {
                 correct = false;
             }
-        } else if (waarde.getInputVeld().getType() == InputVeldType.TEKST) {
+        } else if (veld.getType() == InputVeldType.TEKST) {
             int lengte = waarde.getWaarde().length();
             if (lengte >= min && lengte <= max) {
                 correct = true;
@@ -297,6 +298,7 @@ public class Validator {
         boolean isAllowed = gebruiker.getGebruikerType().isStandaard()
                 ^ (gebruiker.getRechten().contains(constrained)
                 || gebruiker.getGebruikerType().getRechten().contains(constrained));
+        // TODO
 //        if (constrained instanceof Optie && !isAllowed) {
 //            Optie optie = (Optie) constrained;
 //            isAllowed = isAllowed(gebruiker, optie.getOptieType()) || isAllowed;

@@ -4,6 +4,8 @@
     Author     : soezen
 --%>
 
+<%@page import="database.InputWaardeDB"%>
+<%@page import="domain.InputWaarde"%>
 <%@page import="domain.enums.OpdrachtStatus"%>
 <%@page import="domain.Opdracht"%>
 <%@page import="database.OpdrachtDB"%>
@@ -103,6 +105,7 @@
                 OpdrachtTypeDB optdb = new OpdrachtTypeDB();
                 OpdrachtTypeInputDB otidb = new OpdrachtTypeInputDB();
                 OpdrachtDB oddb = new OpdrachtDB();
+                InputWaardeDB iwdb = new InputWaardeDB();
                 
                 GebruikerType gt = null;
                 Gebruiker g = null;
@@ -122,6 +125,7 @@
                 OpdrachtType opt = null;
                 OpdrachtTypeInput oti = null;
                 Opdracht od = null;
+                InputWaarde iw = null;
                 
                 if (rebuild) {
                     gt = new GebruikerType("Leerkrachten", false);
@@ -204,9 +208,14 @@
                  
                     oti = new OpdrachtTypeInput(iv, opt, true, false, false, 1);
                     otidb.persist(oti);
-                    
+               
                     od = new Opdracht(g, opt, "c:/test.doc", 50, DateUtil.today(), OpdrachtStatus.AANGEVRAAGD);
                     od = oddb.persist(od);
+                
+                    iw = new InputWaarde(iv, od, "Bla");
+                    iw = iwdb.persist(iw);
+                    
+                
                 }
 
                 gt = gtdb.getWithName("Leerkrachten");
@@ -218,7 +227,8 @@
                 d = ddb.getWithNameInGrade("Mechanica", 1);
                 pk = pkdb.getWithName("Gratis");
                 opt = optdb.getWithName("Administratie");
-
+        
+                
                 
                 out.println("<br />" + gt);
                 out.println("<br />" + g);
@@ -233,6 +243,11 @@
                 out.println("<br />Opdrachten:<ul>");
                 for (Opdracht opdracht : oddb.list()) {
                     out.println("<li>" + opdracht + "</li>");
+                    out.println("<ul>");
+                    for (InputWaarde inputWaarde : opdracht.getInputWaarden()) {
+                        out.println("<li>" + inputWaarde + "</li>");
+                    }
+                    out.println("</ul>");
                 }
                 out.println("</ul>");
                 

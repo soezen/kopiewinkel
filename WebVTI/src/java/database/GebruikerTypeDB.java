@@ -24,7 +24,6 @@ public class GebruikerTypeDB extends IdEntityDB<GebruikerType> {
 
     public GebruikerType getWithName(String naam) {
         EntityManager manager = DatabaseManager.getEntityManager(type);
-        try {
             String stmt = "select gt from " + clazz.getSimpleName() + " gt where gt.naam = :naam";
             Query query = manager.createQuery(stmt);
             query.setParameter("naam", naam);
@@ -32,8 +31,5 @@ public class GebruikerTypeDB extends IdEntityDB<GebruikerType> {
             System.out.println("QUERY: " + stmt);
             
             return (GebruikerType) query.getSingleResult();
-        } finally {
-            manager.close();
-        }
     }
 }
