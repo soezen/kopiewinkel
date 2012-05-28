@@ -174,10 +174,11 @@ public class InputOpdrachtServlet extends HttpServlet {
                     // en dan wordt ook nog eens extra gekeken naar de leerling geldigheid om te zien
                     // of deze opdracht ook voor hem werd uitgevoerd
                     // TODO correct this.
-                  //  Doelgroep doelgroep = (Doelgroep) DatabaseManager.getObjectWithId(Doelgroep.class, Long.valueOf(input));
-//                    if (doelgroep != null) {
-//                        opdracht.addDoelgroep(doelgroep);
-//                    }
+                    DoelgroepDB ddb = new DoelgroepDB();
+                    Doelgroep doelgroep = ddb.getWithId(Long.valueOf(input));
+                    if (doelgroep != null) {
+                        opdracht.addDoelgroep(doelgroep);
+                    }
 
                 }
                 break;
@@ -186,7 +187,8 @@ public class InputOpdrachtServlet extends HttpServlet {
                 format.setLenient(false);
                 try {
                     format.parse(input);
-                    opdracht.addInputWaarde(iv, input);
+                    InputWaarde iw = new InputWaarde(iv, opdracht, input);
+                    opdracht.addInputWaarde(iw);
                 } catch (ParseException ex) {
                     // TODO show error to user
                     ex.printStackTrace();
@@ -196,13 +198,15 @@ public class InputOpdrachtServlet extends HttpServlet {
             case GETAL:
                 try {
                     Integer.parseInt(input);
-                    opdracht.addInputWaarde(iv, input);
+                    InputWaarde iw = new InputWaarde(iv, opdracht, input);
+                    opdracht.addInputWaarde(iw);
                 } catch (NumberFormatException e) {
                     // TODO show error to user
                 }
                 break;
             case TEKST:
-                opdracht.addInputWaarde(iv, input);
+                InputWaarde iw = new InputWaarde(iv, opdracht, input);
+                opdracht.addInputWaarde(iw);
                 break;
         }
     }

@@ -1,11 +1,12 @@
 package domain;
 // Generated 11-feb-2012 16:48:29 by Hibernate Tools 3.2.1.GA
 
+import com.google.appengine.api.datastore.Key;
 import domain.enums.OpdrachtStatus;
 import domain.interfaces.Constrained;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import javax.persistence.*;
 
 /**
@@ -13,80 +14,78 @@ import javax.persistence.*;
  */
 @Entity
 public class Opdracht implements java.io.Serializable, Constrained {
-
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Key key;
+    @Basic(optional=false)
+    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="OD_SEQUENCE")
+    @SequenceGenerator(name="OD_SEQUENCE")
     private Long id;
-    private Gebruiker opdrachtgever;
-    private Gebruiker uitvoerder;
-    private OpdrachtType opdrachtType;
+    private Key opdrachtgever;
+    private Key uitvoerder;
+    private Key opdrachtType;
     private String bestand;
     private int aantal;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date aanmaakDatum;
     @Temporal(javax.persistence.TemporalType.DATE)
+    @Column(nullable=true)
     private Date printDatum;
     private OpdrachtStatus status;
     private String commentaar;
-    private Set<InputWaarde> inputWaarden = new HashSet<InputWaarde>(0);
-    private Set<Doelgroep> doelgroepen = new HashSet<Doelgroep>(0);
-    private Set<Optie> opties = new HashSet<Optie>(0);
+    @Basic
+    private List<Key> inputWaarden = new ArrayList<Key>(0);
+    @Basic
+    private List<Key> doelgroepen = new ArrayList<Key>(0);
+    @Basic
+    private List<Key> opties = new ArrayList<Key>(0);
 
     public Opdracht() {
     }
 
     public Opdracht(Gebruiker opdrachtgever, OpdrachtType opdrachtType, String bestand, int aantal, Date aanmaakDatum, OpdrachtStatus status) {
-        this.opdrachtgever = opdrachtgever;
-        this.opdrachtType = opdrachtType;
+        this.opdrachtgever = opdrachtgever.getKey();
+        this.opdrachtType = opdrachtType.getKey();
         this.bestand = bestand;
         this.aantal = aantal;
         this.aanmaakDatum = aanmaakDatum;
         this.status = status;
     }
 
-    public Opdracht(Gebruiker opdrachtgever, Gebruiker uitvoerder, OpdrachtType opdrachtType, String bestand, int aantal, Date aanmaakDatum, Date printDatum, OpdrachtStatus status, String commentaar, Set<InputWaarde> inputWaarden, Set<Doelgroep> doelgroepen, Set<Optie> opties) {
-        this.opdrachtgever = opdrachtgever;
-        this.uitvoerder = uitvoerder;
-        this.opdrachtType = opdrachtType;
-        this.bestand = bestand;
-        this.aantal = aantal;
-        this.aanmaakDatum = aanmaakDatum;
-        this.printDatum = printDatum;
-        this.status = status;
-        this.commentaar = commentaar;
-        this.inputWaarden = inputWaarden;
-        this.doelgroepen = doelgroepen;
-        this.opties = opties;
-    }
-
-    public InputWaarde addInputWaarde(InputVeld veld, String waarde) {
-        InputWaarde present = getInputWaardeFor(veld);
-        if (present == null) {
-            InputWaarde input = new InputWaarde(veld, this, waarde);
-            inputWaarden.add(input);
-            present = input;
-        } else {
-            present.setWaarde(waarde);
-        }
-        return present;
+//    public InputWaarde addInputWaarde(InputVeld veld, String waarde) {
+//        InputWaarde present = getInputWaardeFor(veld);
+//        if (present == null) {
+//            InputWaarde input = new InputWaarde(veld, this, waarde);
+//            inputWaarden.add(input);
+//            present = input;
+//        } else {
+//            present.setWaarde(waarde);
+//        }
+//        return present;
+//    }
+    
+    public void addInputWaarde(InputWaarde inputWaarde) {
+        // TODO
+   //     inputWaarden.add(inputWaarde.getKey());
     }
 
     public void addDoelgroep(Doelgroep doelgroep) {
-        doelgroepen.add(doelgroep);
+        doelgroepen.add(doelgroep.getKey());
     }
 
     public void addOptie(Optie optie) {
-        opties.add(optie);
+        opties.add(optie.getKey());
     }
 
-    public InputWaarde getInputWaardeFor(InputVeld veld) {
-        for (InputWaarde waarde : inputWaarden) {
-            if (waarde.getInputVeld().equals(veld)) {
-                return waarde;
-            }
-        }
-        return null;
-    }
+    // TODO move to service 
+//    public InputWaarde getInputWaardeFor(InputVeld veld) {
+//        for (InputWaarde waarde : inputWaarden) {
+//            if (waarde.getInputVeld().equals(veld)) {
+//                return waarde;
+//            }
+//        }
+//        return null;
+//    }
     
     @Override
     public Long getId() {
@@ -98,28 +97,28 @@ public class Opdracht implements java.io.Serializable, Constrained {
         this.id = id;
     }
 
-    public Gebruiker getOpdrachtgever() {
+    public Key getOpdrachtgever() {
         return this.opdrachtgever;
     }
 
     public void setOpdrachtgever(Gebruiker opdrachtgever) {
-        this.opdrachtgever = opdrachtgever;
+        this.opdrachtgever = opdrachtgever.getKey();
     }
 
-    public Gebruiker getUitvoerder() {
+    public Key getUitvoerder() {
         return uitvoerder;
     }
 
     public void setUitvoerder(Gebruiker uitvoerder) {
-        this.uitvoerder = uitvoerder;
+        this.uitvoerder = uitvoerder.getKey();
     }
 
-    public OpdrachtType getOpdrachtType() {
+    public Key getOpdrachtType() {
         return this.opdrachtType;
     }
 
     public void setOpdrachtType(OpdrachtType opdrachtType) {
-        this.opdrachtType = opdrachtType;
+        this.opdrachtType = opdrachtType.getKey();
     }
 
     public String getBestand() {
@@ -170,33 +169,33 @@ public class Opdracht implements java.io.Serializable, Constrained {
         this.commentaar = commentaar;
     }
 
-    public Set<InputWaarde> getInputWaarden() {
+    public List<Key> getInputWaarden() {
         return this.inputWaarden;
     }
 
-    public void setInputWaarden(Set<InputWaarde> inputWaarden) {
+    public void setInputWaarden(List<Key> inputWaarden) {
         this.inputWaarden = inputWaarden;
     }
-
-    public Set<Doelgroep> getDoelgroepen() {
+    
+    public List<Key> getDoelgroepen() {
         return this.doelgroepen;
     }
 
-    public void setDoelgroepen(Set<Doelgroep> doelgroepen) {
+    public void setDoelgroepen(List<Key> doelgroepen) {
         this.doelgroepen = doelgroepen;
     }
-
-    public Set<Optie> getOpties() {
+    
+    public List<Key> getOpties() {
         return this.opties;
     }
 
-    public void setOpties(Set<Optie> opties) {
+    public void setOpties(List<Key> opties) {
         this.opties = opties;
     }
 
     @Override
     public String toString() {
-        return "TEST: " + id;
+        return "OPDRACHT [" + id + ", " + opdrachtgever + ", " + opdrachtType + ", " + bestand + ", " + aantal + ", " + status + ", " + opties.size() + ", " + doelgroepen.size() + ", " + inputWaarden.size() + "]";
     }
 
     

@@ -4,8 +4,8 @@
  */
 package database;
 
-import domain.constraints.Constraint;
 import domain.*;
+import domain.constraints.Constraint;
 import domain.enums.ConstraintType;
 import domain.enums.OpdrachtStatus;
 import java.util.ArrayList;

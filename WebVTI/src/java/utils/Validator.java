@@ -4,21 +4,19 @@
  */
 package utils;
 
-import database.InputVeldDB;
-import database.OpdrachtDB;
+import com.google.appengine.api.datastore.Key;
+import database.*;
 import domain.*;
 import domain.constraints.Constraint;
 import domain.enums.ConstraintType;
 import domain.enums.InputVeldType;
 import domain.interfaces.Constrainable;
-import domain.interfaces.Constrained;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
@@ -30,6 +28,8 @@ public class Validator {
 
     public static HashMap<String, String> getErrors(Opdracht opdracht) {
         InputVeldDB ivdb = new InputVeldDB();
+        GebruikerDB gdb = new GebruikerDB();
+        OpdrachtTypeDB otdb = new OpdrachtTypeDB();
         HashMap<String, String> errors = new HashMap<String, String>();
 
         if (opdracht == null) {
@@ -38,9 +38,9 @@ public class Validator {
         }
 
         // rechten gebruiker op opdrachtgever
-        if (isAllowed(opdracht.getOpdrachtgever(), opdracht.getOpdrachtType())) {
+        if (isAllowed(gdb.get(opdracht.getOpdrachtgever()), otdb.get(opdracht.getOpdrachtType()).getKey())) {
             // validate all input values
-            for (OpdrachtTypeInput input : opdracht.getOpdrachtType().getInputVelden()) {
+            for (OpdrachtTypeInput input : otdb.get(opdracht.getOpdrachtType()).getInputVelden()) {
                 InputVeld veld = ivdb.get(input.getInputVeld());
 
                 if (veld.getType() == InputVeldType.VAST && "Klassen".equals(veld.getNaam())) {
@@ -53,8 +53,9 @@ public class Validator {
                         }
                     }
                 } else if (veld.getType() != InputVeldType.VAST) {
-                    InputWaarde waarde = opdracht.getInputWaardeFor(veld);
-
+                    // TODO
+               //     InputWaarde waarde = opdracht.getInputWaardeFor(veld);
+                    InputWaarde waarde = null;
                     if (input.isVerplicht()) {
                         if (waarde == null) {
                             errors.put(veld.getNaam(), veld.getNaam() + " is verplicht in te vullen");
@@ -83,12 +84,15 @@ public class Validator {
 
     public static void checkSelectedOpties(HashMap<String, String> errors, Opdracht opdracht) {
         OpdrachtDB db = new OpdrachtDB();
+        GebruikerDB gdb = new GebruikerDB();
+        OptieDB odb = new OptieDB();
         List<Constraint> constraints = db.getConstraintsRequiredAndForbids();
         if (opdracht.getOpties() != null) {
-            for (Optie optie : opdracht.getOpties()) {
-                if (!isAllowed(opdracht.getOpdrachtgever(), optie)) {
+            for (Key key : opdracht.getOpties()) {
+                Optie optie = odb.get(key);
+                if (!isAllowed(gdb.get(opdracht.getOpdrachtgever()), optie.getKey())) {
                     errors.put(optie.getNaam(), "Opdrachtgever heeft niet genoeg rechten om optie " + optie.getNaam() + " te selecteren");
-                } else if (!isAllowed(opdracht.getOpdrachtgever(), optie.getOptieType())) {
+                } else if (!isAllowed(gdb.get(opdracht.getOpdrachtgever()), optie.getOptieType().getKey())) {
                     errors.put(optie.getNaam(), "Opdrachtgever heeft niet genoeg rechten om opties van het type " + optie.getOptieType().getNaam() + " te selecteren");
                 } else {
                     checkConstraints(constraints, optie, opdracht, errors);
@@ -112,28 +116,28 @@ public class Validator {
 //            }
 //        }
 
-        for (Entry<ConstraintType, List<Constrainable>> entry : constrainables.entrySet()) {
-            switch (entry.getKey()) {
-                case VERPLICHT:
-                    for (Constrainable con : entry.getValue()) {
-                        if (!contains(opdracht.getOpties(), con)) {
-                            errors.put(optie.getNaam(), "Niet alle benodigde opties voor optie " + optie.getNaam() + " zijn geselecteerd");
-                        }
-                    }
-                    break;
-                case VERBIEDT:
-                    for (Constrainable con: entry.getValue()) {
-                        if (contains(opdracht.getOpties(), con)) {
-                            errors.put(optie.getNaam(), "Bepaalde opties zijn geselecteerd die niet in combinatie mogen met optie " + optie.getNaam());
-                        }
-                    }
-                    break;
-            }
-        }
+//        for (Entry<ConstraintType, List<Constrainable>> entry : constrainables.entrySet()) {
+//            switch (entry.getKey()) {
+//                case VERPLICHT:
+//                    for (Constrainable con : entry.getValue()) {
+//                        if (!contains(opdracht.getOpties(), con)) {
+//                            errors.put(optie.getNaam(), "Niet alle benodigde opties voor optie " + optie.getNaam() + " zijn geselecteerd");
+//                        }
+//                    }
+//                    break;
+//                case VERBIEDT:
+//                    for (Constrainable con: entry.getValue()) {
+//                        if (contains(opdracht.getOpties(), con)) {
+//                            errors.put(optie.getNaam(), "Bepaalde opties zijn geselecteerd die niet in combinatie mogen met optie " + optie.getNaam());
+//                        }
+//                    }
+//                    break;
+//            }
+//        }
 
     }
 
-    public static boolean contains(Set<Optie> opties, Constrainable constrainable) {
+    public static boolean contains(List<Optie> opties, Constrainable constrainable) {
         boolean contains = false;
 
         if (constrainable instanceof Optie) {
@@ -289,15 +293,14 @@ public class Validator {
         return isDatum;
     }
 
-    public static boolean isAllowed(Gebruiker gebruiker, Constrained constrained) {
-//        boolean isAllowed = gebruiker.getGebruikerType().isStandaard()
-//                ^ (gebruiker.getRechten().contains(constrained)
-//                || gebruiker.getGebruikerType().getRechten().contains(constrained));
-        boolean isAllowed = true;
-        if (constrained instanceof Optie && !isAllowed) {
-            Optie optie = (Optie) constrained;
-            isAllowed = isAllowed(gebruiker, optie.getOptieType()) || isAllowed;
-        }
+    public static boolean isAllowed(Gebruiker gebruiker, Key constrained) {
+        boolean isAllowed = gebruiker.getGebruikerType().isStandaard()
+                ^ (gebruiker.getRechten().contains(constrained)
+                || gebruiker.getGebruikerType().getRechten().contains(constrained));
+//        if (constrained instanceof Optie && !isAllowed) {
+//            Optie optie = (Optie) constrained;
+//            isAllowed = isAllowed(gebruiker, optie.getOptieType()) || isAllowed;
+//        }
         return isAllowed;
     }
 }
