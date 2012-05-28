@@ -17,7 +17,7 @@ public class InputVeldDB extends PriviligedEntityDB<InputVeld> {
 
     public InputVeldDB() {
         clazz = InputVeld.class;
-        type = DatabaseManager.EM_INPUT_VELD;
+        type = DatabaseManager.EM_PRIJS_KLASSE;
     }
     
     public InputVeld getWithName(String naam) {

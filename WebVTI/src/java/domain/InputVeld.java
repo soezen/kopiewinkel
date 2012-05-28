@@ -37,9 +37,19 @@ public class InputVeld implements java.io.Serializable, Constrained {
         this.minimum = minimum;
         this.maximum = maximum;
     }
-    
-    
 
+    public Integer getMaximum() {
+        return maximum;
+    }
+
+    public Integer getMinimum() {
+        return minimum;
+    }
+
+    public Key getKey() {
+        return key;
+    }
+    
     @Override
     public Long getId() {
         return this.id;

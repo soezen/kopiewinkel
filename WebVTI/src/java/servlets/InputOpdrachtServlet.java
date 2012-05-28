@@ -4,10 +4,7 @@
  */
 package servlets;
 
-import database.GebruikerDB;
-import database.OpdrachtDB;
-import database.OpdrachtTypeDB;
-import database.OptieDB;
+import database.*;
 import decorators.OpdrachtDecorator;
 import domain.*;
 import domain.enums.OpdrachtStatus;
@@ -130,7 +127,7 @@ public class InputOpdrachtServlet extends HttpServlet {
     private OpdrachtTypeInput getField(List<OpdrachtTypeInput> velden, FileItem item) {
         String naam = item.getFieldName();
         for (OpdrachtTypeInput oti : velden) {
-            if (oti.getInputVeldInt() == Integer.valueOf(naam)) {
+            if (oti.getInputVeld().getId() == Long.valueOf(naam)) {
                 return oti;
             }
         }
@@ -139,10 +136,12 @@ public class InputOpdrachtServlet extends HttpServlet {
 
     private void putDataInOpdracht(OpdrachtTypeInput veld, FileItem item, Opdracht opdracht) {
         GebruikerDB gdb = new GebruikerDB();
+        InputVeldDB ivdb = new InputVeldDB();
         String input = item.getString();
-        switch (veld.getInputVeld().getType()) {
+        InputVeld iv = ivdb.get(veld.getInputVeld());
+        switch (iv.getType()) {
             case VAST:
-                String naam = veld.getInputVeld().getNaam();
+                String naam = iv.getNaam();
                 if (naam.equals("Opdrachtgever")) {
                     Gebruiker opdrachtgever = gdb.getWithId(Long.valueOf(input));
                     opdracht.setOpdrachtgever(opdrachtgever);
@@ -187,7 +186,7 @@ public class InputOpdrachtServlet extends HttpServlet {
                 format.setLenient(false);
                 try {
                     format.parse(input);
-                    opdracht.addInputWaarde(veld.getInputVeld(), input);
+                    opdracht.addInputWaarde(iv, input);
                 } catch (ParseException ex) {
                     // TODO show error to user
                     ex.printStackTrace();
@@ -197,13 +196,13 @@ public class InputOpdrachtServlet extends HttpServlet {
             case GETAL:
                 try {
                     Integer.parseInt(input);
-                    opdracht.addInputWaarde(veld.getInputVeld(), input);
+                    opdracht.addInputWaarde(iv, input);
                 } catch (NumberFormatException e) {
                     // TODO show error to user
                 }
                 break;
             case TEKST:
-                opdracht.addInputWaarde(veld.getInputVeld(), input);
+                opdracht.addInputWaarde(iv, input);
                 break;
         }
     }

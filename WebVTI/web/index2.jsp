@@ -4,6 +4,7 @@
     Author     : soezen
 --%>
 
+<%@page import="database.OpdrachtTypeInputDB"%>
 <%@page import="domain.OpdrachtTypeInput"%>
 <%@page import="domain.OpdrachtType"%>
 <%@page import="database.OpdrachtTypeDB"%>
@@ -97,6 +98,7 @@
                 PrijsFormuleDB pfdb = new PrijsFormuleDB();
                 PrijsKlasseDB pkdb = new PrijsKlasseDB();
                 OpdrachtTypeDB optdb = new OpdrachtTypeDB();
+                OpdrachtTypeInputDB otidb = new OpdrachtTypeInputDB();
                 
                 GebruikerType gt = null;
                 Gebruiker g = null;
@@ -114,6 +116,7 @@
                 PrijsFormule pf = null;
                 PrijsKlasse pk = null;
                 OpdrachtType opt = null;
+                OpdrachtTypeInput oti = null;
                 
                 if (rebuild) {
                     gt = new GebruikerType("Leerkrachten", false);
@@ -193,6 +196,9 @@
 
                     opt = new OpdrachtType(pk, "Administratie", "Opdrachten voor administratie", DateUtil.date(2012, 1, 1));
                     optdb.persist(opt);
+                 
+                    oti = new OpdrachtTypeInput(iv, opt, true, false, false, 1);
+                    otidb.persist(oti);
                 }
 
                 gt = gtdb.getWithName("Leerkrachten");
@@ -214,12 +220,12 @@
                 out.println("<br />" + d);
                 out.println("<br />" + pk);
                 out.println("<br />" + opt);
-                
-//                out.println("<br />Inputvelden voor opdracht type:<ul>");
-//                for (OpdrachtTypeInput input : opt.getInputVelden()) {
-//                    out.println("<li>" + input + "</li>");
-//                }
-//                out.println("</ul>");
+ 
+                out.println("<br />Inputvelden voor opdracht type:<ul>");
+                for (OpdrachtTypeInput input : opt.getInputVelden()) {
+                    out.println("<li>" + input + "</li>");
+                }
+                out.println("</ul>");
 
                 out.println("<br />OpdrachtType van prijs klasse: <ul>");
                 for (OpdrachtType opdrachtType : pk.getOpdrachtTypes()) {

@@ -32,6 +32,7 @@ public class OpdrachtType implements java.io.Serializable, Constrained {
     @Temporal(javax.persistence.TemporalType.DATE)
     @Column(nullable=true)
     private Date tot;
+    @OneToMany(mappedBy = "opdrachtType")
     private List<OpdrachtTypeInput> inputVelden = new ArrayList<OpdrachtTypeInput>(0);
 
     public OpdrachtType() {

@@ -4,17 +4,21 @@
  */
 package utils;
 
-import domain.constraints.Constraint;
+import database.InputVeldDB;
 import database.OpdrachtDB;
 import domain.*;
+import domain.constraints.Constraint;
 import domain.enums.ConstraintType;
 import domain.enums.InputVeldType;
 import domain.interfaces.Constrainable;
 import domain.interfaces.Constrained;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.*;
+import java.util.Set;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
@@ -25,6 +29,7 @@ import javax.mail.internet.InternetAddress;
 public class Validator {
 
     public static HashMap<String, String> getErrors(Opdracht opdracht) {
+        InputVeldDB ivdb = new InputVeldDB();
         HashMap<String, String> errors = new HashMap<String, String>();
 
         if (opdracht == null) {
@@ -36,7 +41,7 @@ public class Validator {
         if (isAllowed(opdracht.getOpdrachtgever(), opdracht.getOpdrachtType())) {
             // validate all input values
             for (OpdrachtTypeInput input : opdracht.getOpdrachtType().getInputVelden()) {
-                InputVeld veld = input.getInputVeld();
+                InputVeld veld = ivdb.get(input.getInputVeld());
 
                 if (veld.getType() == InputVeldType.VAST && "Klassen".equals(veld.getNaam())) {
                     // klassen zijn verplicht
