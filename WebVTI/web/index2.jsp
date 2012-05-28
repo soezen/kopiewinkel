@@ -133,6 +133,9 @@
 
                     g = new Gebruiker(gt, "Suzan");
                     gdb.persist(g);
+                    
+                    g = new Gebruiker(gt, "GAST");
+                    gdb.persist(g);
                     gt = gtdb.getWithName("Leerkrachten");
 
                     mi1 = new MenuItem("Startpagina", "http://www.google.com", true, 1);
@@ -217,7 +220,7 @@
                     
                 
                 }
-
+              
                 gt = gtdb.getWithName("Leerkrachten");
                 g = gdb.getWithName("Suzan");
                 ot = otdb.getCurrentWithName("Kleur");
@@ -228,8 +231,6 @@
                 pk = pkdb.getWithName("Gratis");
                 opt = optdb.getWithName("Administratie");
         
-                
-                
                 out.println("<br />" + gt);
                 out.println("<br />" + g);
                 out.println("<br />" + ot);

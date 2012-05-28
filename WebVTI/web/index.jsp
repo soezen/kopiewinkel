@@ -4,6 +4,7 @@
     Author     : soezen
 --%>
 
+<%@page import="database.GebruikerDB"%>
 <%@page import="database.DatabaseManager"%>
 <%@page import="java.util.List"%>
 <%@page import="domain.Gebruiker"%>
@@ -382,7 +383,8 @@
         </script>
         <%          Gebruiker gebruiker = (Gebruiker) session.getAttribute("gebruiker");
                     if (gebruiker == null) {
-                        gebruiker = DatabaseManager.getGastGebruiker();
+                        GebruikerDB gdb = new GebruikerDB();
+                        gebruiker = gdb.getWithName("Suzan");
                         session.setAttribute("gebruiker", gebruiker);
                     }
         %>
@@ -392,7 +394,7 @@
             <ul>
                 <%
                             MenuItemDB dbMenu = new MenuItemDB();
-                            List<MenuItem> items = dbMenu.getMenuItems(gebruiker);
+                            List<MenuItem> items = dbMenu.list(gebruiker);
                             if (items != null) {
                                 for (MenuItem item : items) {
                                     out.println("<li><a href='jsp/" + item.getLink() + "'>" + item.getNaam() + "</a></li>");
