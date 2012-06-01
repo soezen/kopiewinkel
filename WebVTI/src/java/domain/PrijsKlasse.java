@@ -32,6 +32,10 @@ public class PrijsKlasse implements java.io.Serializable {
         this.naam = naam;
     }
 
+    public Key getKey() {
+        return key;
+    }
+
     public Long getId() {
         return this.id;
     }

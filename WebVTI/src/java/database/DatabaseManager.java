@@ -19,7 +19,7 @@ public class DatabaseManager {
     private static EntityManager[] managers = new EntityManager[18];
     
     public static final int EM_GEBRUIKER = 0;
-    public static final int EM_GEBRUIKER_TYPE = 1;
+    public static final int EM_GEBRUIKER_TYPE = 0;
     public static final int EM_MELDING = 2;
     public static final int EM_MENU_ITEM = 3;
     public static final int EM_OPDRACHT = 4;

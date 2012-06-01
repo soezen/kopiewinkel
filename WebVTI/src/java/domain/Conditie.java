@@ -49,6 +49,10 @@ public class Conditie implements java.io.Serializable {
         this.commentaar = commentaar;
         this.expressie = expressie;
     }
+
+    public Key getKey() {
+        return key;
+    }
     
     public Long getId() {
         return this.id;

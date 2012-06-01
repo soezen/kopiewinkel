@@ -53,6 +53,10 @@ public class Opdracht implements java.io.Serializable, Constrained {
         this.status = status;
     }
 
+    public Key getKey() {
+        return key;
+    }
+    
     public InputWaarde addInputWaarde(InputVeld veld, String waarde) {
         InputWaarde present = getInputWaardeFor(veld);
         if (present == null) {

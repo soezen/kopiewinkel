@@ -28,7 +28,7 @@ public class GebruikerTypeDB extends IdEntityDB<GebruikerType> {
             Query query = manager.createQuery(stmt);
             query.setParameter("naam", naam);
 
-            System.out.println("QUERY: " + stmt);
+            System.out.println("QUERY: " + stmt.replaceAll(":naam", naam));
             
             return (GebruikerType) query.getSingleResult();
     }

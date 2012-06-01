@@ -1,5 +1,7 @@
 
+import database.GebruikerDB;
 import database.GebruikerTypeDB;
+import domain.Gebruiker;
 import domain.GebruikerType;
 
 /*
@@ -13,8 +15,14 @@ import domain.GebruikerType;
 public class Main {
 
     public static void main(String args[]) {
-
-       persistSimpleGebruikerType();
+        // delete gebruikers
+        GebruikerDB gdb = new GebruikerDB();
+        
+        for (Gebruiker g : gdb.list()) {
+            System.out.println("deleting " + g);
+            gdb.delete(g.getKey());
+        }
+        System.out.println("rest: " + gdb.list().size());
 
     }
     

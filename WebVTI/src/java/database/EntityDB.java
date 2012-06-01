@@ -5,7 +5,10 @@
 package database;
 
 import com.google.appengine.api.datastore.Key;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
@@ -18,6 +21,28 @@ public abstract class EntityDB<E> {
 
     protected Class<E> clazz;
     protected int type;
+
+    public void deleteAll() {
+        
+        // TODO change this to method in super type and E extends from it
+
+        for (E e : list()) {
+            try {
+                delete((Key) clazz.getMethod("getKey", null).invoke(e, null));
+            } catch (IllegalAccessException ex) {
+                Logger.getLogger(EntityDB.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(EntityDB.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InvocationTargetException ex) {
+                Logger.getLogger(EntityDB.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NoSuchMethodException ex) {
+                Logger.getLogger(EntityDB.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SecurityException ex) {
+                Logger.getLogger(EntityDB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+    }
 
     public List<E> list() {
         EntityManager manager = DatabaseManager.getEntityManager(type);
@@ -33,7 +58,7 @@ public abstract class EntityDB<E> {
         }
 
     }
-    
+
     public E get(Key key) {
         EntityManager manager = DatabaseManager.getEntityManager(type);
         return manager.find(clazz, key);
@@ -61,7 +86,7 @@ public abstract class EntityDB<E> {
         }
         return entity;
     }
-    
+
     public E update(E entity) {
         System.out.println("... updating " + entity);
         EntityManager manager = DatabaseManager.getEntityManager(type);

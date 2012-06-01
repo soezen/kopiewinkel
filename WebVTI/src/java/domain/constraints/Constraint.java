@@ -39,6 +39,10 @@ public abstract class Constraint implements Serializable {
         this.id = id;
     }
 
+    public Key getKey() {
+        return key;
+    }
+ 
     protected Key getConstrainer() {
         return this.constrainer;
     }

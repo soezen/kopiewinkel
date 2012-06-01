@@ -38,4 +38,11 @@ public class ConstraintDB extends IdEntityDB<Constraint> {
         }
     }   
     
+    public void deleteAll(Class clazz) {
+        Class oldClazz = clazz;
+        this.clazz = clazz;
+        super.deleteAll();
+        this.clazz = oldClazz;
+    }
+    
 }

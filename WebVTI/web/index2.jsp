@@ -129,14 +129,13 @@
                 
                 if (rebuild) {
                     gt = new GebruikerType("Leerkrachten", false);
-                    gtdb.persist(gt);
+                    gt = gtdb.persist(gt);
 
-                    g = new Gebruiker(gt, "Suzan");
+                    g = new Gebruiker(gt, "Anne Saelens");
                     gdb.persist(g);
                     
-                    g = new Gebruiker(gt, "GAST");
-                    gdb.persist(g);
-                    gt = gtdb.getWithName("Leerkrachten");
+                    Gebruiker g2 = new Gebruiker(gtdb.getWithName("Leerkrachten"), "GAST");
+                    gdb.persist(g2);
 
                     mi1 = new MenuItem("Startpagina", "http://www.google.com", true, 1);
                     mi2 = new MenuItem("Beheer", "http://www.gmail.com", true, 2);
@@ -207,7 +206,7 @@
                     pk = pkdb.persist(pk);
 
                     opt = new OpdrachtType(pk, "Administratie", "Opdrachten voor administratie", DateUtil.date(2012, 1, 1));
-                    optdb.persist(opt);
+                    opt = optdb.persist(opt);
                  
                     oti = new OpdrachtTypeInput(iv, opt, true, false, false, 1);
                     otidb.persist(oti);
@@ -220,9 +219,11 @@
                     
                 
                 }
+                
+                   
               
                 gt = gtdb.getWithName("Leerkrachten");
-                g = gdb.getWithName("Suzan");
+                g = gdb.getWithName("Anne Saelens");
                 ot = otdb.getCurrentWithName("Kleur");
                 o = odb.getCurrentOfTypeWithName(ot, "Rood");
                 iv = ivdb.getWithName("Aantal");
@@ -230,7 +231,7 @@
                 d = ddb.getWithNameInGrade("Mechanica", 1);
                 pk = pkdb.getWithName("Gratis");
                 opt = optdb.getWithName("Administratie");
-        
+                   
                 out.println("<br />" + gt);
                 out.println("<br />" + g);
                 out.println("<br />" + ot);

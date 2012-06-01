@@ -44,6 +44,10 @@ public class Leerling implements java.io.Serializable {
         this.eindDatum = eindDatum;
     }
 
+    public Key getKey() {
+        return key;
+    }
+ 
     public void setCurrentGroep(SchooljaarGroep groep) {
         groepen.add(groep.getKey());
         currentGroep = groep;
