@@ -25,7 +25,8 @@ public abstract class EntityDB<E> {
     public void deleteAll() {
         
         // TODO change this to method in super type and E extends from it
-
+        System.out.println("deleting all entities of " + clazz.getSimpleName());
+            
         for (E e : list()) {
             try {
                 delete((Key) clazz.getMethod("getKey", null).invoke(e, null));
@@ -49,9 +50,11 @@ public abstract class EntityDB<E> {
         EntityTransaction tx = manager.getTransaction();
         tx.begin();
         try {
-            Query query = manager.createQuery("select e from " + clazz.getSimpleName() + " e");
+            String stmt = "select e from " + clazz.getSimpleName() + " e";
+            Query query = manager.createQuery(stmt);
             List<E> result = query.getResultList();
             result.size();
+            System.out.println("QUERY: " + stmt);
             return query.getResultList();
         } finally {
             tx.commit();

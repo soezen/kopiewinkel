@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
+import utils.GlobalValues;
 
 
 /**
@@ -85,8 +86,15 @@ public class Leerling implements java.io.Serializable {
         this.groepen = groepen;
     }
     
+    // TODO make it so that SchooljaarGroep has start and end date per student
     public void addGroep(SchooljaarGroep groep) {
-        
+        if (GlobalValues.HUIDIG_SCHOOLJAAR == groep.getSchooljaar()) {
+            if (currentGroep != null) {
+                groepen.remove(currentGroep.getKey());
+            }
+            currentGroep = groep;           
+        }
+        groepen.add(groep.getKey());
     }
 
     public Date getStartDatum() {
@@ -101,6 +109,18 @@ public class Leerling implements java.io.Serializable {
         this.startDatum = startDatum;
     }
 
+    public boolean isActiveOn(Date date) {
+        boolean active = false;
+        if (date.after(startDatum)) {
+            if (eindDatum != null) {
+                return date.before(eindDatum);
+            } else {
+                active = true;
+            }
+        }
+        return active;
+    }
+    
     @Override
     public String toString() {
         return "LEERLING [" + id + ", " + naam + ", " + startDatum + "]";

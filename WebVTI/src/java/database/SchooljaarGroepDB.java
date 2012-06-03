@@ -14,7 +14,7 @@ public class SchooljaarGroepDB extends EntityDB<SchooljaarGroep> {
 
     public SchooljaarGroepDB() {
         clazz = SchooljaarGroep.class;
-        type = DatabaseManager.EM_DOELGROEP;
+        type = DatabaseManager.EM_SCHOOLJAAR_GROEP;
     }
     
     

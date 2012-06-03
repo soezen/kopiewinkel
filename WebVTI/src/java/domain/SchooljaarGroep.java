@@ -25,7 +25,7 @@ public class SchooljaarGroep implements java.io.Serializable {
     private Doelgroep doelgroep;
     private String groep;
     private int schooljaar;
-    @OneToMany(mappedBy = "currentGroep")
+    @OneToMany(mappedBy = "currentGroep", cascade= CascadeType.REMOVE)
     @Basic
     private List<Leerling> leerlingen = new ArrayList<Leerling>();
     

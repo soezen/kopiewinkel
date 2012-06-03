@@ -14,7 +14,7 @@ public class LeerlingDB extends IdEntityDB<Leerling> {
 
     public LeerlingDB() {
         clazz = Leerling.class;
-        type = DatabaseManager.EM_DOELGROEP;
+        type = DatabaseManager.EM_LEERLING;
     }
     
 }
