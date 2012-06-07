@@ -7,7 +7,6 @@ package database;
 import com.google.appengine.api.datastore.Key;
 import domain.Gebruiker;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -20,10 +19,10 @@ public class PriviligedEntityDB<E> extends IdEntityDB<E> {
 
     public List<E> list(Gebruiker gebruiker) {
         EntityManager manager = DatabaseManager.getEntityManager(type);
-        List<E> result = new ArrayList<E>();
+        List<E> result;
 
 //        try {
-            List<Key> keys = gebruiker.getRechten();
+            List<Long> keys = gebruiker.getRechten();
             keys.addAll(gebruiker.getGebruikerType().getRechten());
 
             if (keys.isEmpty()) {

@@ -2,6 +2,7 @@ package domain;
 // Generated 11-feb-2012 16:48:29 by Hibernate Tools 3.2.1.GA
 
 import com.google.appengine.api.datastore.Key;
+import domain.interfaces.Constrained;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,7 +43,7 @@ public class Gebruiker implements java.io.Serializable {
 //    private Set<Criteria> startpagina = new HashSet<Criteria>(0);
 //    @OneToMany(mappedBy = "gebruiker")
     private List<Melding> meldingen = new ArrayList<Melding>(0);
-    private List<Key> rechten = new ArrayList<Key>(0);
+    private List<Long> rechten = new ArrayList<Long>(0);
     @OneToMany(mappedBy = "eigenaar")
     private List<Aanvraag> aanvragen;
 
@@ -115,16 +116,16 @@ public class Gebruiker implements java.io.Serializable {
         this.actief = actief;
     }
 
-    public void setRechten(List<Key> rechten) {
+    public void setRechten(List<Long> rechten) {
         this.rechten = rechten;
     }
 
-    public List<Key> getRechten() {
+    public List<Long> getRechten() {
         return rechten;
     }
 
-    public void addRecht(Key key) {
-        rechten.add(key);
+    public void addRecht(Constrained recht) {
+        rechten.add(recht.getId());
     }
     
 //    public Set<LayoutProperty> getLayoutProperties() {
