@@ -142,7 +142,7 @@
                     midb.persist(mi1);
                     midb.persist(mi2);
 
-                    gt.addRecht(mi1.getKey());
+                    gt.addRecht(mi1);
                     gtdb.update(gt);
 
                     Date startDate = DateUtil.date(2000, 1, 1);

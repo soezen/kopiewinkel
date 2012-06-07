@@ -26,7 +26,7 @@ public class PrijsKlasseDB extends IdEntityDB<PrijsKlasse> {
         Query query = manager.createQuery(stmt);
         query.setParameter("naam", naam);
 
-        System.out.println("QUERY: " + stmt);
+        System.out.println("QUERY: " + stmt.replaceAll(":naam", naam));
 
         return (PrijsKlasse) query.getSingleResult();
     }

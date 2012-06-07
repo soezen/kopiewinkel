@@ -30,7 +30,7 @@ public class TestDatabase {
      */
     public GebruikerType createGebruikerType(String naam) {
         GebruikerType expected = new GebruikerType(naam, true);
-        expected.addRecht(KeyFactory.createKey("MenuItem", 1));
+    //    expected.addRecht(KeyFactory.createKey("MenuItem", 1));
         return gtdb.persist(expected);
     }
 

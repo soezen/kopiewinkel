@@ -2,6 +2,7 @@ package domain;
 // Generated 11-feb-2012 16:48:29 by Hibernate Tools 3.2.1.GA
 
 import com.google.appengine.api.datastore.Key;
+import domain.interfaces.Constrained;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,8 +27,10 @@ public class GebruikerType implements java.io.Serializable {
     @Temporal(javax.persistence.TemporalType.DATE)
     @Basic(optional=false)
     private Date creationDate;
-    private List<Key> rechten = new ArrayList<Key>();
+    @Basic
+    private List<Long> rechten = new ArrayList<Long>();
     @OneToMany(mappedBy = "gebruikerType", cascade= CascadeType.ALL)
+    @Basic
     private List<Gebruiker> gebruikers = new ArrayList<Gebruiker>();
 
     public GebruikerType() {
@@ -100,16 +103,16 @@ public class GebruikerType implements java.io.Serializable {
         gebruikers.add(gebruiker);
     }
 
-    public List<Key> getRechten() {
+    public List<Long> getRechten() {
         return rechten;
     }
 
-    public void setRechten(List<Key> rechten) {
+    public void setRechten(List<Long> rechten) {
         this.rechten = rechten;
     }
     
-    public void addRecht(Key recht) {
-        rechten.add(recht);
+    public void addRecht(Constrained recht) {
+        rechten.add(recht.getId());
     }
 
     @Override

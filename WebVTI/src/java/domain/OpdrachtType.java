@@ -33,6 +33,7 @@ public class OpdrachtType implements java.io.Serializable, Constrained {
     @Column(nullable=true)
     private Date tot;
     @OneToMany(mappedBy = "opdrachtType")
+    @Basic
     private List<OpdrachtTypeInput> inputVelden = new ArrayList<OpdrachtTypeInput>(0);
 
     public OpdrachtType() {
