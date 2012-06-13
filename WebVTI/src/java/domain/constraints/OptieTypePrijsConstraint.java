@@ -23,14 +23,14 @@ public class OptieTypePrijsConstraint extends PrijsConstraint {
     }
 
     public OptieTypePrijsConstraint(OptieType constrainer, Prijs constrained, boolean standaard) {
-        super(constrainer.getKey(), constrained, standaard);
+        super(constrainer, constrained, standaard);
     }
     
-    public Key getOptieTypeKey() {
+    public Long getOptieTypeId() {
         return getConstrainer();
     }
     
     public void setOptieType(OptieType optieType) {
-        setConstrainer(optieType.getKey());
+        setConstrainer(optieType);
     }
 }

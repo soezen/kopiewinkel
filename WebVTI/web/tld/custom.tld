@@ -17,7 +17,7 @@
         see if an optie or optietype should be disabled because the requirements are not met
     </description>
     <name>isVisibleOrEnabled</name>
-    <function-class>business.Util</function-class>
+    <function-class>utils.Util</function-class>
     <function-signature>boolean isVisibleOrEnabled(domain.interfaces.Constrainer)</function-signature>
     <example>
       &lt;c:if test="${my:isDisabled(optie)}"&gt;

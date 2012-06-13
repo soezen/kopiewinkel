@@ -136,9 +136,8 @@ public class InputOpdrachtServlet extends HttpServlet {
 
     private void putDataInOpdracht(OpdrachtTypeInput veld, FileItem item, Opdracht opdracht) {
         GebruikerDB gdb = new GebruikerDB();
-        InputVeldDB ivdb = new InputVeldDB();
         String input = item.getString();
-        InputVeld iv = ivdb.get(veld.getInputVeld());
+        InputVeld iv = veld.getInputVeld();
         switch (iv.getType()) {
             case VAST:
                 String naam = iv.getNaam();

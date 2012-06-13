@@ -384,7 +384,7 @@
         <%          Gebruiker gebruiker = (Gebruiker) session.getAttribute("gebruiker");
                     if (gebruiker == null) {
                         GebruikerDB gdb = new GebruikerDB();
-                        gebruiker = gdb.getWithName("Suzan");
+                        gebruiker = gdb.getGastGebruiker();
                         session.setAttribute("gebruiker", gebruiker);
                     }
         %>

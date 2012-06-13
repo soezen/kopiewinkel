@@ -5,6 +5,8 @@
 package domain.constraints;
 
 import com.google.appengine.api.datastore.Key;
+import domain.interfaces.Constrainable;
+import domain.interfaces.Constrainer;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -22,7 +24,7 @@ public class ConnectionConstraint extends Constraint {
     public ConnectionConstraint() {
     }
 
-    public ConnectionConstraint(Key constrainer, Key constrained, boolean wederkerig, boolean verplicht) {
+    public ConnectionConstraint(Constrainer constrainer, Constrainable constrained, boolean wederkerig, boolean verplicht) {
         super(constrainer, constrained);
         this.wederkerig = wederkerig;
         this.verplicht = verplicht;

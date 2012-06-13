@@ -31,15 +31,15 @@ public class OptiePrijsConstraint extends PrijsConstraint {
      * @param standaard if <code>true</code> the conditions of the price are ignored.
      */
     public OptiePrijsConstraint(Optie optie, Prijs prijs, boolean standaard) {
-        super(optie.getKey(), prijs, standaard);
+        super(optie, prijs, standaard);
         this.standaard = standaard;
     }
     
-    public Key getOptieKey() {
+    public Long getOptieId() {
         return getConstrainer();
     }
     
     public void setOptie(Optie optie) {
-        setConstrainer(optie.getKey());
+        setConstrainer(optie);
     }
 }

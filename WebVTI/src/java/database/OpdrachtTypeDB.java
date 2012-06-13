@@ -4,9 +4,15 @@
  */
 package database;
 
+import domain.Gebruiker;
 import domain.OpdrachtType;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import utils.DateUtil;
 
 /**
  *
@@ -29,4 +35,24 @@ public class OpdrachtTypeDB extends PriviligedEntityDB<OpdrachtType> {
 
         return (OpdrachtType) query.getSingleResult();
     }
+
+    public List<OpdrachtType> getActieveOpdrachtTypes(Gebruiker gebruiker) {
+        List<OpdrachtType> result = new ArrayList<OpdrachtType>(list(gebruiker));
+
+        Iterator<OpdrachtType> it = result.iterator();
+        Date validOn = DateUtil.today();
+        
+        // TODO move to method is in between
+        while (it.hasNext()) {
+            OpdrachtType ot = it.next();
+            
+            if (ot.getVan().after(validOn)
+               || (ot.getTot() != null && ot.getTot().before(validOn))) {
+                it.remove();
+            }
+        }
+
+        return result;
+    }
+    
 }

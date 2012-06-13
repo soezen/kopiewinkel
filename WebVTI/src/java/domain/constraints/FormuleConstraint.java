@@ -23,22 +23,22 @@ public class FormuleConstraint extends Constraint {
     }
 
     public FormuleConstraint(Prijs prijs, PrijsFormule formule) {
-        super(prijs.getKey(), formule.getKey());
+        super(prijs, formule);
     }
     
-    public Key getPrijsKey() {
+    public Long getPrijsId() {
         return constrainer;
     }
     
-    public Key getFormuleKey() {
+    public Long getFormuleId() {
         return constrained;
     }
     
-    public void setPrijs(Key prijs) {
+    public void setPrijs(Prijs prijs) {
         setConstrainer(prijs);
     }
     
-    public void setFormule(Key formule) {
+    public void setFormule(PrijsFormule formule) {
         setConstrained(formule);
     }
 

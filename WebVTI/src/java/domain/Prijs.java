@@ -43,6 +43,41 @@ public class Prijs implements java.io.Serializable, Constrainable, Constrainer {
         this.type = type;
     }
 
+    public Prijs(Date van, BigDecimal bedrag, Eenheid eenheid, PrijsType type, Conditie conditie) {
+        this.van = van;
+        this.bedrag = bedrag;
+        this.eenheid = eenheid;
+        this.type = type;
+        this.conditie = conditie;
+    }
+    
+    /**
+     * Create a Formule prijs without any conditions.
+     * 
+     * @param van
+     * @param eenheid 
+     */
+    public Prijs(Date van, Eenheid eenheid) {
+        this.van = van;
+        this.eenheid = eenheid;
+        this.type = PrijsType.FORMULE;
+        this.bedrag = BigDecimal.ZERO;
+    }
+    
+    /**
+     * Create a Formule prijs with a condition.
+     * 
+     * @param van
+     * @param eenheid 
+     */
+    public Prijs(Date van, Eenheid eenheid, Conditie conditie) {
+        this.van = van;
+        this.eenheid = eenheid;
+        this.conditie = conditie;
+        this.type = PrijsType.FORMULE;
+        this.bedrag = BigDecimal.ZERO;
+    }
+    
     public Prijs(Conditie conditie, Date van, Date tot, BigDecimal bedrag, Eenheid eenheid, PrijsType type) {
         this.conditie = conditie;
         this.van = van;

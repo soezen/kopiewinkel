@@ -23,6 +23,7 @@ public class PrijsKlasse implements java.io.Serializable {
     @Basic
     private List<Key> prijzen = new ArrayList<Key>(0);
     @OneToMany(mappedBy = "prijsKlasse")
+    @Basic
     private List<OpdrachtType> opdrachtTypes = new ArrayList<OpdrachtType>(0);
 
     public PrijsKlasse() {

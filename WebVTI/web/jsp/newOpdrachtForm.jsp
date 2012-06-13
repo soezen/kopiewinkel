@@ -4,6 +4,10 @@
     Author     : soezen
 --%>
 
+<%@page import="database.OptieTypeDB"%>
+<%@page import="database.OpdrachtTypeInputDB"%>
+<%@page import="database.OpdrachtTypeDB"%>
+<%@page import="database.GebruikerDB"%>
 <%@page import="domain.OptieType"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="domain.Doelgroep"%>
@@ -14,7 +18,6 @@
 <%@taglib prefix="f" uri="/tld/custom.tld"%>
 <%@page import="java.util.List"%>
 <%@page import="domain.Gebruiker"%>
-<%@page import="database.ConnectionManager"%>
 <%@page import="domain.InputVeld"%>
 <%@page import="domain.OpdrachtType"%>
 <%@page import="database.OpdrachtDB"%>
@@ -25,16 +28,20 @@
 <jsp:useBean id="opdracht" scope="session" class="decorators.OpdrachtDecorator" />
 <jsp:setProperty name="opdracht" property="opdrachtType" param="type" />
 <%
+            GebruikerDB gdb = new GebruikerDB();
             Gebruiker gebruiker = (Gebruiker) session.getAttribute("gebruiker");
             if (gebruiker == null) {
-                gebruiker = ConnectionManager.getGastGebruiker();
+                gebruiker = gdb.getGastGebruiker();
             }
-            OpdrachtDB db = new OpdrachtDB();
+            OpdrachtDB odb = new OpdrachtDB();
+            OpdrachtTypeDB otdb = new OpdrachtTypeDB();
             Opdracht o = new Opdracht();
-            OpdrachtType ot = db.getOpdrachtType(opdracht.opdrachtType);
+            OpdrachtType ot = otdb.getWithId(opdracht.opdrachtType);
             o.setOpdrachtType(ot);
 
-            List<OpdrachtTypeInput> velden = db.getInputVelden(ot, gebruiker);
+            OpdrachtTypeInputDB otidb = new OpdrachtTypeInputDB();
+            // TODO get only for gebruiker?
+            List<OpdrachtTypeInput> velden = ot.getInputVelden();
             request.setAttribute("velden", velden);
             request.setAttribute("opdrachtType", ot);
 %>
@@ -49,8 +56,8 @@
             <c:if test="${veld.inputVeld.naam == 'Klassen'}">
                 <%= "</div>"%>
             </c:if>
-            <div id="${veld.inputVeldInt}">
-                <label for="${veld.inputVeldInt}">${veld.inputVeld.naam}</label>
+            <div id="${veld.inputVeld.id}">
+                <label for="${veld.inputVeld.id}">${veld.inputVeld.naam}</label>
 
                 <c:choose>
                     <c:when test="${veld.inputVeld.type == 'VAST'}">
@@ -64,16 +71,17 @@
                                         <input type="number" class="txtLabel" id="totalKlassen" value="0" disabled readonly />
                                     </c:otherwise>
                                 </c:choose> geselecteerd)
-                                <a href="#" onclick="toggleToewijzingen(${veld.inputVeldInt})">toon selectie</a>
+                                <a href="#" onclick="toggleToewijzingen(${veld.inputVeld.id})">toon selectie</a>
                                 <div id="klassen">
                                     <%
-                                                List<Doelgroep> doelgroepen = db.getDoelgroepenHuidigSchooljaar();
-                                                HashMap<Integer, Doelgroep> toewijzingen = new HashMap<Integer, Doelgroep>();
-                                                for (Doelgroep d : gebruiker.getDoelgroepen()) {
-                                                    toewijzingen.put(d.getId(), d);
-                                                }
-                                                request.setAttribute("doelgroepen", doelgroepen);
-                                                request.setAttribute("toewijzingen", toewijzingen);
+                                            // TODO
+                                            //     List<Doelgroep> doelgroepen = db.getDoelgroepenHuidigSchooljaar();
+                                            //    HashMap<Integer, Doelgroep> toewijzingen = new HashMap<Integer, Doelgroep>();
+                                            //    for (Doelgroep d : gebruiker.getDoelgroepen()) {
+                                            //        toewijzingen.put(d.getId(), d);
+                                            //    }
+                                            //    request.setAttribute("doelgroepen", doelgroepen);
+                                            //    request.setAttribute("toewijzingen", toewijzingen);
 
                                                 // TODO constraints tussen kleur en gewicht kaft maken
                                     %>
@@ -98,11 +106,11 @@
                                                 <c:choose>
                                                     <c:when test="${toewijzingen[doelgroep.id] == null}">
                                                         <input type="hidden" value="${groep.value}" />
-                                                        <input type="checkbox" id="${doelgroep.id}-${groep.key}" name="${veld.inputVeldInt}" value="${doelgroep.id}" onchange="updateAantal(this, ${groep.value})" />
+                                                        <input type="checkbox" id="${doelgroep.id}-${groep.key}" name="${veld.inputVeld.id}" value="${doelgroep.id}" onchange="updateAantal(this, ${groep.value})" />
                                                         <label for="${doelgroep.id}-${groep.key}">${groepLabel}</label>
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <input type="checkbox" id="${doelgroep.id}-${groep.key}" class="toewijzing" name="${veld.inputVeldInt}" value="${doelgroep.id}" onchange="updateAantal(this, ${groep.value})" />
+                                                        <input type="checkbox" id="${doelgroep.id}-${groep.key}" class="toewijzing" name="${veld.inputVeld.id}" value="${doelgroep.id}" onchange="updateAantal(this, ${groep.value})" />
                                                         <label for="${doelgroep.id}-${groep.key}" class="toewijzing">${groepLabel}</label>
                                                     </c:otherwise>
                                                 </c:choose>
@@ -113,20 +121,20 @@
                                 </div>
                             </c:when>
                             <c:when test="${veld.inputVeld.naam == 'Opdrachtgever'}">
-                                <%
-                                            List<Gebruiker> gebruikers = db.getOpdrachtGevers(ot);
+                                <%  
+                                            List<Gebruiker> gebruikers = gdb.getOpdrachtGevers(ot);
                                             request.setAttribute("gebruikers", gebruikers);
                                 %>
                                 <c:choose>
                                     <c:when test="${veld.wijzigbaar}">
-                                        <select id="${veld.inputVeldInt}" name="${veld.inputVeldInt}">
+                                        <select id="${veld.inputVeld.id}" name="${veld.inputVeld.id}">
                                             <c:forEach items="${gebruikers}" var="gebruiker">
                                                 <option value="${gebruiker.id}">${gebruiker.naam}</option>
                                             </c:forEach>
                                         </select>
                                     </c:when>
                                     <c:otherwise>
-                                        <select id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" disabled>
+                                        <select id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" disabled>
                                             <c:forEach items="${gebruikers}" var="gebruiker">
                                                 <option>${gebruiker.naam}</option>
                                             </c:forEach>
@@ -135,22 +143,22 @@
                                 </c:choose>
                             </c:when>
                             <c:when test="${veld.inputVeld.naam == 'Bestand'}">
-                                <input type="file" id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" required accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword" />
+                                <input type="file" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" required accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword" />
                             </c:when>
                             <c:when test="${veld.inputVeld.naam == 'Aantal'}">
                                 <span id="aantal">
                                     <c:choose>
                                         <c:when test="${veld.wijzigbaar && veld.verplicht}">
-                                            <input type="number" id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" min="1" max="999" value="1" required />
+                                            <input type="number" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" min="1" max="999" value="1" required />
                                         </c:when>
                                         <c:when test="${veld.wijzigbaar && !veld.verplicht}">
-                                            <input type="number" id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" min="1" max="999" value="1" />
+                                            <input type="number" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" min="1" max="999" value="1" />
                                         </c:when>
                                         <c:when test="${!veld.wijzigbaar && veld.verplicht}">
-                                            <input type="number" id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" min="1" max="999" value="1" disabled required />
+                                            <input type="number" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" min="1" max="999" value="1" disabled required />
                                         </c:when>
                                         <c:otherwise>
-                                            <input type="number" id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" min="1" max="999" value="1" disabled />
+                                            <input type="number" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" min="1" max="999" value="1" disabled />
                                         </c:otherwise>
                                     </c:choose>
                                 </span>
@@ -158,32 +166,32 @@
                             <c:when test="${veld.inputVeld.naam == 'Commentaar'}">
                                 <c:choose>
                                     <c:when test="${veld.wijzigbaar && veld.verplicht}">
-                                        <textarea id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" required cols="25" rows="5"></textarea>
+                                        <textarea id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" required cols="25" rows="5"></textarea>
                                     </c:when>
                                     <c:when test="${veld.wijzigbaar && !veld.verplicht}">
-                                        <textarea id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" cols="25" rows="5"></textarea>
+                                        <textarea id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" cols="25" rows="5"></textarea>
                                     </c:when>
                                     <c:when test="${!veld.wijzigbaar && veld.verplicht}">
-                                        <textarea id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" required disabled cols="25" rows="5"></textarea>
+                                        <textarea id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" required disabled cols="25" rows="5"></textarea>
                                     </c:when>
                                     <c:otherwise>
-                                        <textarea id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" disabled cols="25" rows="5"></textarea>
+                                        <textarea id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" disabled cols="25" rows="5"></textarea>
                                     </c:otherwise>
                                 </c:choose>
                             </c:when>
                             <c:otherwise>
                                 <c:choose>
                                     <c:when test="${veld.wijzigbaar && veld.verplicht}">
-                                        <input type="text" id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" required />
+                                        <input type="text" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" required />
                                     </c:when>
                                     <c:when test="${veld.wijzigbaar && !veld.verplicht}">
-                                        <input type="text" id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" />
+                                        <input type="text" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" />
                                     </c:when>
                                     <c:when test="${!veld.wijzigbaar && veld.verplicht}">
-                                        <input type="text" id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" disabled required />
+                                        <input type="text" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" disabled required />
                                     </c:when>
                                     <c:otherwise>
-                                        <input type="text" id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" disabled />
+                                        <input type="text" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" disabled />
                                     </c:otherwise>
                                 </c:choose>
                             </c:otherwise>
@@ -193,16 +201,16 @@
                         <!-- TODO when date add maxlength and size attributes -->
                         <c:choose>
                             <c:when test="${veld.wijzigbaar && !veld.verplicht}">
-                                <input type="${veld.inputVeld.type.naam}" id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" />
+                                <input type="${veld.inputVeld.type.naam}" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" />
                             </c:when>
                             <c:when test="${veld.wijzigbaar && veld.verplicht}">
-                                <input type="${veld.inputVeld.type.naam}" id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" required />
+                                <input type="${veld.inputVeld.type.naam}" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" required />
                             </c:when>
                             <c:when test="${!veld.wijzigbaar && veld.verplicht}">
-                                <input type="${veld.inputVeld.type.naam}" id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" disabled required />
+                                <input type="${veld.inputVeld.type.naam}" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" disabled required />
                             </c:when>
                             <c:otherwise>
-                                <input type="${veld.inputVeld.type.naam}" id="${veld.inputVeldInt}" name="${veld.inputVeldInt}" disabled />
+                                <input type="${veld.inputVeld.type.naam}" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" disabled />
                             </c:otherwise>
                         </c:choose>
                     </c:otherwise>
@@ -212,7 +220,12 @@
         <%= "</div>"%>
     </div>
     <div id="opties">
-        <c:forEach items="${opdrachtType.optieTypes}" var="optieType">
+        <%
+            OptieTypeDB optdb = new OptieTypeDB();
+            List<OptieType> optieTypes = optdb.list(gebruiker);
+            request.setAttribute("optieTypes", optieTypes);
+        %>
+        <c:forEach items="${optieTypes}" var="optieType">
             <c:set var="style" value="" />
             <c:if test="${f:isVisibleOrEnabled(optieType)}">
                 <c:set var="style" value="style='display:none'" />

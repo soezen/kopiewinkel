@@ -2,6 +2,8 @@ package domain.constraints;
 // Generated 11-feb-2012 16:48:29 by Hibernate Tools 3.2.1.GA
 
 import com.google.appengine.api.datastore.Key;
+import domain.interfaces.Constrainable;
+import domain.interfaces.Constrainer;
 import java.io.Serializable;
 import javax.persistence.*;
 
@@ -20,15 +22,15 @@ public abstract class Constraint implements Serializable {
     @SequenceGenerator(name = "CS_SEQUENCE")
     protected Long id;
     // private ConstraintType type;
-    protected Key constrainer;
-    protected Key constrained;
+    protected Long constrainer;
+    protected Long constrained;
 
     protected Constraint() {
     }
 
-    protected Constraint(Key constrainer, Key constrained) {
-        this.constrainer = constrainer;
-        this.constrained = constrained;
+    protected Constraint(Constrainer constrainer, Constrainable constrained) {
+        this.constrainer = constrainer.getId();
+        this.constrained = constrained.getId();
     }
     
     public Long getId() {
@@ -43,19 +45,19 @@ public abstract class Constraint implements Serializable {
         return key;
     }
  
-    protected Key getConstrainer() {
+    public Long getConstrainer() {
         return this.constrainer;
     }
 
-    protected void setConstrainer(Key constrainer) {
-        this.constrainer = constrainer;
+    public void setConstrainer(Constrainer constrainer) {
+        this.constrainer = constrainer.getId();
     }
 
-    protected Key getConstrained() {
+    public Long getConstrained() {
         return this.constrained;
     }
 
-    protected void setConstrained(Key constrained) {
-        this.constrained = constrained;
+    public void setConstrained(Constrainable constrained) {
+        this.constrained = constrained.getId();
     }
 }

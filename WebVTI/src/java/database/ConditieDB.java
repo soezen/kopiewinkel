@@ -25,7 +25,7 @@ public class ConditieDB extends IdEntityDB<Conditie> {
         Query query = manager.createQuery(stmt);
         query.setParameter("naam", name);
 
-        System.out.println("QUERY: " + stmt);
+        System.out.println("QUERY: " + stmt.replaceAll(":naam", name));
 
         return (Conditie) query.getSingleResult();
     }

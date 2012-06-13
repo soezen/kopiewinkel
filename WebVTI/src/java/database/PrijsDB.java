@@ -16,5 +16,17 @@ public class PrijsDB extends IdEntityDB<Prijs> {
         clazz = Prijs.class;
         type = DatabaseManager.EM_PRIJS;
     }
+
+    @Override
+    public Prijs persist(Prijs entity) {
+        Prijs p = entity;
+        if (p.getConditie() == null) {
+            ConditieDB db = new ConditieDB();
+            p.setConditie(db.getWithName("empty"));
+        }
+        return super.persist(p);
+    }
+    
+    
     
 }

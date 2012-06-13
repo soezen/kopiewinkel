@@ -166,7 +166,7 @@
                     Optie oTransparant = new Optie(otAndere, "Transparant", "Transparant papier", DateUtil.date(2012, 1, 1), OptieStatus.HUIDIG, 1);
                     odb.persist(oTransparant);
 
-                    cc = new ConnectionConstraint(ot.getKey(), oTransparant.getKey(), true, false);
+                    cc = new ConnectionConstraint(ot, oTransparant, true, false);
                     csdb.persist(cc);
 
                     d = new Doelgroep("Mechanica", 1);
@@ -223,12 +223,12 @@
                    
               
                 gt = gtdb.getWithName("Leerkrachten");
-                g = gdb.getWithName("Anne Saelens");
+                g = gdb.getGastGebruiker();
                 ot = otdb.getCurrentWithName("Kleur");
                 o = odb.getCurrentOfTypeWithName(ot, "Rood");
                 iv = ivdb.getWithName("Aantal");
-                c = cdb.getWithName("Combined");
-                d = ddb.getWithNameInGrade("Mechanica", 1);
+                c = cdb.getWithName("A3 geselecteerd");
+             //   d = ddb.getWithNameInGrade("1ste jaar Praktijk", 1);
                 pk = pkdb.getWithName("Gratis");
                 opt = optdb.getWithName("Administratie");
                    
@@ -241,6 +241,24 @@
                 out.println("<br />" + d);
                 out.println("<br />" + pk);
                 out.println("<br />" + opt);
+                
+                out.println("<br />Alle OpdrachtTypes:<ul>");
+                for (OpdrachtType aot : optdb.list()) {
+                    out.println("<li>" + aot + "</li>");
+                }
+                out.println("</ul>");
+                
+                out.println("<br />Alle OpdrachtTypes voor gebruiker Anne Saelens:<ul>");
+                for (OpdrachtType aot : optdb.list(gdb.getWithName("Anne Saelens"))) {
+                    out.println("<li>" + aot + "</li>");
+                }
+                out.println("</ul>");
+ 
+                out.println("<br />Actieve OpdrachtTypes voor Monique Lefebvre:<ul>");
+                for (OpdrachtType aot : optdb.getActieveOpdrachtTypes(gdb.getWithName("Monique Lefebvre"))) {
+                    out.println("<li>" + aot + "</li>");
+                }
+                out.println("</ul>");
  
                 out.println("<br />Opdrachten:<ul>");
                 for (Opdracht opdracht : oddb.list()) {
@@ -277,15 +295,15 @@
                 }
                 out.println("</ul>");
 
-                out.println("<br />Leerlingen van doelgroep per groep:<ul>");
-                for (SchooljaarGroep sg : d.getGroepen()) {
-                    out.println("<li>" + sg + "</li><ul>");
-                    for (Leerling lln : sg.getLeerlingen()) {
-                        out.println("<li>" + lln + "</li>");
-                    }
-                    out.println("</ul>");
-                }
-                out.println("</ul>");
+           //     out.println("<br />Leerlingen van doelgroep per groep:<ul>");
+           //     for (SchooljaarGroep sg : d.getGroepen()) {
+           //         out.println("<li>" + sg + "</li><ul>");
+           //         for (Leerling lln : sg.getLeerlingen()) {
+           //             out.println("<li>" + lln + "</li>");
+           //         }
+           //         out.println("</ul>");
+           //     }
+           //     out.println("</ul>");
 
                 out.println("<br />All MenuItems:<ul>");
                 List<MenuItem> all = midb.list();

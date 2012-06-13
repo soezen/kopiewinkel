@@ -4,7 +4,8 @@
     Author     : soezen
 --%>
 
-<%@page import="database.ConnectionManager"%>
+<%@page import="database.OpdrachtTypeDB"%>
+<%@page import="database.GebruikerDB"%>
 <%@page import="java.util.List"%>
 <%@page import="domain.Gebruiker"%>
 <%@page import="domain.OpdrachtType"%>
@@ -17,7 +18,8 @@
 <%
             Gebruiker gebruiker = (Gebruiker) session.getAttribute("gebruiker");
             if (gebruiker == null) {
-                gebruiker = ConnectionManager.getGastGebruiker();
+                GebruikerDB gdb = new GebruikerDB();
+                gebruiker = gdb.getGastGebruiker();
             }
 %>
 <jsp:useBean id="opdracht" scope="application" class="decorators.OpdrachtDecorator" />
@@ -111,8 +113,8 @@
             <td>
                 <select id="typeSelect">
                     <%
-                                OpdrachtDB opdrachtDB = new OpdrachtDB();
-                                List<OpdrachtType> types = opdrachtDB.getActieveOpdrachtTypes(gebruiker);
+                                OpdrachtTypeDB otdb = new OpdrachtTypeDB();
+                                List<OpdrachtType> types = otdb.getActieveOpdrachtTypes(gebruiker);
                                 for (OpdrachtType type : types) {
                                     out.println("<option id='" + type.getId() + "'>" + type.getNaam() + "</option>");
                                 }

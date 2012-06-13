@@ -2,6 +2,7 @@ package domain;
 // Generated 18-feb-2012 18:51:31 by Hibernate Tools 3.2.1.GA
 
 import com.google.appengine.api.datastore.Key;
+import database.InputVeldDB;
 import javax.persistence.*;
 
 
@@ -31,10 +32,6 @@ public class OpdrachtTypeInput implements java.io.Serializable {
         this.wijzigbaar = wijzigbaar;
         this.zichtbaar = zichtbaar;
         this.volgorde = volgorde;
-    }
-
-    public Key getInputVeld() {
-        return this.inputVeldKey;
     }
 
     public void setInputVeld(InputVeld inputVeld) {
@@ -81,6 +78,11 @@ public class OpdrachtTypeInput implements java.io.Serializable {
         this.volgorde = volgorde;
     }
 
+    public InputVeld getInputVeld() {
+        InputVeldDB ivdb = new InputVeldDB();
+        return ivdb.get(inputVeldKey);
+    }
+    
     @Override
     public String toString() {
         return "OPDRACHTTYPEINPUT [" + inputVeldKey + ", " + opdrachtType + ", " + verplicht + ", " + wijzigbaar + ", " + zichtbaar + ", " + volgorde + "]";

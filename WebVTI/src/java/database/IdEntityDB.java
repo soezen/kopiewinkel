@@ -5,7 +5,6 @@
 package database;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
 /**
@@ -16,18 +15,11 @@ public class IdEntityDB<E> extends EntityDB<E> {
 
     public E getWithId(Long id) {
         EntityManager manager = DatabaseManager.getEntityManager(type);
-        EntityTransaction tx = manager.getTransaction();
-        tx.begin();
-        try {
-            String stmt = "select e from " + clazz.getSimpleName() + " e where e.id = :id";
-            Query query = manager.createQuery(stmt);
-            query.setParameter("id", id);
+        String stmt = "select e from " + clazz.getSimpleName() + " e where e.id = :id";
+        Query query = manager.createQuery(stmt);
+        query.setParameter("id", id);
 
-            System.out.println("QUERY: " + stmt);
-            return (E) query.getSingleResult();
-        } finally {
-            tx.commit();
-        }
+        System.out.println("QUERY: " + stmt.replaceAll(":id", "" + id));
+        return (E) query.getSingleResult();
     }
-    
 }

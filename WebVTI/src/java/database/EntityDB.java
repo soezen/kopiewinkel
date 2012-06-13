@@ -23,10 +23,10 @@ public abstract class EntityDB<E> {
     protected int type;
 
     public void deleteAll() {
-        
+
         // TODO change this to method in super type and E extends from it
         System.out.println("deleting all entities of " + clazz.getSimpleName());
-            
+
         for (E e : list()) {
             try {
                 delete((Key) clazz.getMethod("getKey", null).invoke(e, null));
@@ -45,20 +45,39 @@ public abstract class EntityDB<E> {
 
     }
 
+    /**
+     * create list of entities that match the given criteria
+     *
+     * @param constraint criteria an entity in the list should match with
+     * @param params values of parameters used in the constriant
+     * @return
+     */
+    public List<E> list(String constraint, Object[][] params) {
+        EntityManager manager = DatabaseManager.getEntityManager(type);
+
+        String stmt = "select e from " + clazz.getSimpleName() + " e and " + constraint;
+        Query query = manager.createQuery(stmt);
+
+        for (Object[] param : params) {
+            query.setParameter(param[0].toString(), param[1]);
+        }
+
+        List<E> result = query.getResultList();
+        result.size();
+        System.out.println("QUERY: " + stmt);
+        return query.getResultList();
+
+    }
+
     public List<E> list() {
         EntityManager manager = DatabaseManager.getEntityManager(type);
-        EntityTransaction tx = manager.getTransaction();
-        tx.begin();
-        try {
-            String stmt = "select e from " + clazz.getSimpleName() + " e";
-            Query query = manager.createQuery(stmt);
-            List<E> result = query.getResultList();
-            result.size();
-            System.out.println("QUERY: " + stmt);
-            return query.getResultList();
-        } finally {
-            tx.commit();
-        }
+
+        String stmt = "select e from " + clazz.getSimpleName() + " e";
+        Query query = manager.createQuery(stmt);
+        List<E> result = query.getResultList();
+        result.size();
+        System.out.println("QUERY: " + stmt);
+        return query.getResultList();
 
     }
 
@@ -93,7 +112,6 @@ public abstract class EntityDB<E> {
     public E update(E entity) {
         System.out.println("... updating " + entity);
         EntityManager manager = DatabaseManager.getEntityManager(type);
-        manager.clear();
         EntityTransaction tx = manager.getTransaction();
 
         try {
@@ -107,6 +125,7 @@ public abstract class EntityDB<E> {
             e.printStackTrace();
         } finally {
             if (tx.isActive()) {
+                System.out.println("ROLLBACK");
                 tx.rollback();
             }
         }

@@ -5,17 +5,21 @@
 package database.setup;
 
 //import au.com.bytecode.opencsv.CSVReader;
+import com.google.appengine.api.datastore.Key;
 import database.*;
 import domain.*;
 import domain.constraints.ConnectionConstraint;
 import domain.constraints.FormuleConstraint;
 import domain.constraints.OptiePrijsConstraint;
 import domain.constraints.OptieTypePrijsConstraint;
+import domain.enums.Eenheid;
 import domain.enums.InputVeldType;
 import domain.enums.OptieStatus;
+import domain.enums.PrijsType;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.logging.Level;
@@ -33,12 +37,12 @@ public class SetupDB {
         EntityDB[] dbs = new EntityDB[]{
             new InputWaardeDB(),
             new OpdrachtDB(),
+            new ConditieDB(),
             new PrijsKlasseDB(),
+            new PrijsFormuleDB(),
+            new PrijsDB(),
             new OpdrachtTypeInputDB(),
             new OpdrachtTypeDB(),
-            new PrijsDB(),
-            new PrijsFormuleDB(),
-            new ConditieDB(),
             new DoelgroepDB(),
             new SchooljaarGroepDB(),
             //       new LeerlingDB(),
@@ -82,6 +86,114 @@ public class SetupDB {
         createOpdrachtTypeInput();
         createOpties();
         createCondities();
+        createPrijzen();
+        createConstraints();
+        createMenuItems();
+    }
+    
+    private static void createMenuItems() {
+        MenuItemDB db = new MenuItemDB();
+        
+        db.persist(new MenuItem("Home", "home.jsp", false, 0));
+        db.persist(new MenuItem("Nieuw", "newOpdracht.jsp", false, 1));
+        db.persist(new MenuItem("Beheer", "mainBeheer.jsp", false, 2));
+    }
+    
+    private static void createConstraints() {
+        ConstraintDB db = new ConstraintDB();
+        OptieDB odb = new OptieDB();
+        OptieTypeDB otdb = new OptieTypeDB();
+        
+        // VERBIEDT is altijd wederkerig -> maak aparte constructor
+        db.persist(new ConnectionConstraint(otdb.getCurrentWithName("Kleur Kaft"), odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Andere"), "Kaft"), false, true));
+        db.persist(new ConnectionConstraint(otdb.getCurrentWithName("Gewicht Kaft"), odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Andere"), "Kaft"), false, true));
+        db.persist(new ConnectionConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Druktype"), "Recto Verso"), odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Andere"), "Transparant"), true, false));
+        db.persist(new ConnectionConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "160gr"), otdb.getCurrentWithName("Kleur"), false, true));
+        db.persist(new ConnectionConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "170gr"), otdb.getCurrentWithName("Kleur"), true, false));
+        db.persist(new ConnectionConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "200gr"), otdb.getCurrentWithName("Kleur"), true, false));
+        db.persist(new ConnectionConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Nieten"), "Plooi Boekje"), odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Andere"), "Boekje"), false, true));        
+    }
+    
+    private static void createPrijzen() {
+        PrijsDB db = new PrijsDB();
+        ConditieDB cdb = new ConditieDB();
+        ConstraintDB pcdb = new ConstraintDB();
+        OptieDB odb = new OptieDB();
+        OptieTypeDB otdb = new OptieTypeDB();
+        
+        Prijs p1 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.01), Eenheid.PAGINA, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Druktype"), "Recto"), p1, true));
+        
+        Prijs p2 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.02), Eenheid.PAGINA, PrijsType.OPTIETYPE));
+        pcdb.persist(new OptieTypePrijsConstraint(otdb.getCurrentWithName("Druktype"), p2, true));
+        
+        Prijs p3 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.013), Eenheid.PAGINA, PrijsType.OPTIETYPE, cdb.getWithName("Geen opties geselecteerd")));
+        pcdb.persist(new OptieTypePrijsConstraint(otdb.getCurrentWithName("Druktype"), p3, false));
+        
+        Prijs p4 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.02), Eenheid.PAGINA, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Druktype"), "Recto Verso"), p4, true));
+        
+        Prijs p5 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.005), Eenheid.PAGINA, PrijsType.OPTIETYPE));
+        pcdb.persist(new OptieTypePrijsConstraint(otdb.getCurrentWithName("Kleur"), p5, true));
+        
+        Prijs p6 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.015), Eenheid.PAGINA, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "120gr"), p6, true));
+        
+        Prijs p7 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), Eenheid.PAGINA, cdb.getWithName("A3 geselecteerd")));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "120gr"), p7, false));
+        pcdb.persist(new FormuleConstraint(db.get(p7.getKey()), new PrijsFormule("DEFAULT*(3+2/(DEFAULT*1000))")));
+        
+        Prijs p8 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), Eenheid.PAGINA, cdb.getWithName("A3 geselecteerd")));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "160gr"), p8, false));
+        pcdb.persist(new FormuleConstraint(db.get(p8.getKey()), new PrijsFormule("DEFAULT*(3+8/(DEFAULT*1000))")));
+        
+        Prijs p9 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), Eenheid.PAGINA, cdb.getWithName("A3 geselecteerd")));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "170gr"), p9, false));
+        pcdb.persist(new FormuleConstraint(db.get(p9.getKey()), new PrijsFormule("DEFAULT*(3+8/(DEFAULT*1000))")));
+        
+        Prijs p10 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.1), Eenheid.PAGINA, PrijsType.OPTIE, cdb.getWithName("A3 geselecteerd")));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "200gr"), p10, false));
+        
+        Prijs p11 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.04), Eenheid.KOPIE, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Andere"), "Kaft"), p11, true));
+        
+        Prijs p12 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.01), Eenheid.PAGINA, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Formaat"), "A3"), p12, true));
+        
+        Prijs p13 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.62), Eenheid.KOPIE, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Andere"), "Inbinden"), p13, true));
+        
+        Prijs p14 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.477), Eenheid.PAGINA, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Andere"), "Transparant"), p14, true));
+        
+        Prijs p15 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.022), Eenheid.PAGINA, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "170gr"), p15, true));
+        
+        Prijs p16 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.022), Eenheid.PAGINA, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "160gr"), p16, true));
+        
+        Prijs p17 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.04), Eenheid.KOPIE, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "200gr"), p17, true));
+        
+        Prijs p18 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.01), Eenheid.PAGINA, PrijsType.OPTIETYPE));
+        pcdb.persist(new OptieTypePrijsConstraint(otdb.getCurrentWithName("Kleur Kaft"), p18, true));
+        
+        Prijs p19 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.03), Eenheid.KOPIE, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht Kaft"), "120gr"), p19, true));
+        
+        Prijs p20 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.044), Eenheid.KOPIE, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht Kaft"), "160gr"), p20, true));
+        
+        Prijs p21 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.044), Eenheid.KOPIE, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht Kaft"), "170gr"), p21, true));
+        
+        Prijs p22 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.08), Eenheid.KOPIE, PrijsType.OPTIE));
+        pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht Kaft"), "200gr"), p22, true));
+        
+        // TODO get empty condition in service layer
+        Prijs p23 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), Eenheid.PAGINA));
+        pcdb.persist(new OptieTypePrijsConstraint(otdb.getCurrentWithName("Kleur"), p23, false));
+        pcdb.persist(new FormuleConstraint(db.get(p23.getKey()), new PrijsFormule("2*DEFAULT")));
     }
     
     private static void createCondities() {
@@ -89,6 +201,7 @@ public class SetupDB {
         OptieDB odb = new OptieDB();
         OptieTypeDB otdb = new OptieTypeDB();
         
+        db.persist(new Conditie("empty", "", ""));
         db.persist(new Conditie("A3 geselecteerd", "enkel van toepassing indien de optie 'A3' geselecteerd is", "O(" + odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Formaat"), "A3").getId() + ")"));
         db.persist(new Conditie("Geen opties geselecteerd", "enkel van toepassing indien geen enkele optie geselecteerd is", "O(LIST)=" + odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Druktype"), "Recto").getId()));
     }
@@ -224,15 +337,25 @@ public class SetupDB {
     private static void createOpdrachtTypes() {
         OpdrachtTypeDB db = new OpdrachtTypeDB();
         PrijsKlasseDB pkdb = new PrijsKlasseDB();
+        GebruikerTypeDB gtdb = new GebruikerTypeDB();
 
         OpdrachtType otStandaard = new OpdrachtType(pkdb.getWithName("Standaard"), "Standaard", "Standaard invulbon voor leerkrachten", DateUtil.date(2012, 1, 1));
         db.persist(otStandaard);
-
+        
         OpdrachtType otAdministratie = new OpdrachtType(pkdb.getWithName("Gratis"), "Administratie", "Invulbon voor administratieve opdrachten, deze worden niet aangerekend aan de leerlingen", DateUtil.date(2012, 1, 1));
         db.persist(otAdministratie);
-
+        
         OpdrachtType otPrive = new OpdrachtType(pkdb.getWithName("Standaard"), "Prive", "Opdrachten voor prive doeleinden, deze moeten betaald worden door de opdrachtgever", DateUtil.date(2012, 1, 1));
         db.persist(otPrive);
+    
+        GebruikerType gtLeerkracht = gtdb.getWithName("Leerkrachten");
+        gtLeerkracht.addRecht(otStandaard);
+        gtLeerkracht.addRecht(otPrive);
+        gtdb.update(gtLeerkracht);
+      
+        GebruikerType gtBeheerder = gtdb.getWithName("Beheerders");
+        gtBeheerder.addRecht(otAdministratie);
+        gtdb.update(gtBeheerder);
     }
 
     private static void createPrijsTypes() {

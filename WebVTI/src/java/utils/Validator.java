@@ -27,7 +27,6 @@ import javax.mail.internet.InternetAddress;
 public class Validator {
 
     public static HashMap<String, String> getErrors(Opdracht opdracht) {
-        InputVeldDB ivdb = new InputVeldDB();
         GebruikerDB gdb = new GebruikerDB();
         OpdrachtTypeDB otdb = new OpdrachtTypeDB();
         HashMap<String, String> errors = new HashMap<String, String>();
@@ -41,7 +40,7 @@ public class Validator {
         if (isAllowed(gdb.get(opdracht.getOpdrachtgever()), otdb.get(opdracht.getOpdrachtType()).getKey())) {
             // validate all input values
             for (OpdrachtTypeInput input : otdb.get(opdracht.getOpdrachtType()).getInputVelden()) {
-                InputVeld veld = ivdb.get(input.getInputVeld());
+                InputVeld veld = input.getInputVeld();
 
                 if (veld.getType() == InputVeldType.VAST && "Klassen".equals(veld.getNaam())) {
                     // klassen zijn verplicht

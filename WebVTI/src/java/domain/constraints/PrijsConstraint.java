@@ -6,6 +6,7 @@ package domain.constraints;
 
 import com.google.appengine.api.datastore.Key;
 import domain.Prijs;
+import domain.interfaces.Constrainer;
 import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
 
@@ -21,9 +22,8 @@ public abstract class PrijsConstraint extends Constraint {
     public PrijsConstraint() {
     }
 
-    public PrijsConstraint(Key constrainer, Prijs constrained, boolean standaard) {
-        super(constrainer, constrained.getKey());
-        System.out.println("standaard: " + standaard);
+    public PrijsConstraint(Constrainer constrainer, Prijs constrained, boolean standaard) {
+        super(constrainer, constrained);
         this.standaard = standaard;
     }
     
@@ -35,11 +35,11 @@ public abstract class PrijsConstraint extends Constraint {
         this.standaard = standaard;
     }
     
-    public Key getPrijsKey() {
+    public Long getPrijsId() {
         return getConstrained();
     }
     
-    public void setPrijsKey(Key prijs) {
+    public void setPrijsKey(Prijs prijs) {
         setConstrained(prijs);
     }
 
