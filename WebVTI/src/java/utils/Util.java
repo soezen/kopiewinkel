@@ -5,14 +5,12 @@
 package utils;
 
 import database.ConstraintDB;
-import database.OpdrachtDB;
 import database.OptieDB;
 import domain.Optie;
 import domain.constraints.ConnectionConstraint;
 import domain.constraints.Constraint;
 import domain.interfaces.Constrainer;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -21,12 +19,11 @@ import java.util.List;
  */
 public class Util {
 
-    private static OpdrachtDB db = new OpdrachtDB();
-
     /**
      * check to see if an optieType or optie requires an optie to be selected
      *
      * TODO fix name
+     *
      * @param constrainer
      * @return true if the constrainer should be hidden
      */
@@ -36,52 +33,56 @@ public class Util {
         // and which is not wederkerig
         ConstraintDB db = new ConstraintDB();
         OptieDB odb = new OptieDB();
-        
+
         List<Long> optieIds = new ArrayList<Long>();
-        
+
         for (Optie o : odb.list()) {
             optieIds.add(o.getId());
         }
-        
+
         // TODO move to service layer
-        List<ConnectionConstraint> conns = (List<ConnectionConstraint>) db.list(ConnectionConstraint.class, 
-                "e.constrainer = :constrainer and e.wederkerig = :wederkerig and e.constrained member of :optieIds", new Object[][] {
-           new Object[] { "constrainer", constrainer.getId() },
-           new Object[] { "wederkerig", false },
-           new Object[] { "optieIds", optieIds }
-        });
-        
+        List<ConnectionConstraint> conns = (List<ConnectionConstraint>) db.list(ConnectionConstraint.class,
+                "e.constrainer = :constrainer and e.wederkerig = :wederkerig and e.constrainedOptie", new Object[][]{
+                    new Object[]{"constrainer", constrainer.getId()},
+                    new Object[]{"wederkerig", false}
+                });
+
         return !conns.isEmpty();
     }
 
     public static String getConstraintsAsJSObject() {
         StringBuilder sbRequired = new StringBuilder("[");
         StringBuilder sbForbidden = new StringBuilder("[");
+        ConstraintDB csdb = new ConstraintDB();
 
-        List<Constraint> constraints = db.getConstraintsRequiredAndForbids();
-        if (constraints != null) {
-            for (Constraint constraint : constraints) {
-                // TODO fix
-//                System.out.println(constraint.getType() + ": " + constraint.getConstrainer().getId() + " - " + constraint.getConstrained().getId());
-//                switch (constraint.getType()) {
-//                    case VERPLICHT:
-//                        sbRequired.append("[")
-//                                .append(constraint.getConstrainer().getId())
-//                                .append(",")
-//                                .append(constraint.getConstrained().getId())
-//                                .append("],");
-//                        break;
-//                    case VERBIEDT:
-//                        sbForbidden.append("[")
-//                                .append(constraint.getConstrainer().getId())
-//                                .append(",")
-//                                .append(constraint.getConstrained().getId())
-//                                .append("],");
-//                        break;
-//                }
+        List<ConnectionConstraint> constraints = (List<ConnectionConstraint>) csdb.list(ConnectionConstraint.class);
+        for (ConnectionConstraint constraint : constraints) {
+            if (constraint.isVerplicht()) {
+                sbRequired.append("['")
+                        .append((constraint.isConstrainerOptie()) ? "OP" : "OT")
+                        .append(constraint.getConstrainer()).append("','")
+                        .append((constraint.isConstrainedOptie()) ? "OP" : "OT")
+                        .append(constraint.getConstrained()).append("'],");
+                if (constraint.isWederkerig()) {
+                    sbRequired.append("['")
+                            .append((constraint.isConstrainedOptie()) ? "OP" : "OT")
+                            .append(constraint.getConstrained()).append("','")
+                            .append((constraint.isConstrainerOptie()) ? "OP" : "OT")
+                            .append(constraint.getConstrainer()).append("'],");
+                }
+            } else {
+                sbForbidden.append("['")
+                        .append((constraint.isConstrainerOptie()) ? "OP" : "OT")
+                        .append(constraint.getConstrainer()).append("','")
+                        .append((constraint.isConstrainedOptie()) ? "OP" : "OT")
+                        .append(constraint.getConstrained()).append("'],['")
+                        .append((constraint.isConstrainedOptie()) ? "OP" : "OT")
+                        .append(constraint.getConstrained()).append("','")
+                        .append((constraint.isConstrainerOptie()) ? "OP" : "OT")
+                        .append(constraint.getConstrainer()).append("'],");
             }
         }
-        
+
         String requiredList = sbRequired.toString();
         if (requiredList.endsWith(",")) {
             requiredList = requiredList.substring(0, requiredList.length() - 1);

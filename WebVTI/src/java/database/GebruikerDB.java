@@ -49,7 +49,7 @@ public class GebruikerDB extends IdEntityDB<Gebruiker> {
         while (it.hasNext()) {
             Gebruiker g = it.next();
 
-            List<Long> ids = g.getRechten();
+            List<Long> ids = new ArrayList<Long>(g.getRechten());
             ids.addAll(g.getGebruikerType().getRechten());
 
             if (g.getGebruikerType().isStandaard() && ids.contains(ot.getId())) {

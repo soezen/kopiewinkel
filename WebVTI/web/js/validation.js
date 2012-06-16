@@ -287,7 +287,6 @@ function emptyErrors() {
 * @param report
 * @returns {Boolean}
 */
-// TODO add email to options of inputveldtype
 function checkEmailField(field, report) {
     var errors = false;
     var email = field.value.trim();

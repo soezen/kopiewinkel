@@ -4,7 +4,10 @@
  */
 package database;
 
+import domain.constraints.ConnectionConstraint;
 import domain.constraints.Constraint;
+import domain.enums.ConstraintType;
+import domain.interfaces.Constrainer;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -42,6 +45,20 @@ public class ConstraintDB extends IdEntityDB<Constraint> {
         System.out.println("QUERY: " + stmt);
         return query.getResultList();
         
+    }
+    
+    /**
+     * Get list of opties or optietypes (constrainables) who are constrained by
+     * <code>constrainer</code>.
+     *
+     * @param constrainer
+     * @return
+     */
+    public List<ConnectionConstraint> getConstraintsRequiredAndForbids(Constrainer constrainer) {
+        return (List<ConnectionConstraint>) list(ConnectionConstraint.class,
+                "e.constrainer = :id", new Object[][]{
+                    new Object[]{"id", constrainer.getId()}
+                });
     }
 
     public void deleteAll(Class clazz) {

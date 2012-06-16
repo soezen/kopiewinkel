@@ -106,7 +106,6 @@ $.widget.bridge = function( name, object ) {
 					methodValue = instance && $.isFunction( instance[options] ) ?
 						instance[ options ].apply( instance, args ) :
 						instance;
-				// TODO: add this back in 1.9 and use $.error() (see #5972)
 //				if ( !instance ) {
 //					throw "cannot call methods on " + name + " prior to initialization; " +
 //						"attempted to call method '" + options + "'";

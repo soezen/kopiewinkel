@@ -190,7 +190,6 @@ public class SetupDB {
         Prijs p22 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.08), Eenheid.KOPIE, PrijsType.OPTIE));
         pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht Kaft"), "200gr"), p22, true));
         
-        // TODO get empty condition in service layer
         Prijs p23 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), Eenheid.PAGINA));
         pcdb.persist(new OptieTypePrijsConstraint(otdb.getCurrentWithName("Kleur"), p23, false));
         pcdb.persist(new FormuleConstraint(db.get(p23.getKey()), new PrijsFormule("2*DEFAULT")));

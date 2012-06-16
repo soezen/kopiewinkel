@@ -232,21 +232,21 @@
             </c:if>
             <div class="opties ui-accordion ui-widget ui-helper-reset ui-accordion-icons" ${style}>
                 <h3 class="ui-widget-header ui-helper-reset ui-state-default ui-state-active ui-corner-top">
-                    <label for="${optieType.id}Aantal">${optieType.naam}</label>
-                    <input type="number" id="${optieType.id}Aantal" required disabled step="1" value="0" min="${optieType.min}" max="${optieType.max}" />
+                    <label for="OT${optieType.id}Aantal">${optieType.naam}</label>
+                    <input type="number" id="OT${optieType.id}Aantal" required disabled step="1" value="0" min="${optieType.min}" max="${optieType.max}" />
                 </h3>
-                <div id="${optieType.id}" class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active">
+                <div id="OT${optieType.id}" class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active">
                     ${optieType.omschrijving}
                     <br />
                     <c:forEach items="${optieType.opties}" var="optie">
                         <c:choose>
                             <c:when test="${f:isVisibleOrEnabled(optie)}">
-                                <input type="checkbox" id="${optie.id}" value="${optie.id}" name="${optie.id}" onchange="setSelected(this, null, [], function() {})" disabled />
-                                <label for="${optie.id}" title="${optie.omschrijving}">${optie.naam}</label>
+                                <input type="checkbox" id="OP${optie.id}" value="${optie.id}" name="OP${optie.id}" onchange="setSelected(this, null, [], function() {})" disabled />
+                                <label for="OP${optie.id}" title="${optie.omschrijving}">${optie.naam}</label>
                             </c:when>
                             <c:otherwise>
-                                <input type="checkbox" id="${optie.id}" name="${optie.id}" value="${optie.id}" onchange="setSelected(this, null, [], function() {})" />
-                                <label for="${optie.id}" title="${optie.omschrijving}">${optie.naam}</label>
+                                <input type="checkbox" id="OP${optie.id}" name="OP${optie.id}" value="${optie.id}" onchange="setSelected(this, null, [], function() {})" />
+                                <label for="OP${optie.id}" title="${optie.omschrijving}">${optie.naam}</label>
                             </c:otherwise>
                         </c:choose>
                         <br />

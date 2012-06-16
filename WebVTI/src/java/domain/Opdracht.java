@@ -39,7 +39,7 @@ public class Opdracht implements java.io.Serializable, Constrained {
     @Basic
     private List<Key> doelgroepen = new ArrayList<Key>(0);
     @Basic
-    private List<Key> opties = new ArrayList<Key>(0);
+    private List<Long> opties = new ArrayList<Long>(0);
 
     public Opdracht() {
     }
@@ -78,7 +78,7 @@ public class Opdracht implements java.io.Serializable, Constrained {
     }
 
     public void addOptie(Optie optie) {
-        opties.add(optie.getKey());
+        opties.add(optie.getId());
     }
 
     public InputWaarde getInputWaardeFor(InputVeld veld) {
@@ -188,14 +188,14 @@ public class Opdracht implements java.io.Serializable, Constrained {
         this.doelgroepen = doelgroepen;
     }
     
-    public List<Key> getOpties() {
+    public List<Long> getOpties() {
         return this.opties;
     }
 
-    public void setOpties(List<Key> opties) {
+    public void setOpties(List<Long> opties) {
         this.opties = opties;
     }
-
+    
     @Override
     public String toString() {
         return "OPDRACHT [" + id + ", " + opdrachtgever + ", " + opdrachtType + ", " + bestand + ", " + aantal + ", " + status + ", " + opties.size() + ", " + doelgroepen.size() + ", " + inputWaarden.size() + "]";

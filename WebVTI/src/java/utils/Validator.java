@@ -7,12 +7,16 @@ package utils;
 import com.google.appengine.api.datastore.Key;
 import database.*;
 import domain.*;
+import domain.constraints.ConnectionConstraint;
 import domain.constraints.Constraint;
 import domain.enums.ConstraintType;
 import domain.enums.InputVeldType;
 import domain.interfaces.Constrainable;
+import domain.interfaces.Constrained;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +41,7 @@ public class Validator {
         }
 
         // rechten gebruiker op opdrachtgever
-        if (isAllowed(gdb.get(opdracht.getOpdrachtgever()), otdb.get(opdracht.getOpdrachtType()).getKey())) {
+        if (gdb.get(opdracht.getOpdrachtgever()).isAllowed(otdb.get(opdracht.getOpdrachtType()))) {
             // validate all input values
             for (OpdrachtTypeInput input : otdb.get(opdracht.getOpdrachtType()).getInputVelden()) {
                 InputVeld veld = input.getInputVeld();
@@ -52,9 +56,7 @@ public class Validator {
                         }
                     }
                 } else if (veld.getType() != InputVeldType.VAST) {
-                    // TODO
-               //     InputWaarde waarde = opdracht.getInputWaardeFor(veld);
-                    InputWaarde waarde = null;
+                    InputWaarde waarde = opdracht.getInputWaardeFor(veld);
                     if (input.isVerplicht()) {
                         if (waarde == null) {
                             errors.put(veld.getNaam(), veld.getNaam() + " is verplicht in te vullen");
@@ -85,67 +87,68 @@ public class Validator {
         OpdrachtDB db = new OpdrachtDB();
         GebruikerDB gdb = new GebruikerDB();
         OptieDB odb = new OptieDB();
-        List<Constraint> constraints = db.getConstraintsRequiredAndForbids();
+        
         if (opdracht.getOpties() != null) {
-            for (Key key : opdracht.getOpties()) {
-                Optie optie = odb.get(key);
-                if (!isAllowed(gdb.get(opdracht.getOpdrachtgever()), optie.getKey())) {
+            for (Long key : opdracht.getOpties()) {
+                Optie optie = odb.getWithId(key);
+                Gebruiker gebruiker = gdb.get(opdracht.getOpdrachtgever());
+                if (!gebruiker.isAllowed(optie)) {
                     errors.put(optie.getNaam(), "Opdrachtgever heeft niet genoeg rechten om optie " + optie.getNaam() + " te selecteren");
-                } else if (!isAllowed(gdb.get(opdracht.getOpdrachtgever()), optie.getOptieType().getKey())) {
+                } else if (!gebruiker.isAllowed(optie.getOptieType())) {
                     errors.put(optie.getNaam(), "Opdrachtgever heeft niet genoeg rechten om opties van het type " + optie.getOptieType().getNaam() + " te selecteren");
                 } else {
-                    checkConstraints(constraints, optie, opdracht, errors);
+                    checkConstraints(optie, opdracht, errors);
                 }
             }
         }
     }
 
-    public static void checkConstraints(List<Constraint> constraints, Optie optie, Opdracht opdracht, HashMap<String, String> errors) {
-        EnumMap<ConstraintType, List<Constrainable>> constrainables = new EnumMap<ConstraintType, List<Constrainable>>(ConstraintType.class);
+    /**
+     * check if an opdracht satifies all the constraints of an optie.
+     *
+     * @param constraints
+     * @param optie
+     * @param opdracht
+     * @param errors
+     */
+    public static void checkConstraints(Optie optie, Opdracht opdracht, HashMap<String, String> errors) {
+        ConstraintDB csdb = new ConstraintDB();
+        OptieTypeDB otdb = new OptieTypeDB();
+        List<ConnectionConstraint> constraints = csdb.getConstraintsRequiredAndForbids(optie);
 
-        // TODO refactor
-//        for (Constraint constraint : constraints) {
-//            if (constraint.getConstrainer().equals(optie)) {
-//                List<Constrainable> l = constrainables.get(constraint.getType());
-//                if (l == null) {
-//                    l = new ArrayList<Constrainable>();
-//                    constrainables.put(constraint.getType(), l);
-//                }
-//                l.add(constraint.getConstrained());
-//            }
-//        }
+        for (ConnectionConstraint constraint : constraints) {
+            boolean contains = false;
 
-//        for (Entry<ConstraintType, List<Constrainable>> entry : constrainables.entrySet()) {
-//            switch (entry.getKey()) {
-//                case VERPLICHT:
-//                    for (Constrainable con : entry.getValue()) {
-//                        if (!contains(opdracht.getOpties(), con)) {
-//                            errors.put(optie.getNaam(), "Niet alle benodigde opties voor optie " + optie.getNaam() + " zijn geselecteerd");
-//                        }
-//                    }
-//                    break;
-//                case VERBIEDT:
-//                    for (Constrainable con: entry.getValue()) {
-//                        if (contains(opdracht.getOpties(), con)) {
-//                            errors.put(optie.getNaam(), "Bepaalde opties zijn geselecteerd die niet in combinatie mogen met optie " + optie.getNaam());
-//                        }
-//                    }
-//                    break;
-//            }
-//        }
+            if (constraint.isConstrainedOptie()) {
+                if (opdracht.getOpties().contains(constraint.getConstrained())) {
+                    contains = true;
+                }
+            } else {
+                OptieType type = (OptieType) otdb.getWithId(constraint.getConstrained());
+                for (Optie o : type.getOpties()) {
+                    contains = contains || opdracht.getOpties().contains(o.getId());
+                }
 
+            }
+            
+            if (constraint.isVerplicht()) {
+                if (contains) {
+                    errors.put(optie.getNaam(), "Niet alle benodigde opties voor optie " + optie.getNaam() + " zijn geselecteerd");
+                }
+            } else {
+                if (!contains) {
+                    errors.put(optie.getNaam(), "Bepaalde opties zijn geselecteerd die niet in combinatie mogen met optie " + optie.getNaam());
+                }
+            }
+        }
     }
 
-    public static boolean contains(List<Optie> opties, Constrainable constrainable) {
+    public static boolean contains(List<Long> opties, Constrainable constrainable) {
         boolean contains = false;
 
         if (constrainable instanceof Optie) {
             contains = opties.contains(constrainable);
         } else if (constrainable instanceof OptieType) {
-            OptieType type = (OptieType) constrainable;
-            for (Optie o:type.getOpties()) {
-                contains = contains || opties.contains(o);
-            }
         }
 
         return contains;
@@ -291,17 +294,5 @@ public class Validator {
         }
 
         return isDatum;
-    }
-
-    public static boolean isAllowed(Gebruiker gebruiker, Key constrained) {
-        boolean isAllowed = gebruiker.getGebruikerType().isStandaard()
-                ^ (gebruiker.getRechten().contains(constrained)
-                || gebruiker.getGebruikerType().getRechten().contains(constrained));
-        // TODO
-//        if (constrained instanceof Optie && !isAllowed) {
-//            Optie optie = (Optie) constrained;
-//            isAllowed = isAllowed(gebruiker, optie.getOptieType()) || isAllowed;
-//        }
-        return isAllowed;
     }
 }

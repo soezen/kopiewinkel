@@ -4,7 +4,7 @@
  */
 package domain.constraints;
 
-import com.google.appengine.api.datastore.Key;
+import domain.Optie;
 import domain.interfaces.Constrainable;
 import domain.interfaces.Constrainer;
 import javax.persistence.Entity;
@@ -20,12 +20,16 @@ import javax.persistence.InheritanceType;
 public class ConnectionConstraint extends Constraint {
     protected boolean wederkerig;
     protected boolean verplicht;
+    protected boolean constrainedOptie;
+    protected boolean constrainerOptie;
 
     public ConnectionConstraint() {
     }
 
     public ConnectionConstraint(Constrainer constrainer, Constrainable constrained, boolean wederkerig, boolean verplicht) {
         super(constrainer, constrained);
+        this.constrainerOptie = (constrainer instanceof Optie) ? true : false;
+        this.constrainedOptie = (constrained instanceof Optie) ? true : false;
         this.wederkerig = wederkerig;
         this.verplicht = verplicht;
     }
@@ -44,6 +48,26 @@ public class ConnectionConstraint extends Constraint {
 
     public void setVerplicht(boolean verplicht) {
         this.verplicht = verplicht;
+    }
+
+    public boolean isConstrainedOptie() {
+        return constrainedOptie;
+    }
+
+    public boolean isConstrainerOptie() {
+        return constrainerOptie;
+    }
+
+    @Override
+    public void setConstrained(Constrainable constrained) {
+        super.setConstrained(constrained);
+        constrainedOptie = (constrained instanceof Optie) ? true : false;
+    }
+
+    @Override
+    public void setConstrainer(Constrainer constrainer) {
+        super.setConstrainer(constrainer);
+        constrainerOptie = (constrainer instanceof Optie) ? true : false;
     }
 
     @Override

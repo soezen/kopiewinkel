@@ -53,14 +53,14 @@
             });
 
             setForbidden = function(a, b, origins, callback) {
-                origins.push(a);
+                origins.push(a.id);
                 return setEnabled(document.getElementById(b), !a.checked, origins, callback);
             }
 
             setRequired = function(a, b, origins, callback) {
                 b = document.getElementById(b);
                 if (a.checked && isOptie(b.id)) {
-                    origins.push(a);
+                    origins.push(a.id);
                     return setSelected(b, true, origins, callback);
                 } else if (isOptieType(b.id) && a.checked) {
                     callback2 = callback;
@@ -75,7 +75,7 @@
                         }
                     }
                     b.parentNode.style.display = "block";
-                    origins.push(a);
+                    origins.push(a.id);
                     return setEnabled(b, true, origins, function() {
                         b.parentNode.style.display = "none";
                         callback2();
@@ -96,7 +96,7 @@
 
             setIsRequiredBy = function(a, b, origins, callback) {
                 b = document.getElementById(b);
-                origins.push(a);
+                origins.push(a.id);
                 if (isOptieType(b.id)) {
                     return setVisible(b, a.checked, origins, callback);
                 } else if (isOptie(a.id)) {
@@ -220,7 +220,7 @@
                     }
                 } else {
                     children = b.getElementsByTagName("input");
-                    origins.push(b);
+                    origins.push(b.id);
                     hasErrors = false;
                     callback2 = callback;
                     for (var i=0; i<children.length; i++) {
@@ -240,7 +240,7 @@
                     }
                     if (!inOrigins && !a.disabled) {
                         // checking max of optie type
-                        var otInput = getOptieTypeInput(a);
+                        var otInput = getOptieTypeInput(a.id);
                         newValue = otInput.value;
                         if(selected) {
                             newValue++;
@@ -255,7 +255,7 @@
                         } else if(otInput.max == 1 && selected) {
                             // deselecting other first
                             newOrigins = origins;
-                            newOrigins.push(a);
+                            newOrigins.push(a.id);
                             other = getFirstSelectedOptie(otInput.id, a);
                             callback = setSelected(other, false, newOrigins, callback);
                             a.checked = true;
@@ -321,11 +321,11 @@
             }
 
             function isOptie(id) {
-                return (id >= 5000000 && id < 6000000);
+                return id.indexOf("OP") == 0;
             }
 
             function isOptieType(id) {
-                return (id >= 4000000 && id < 5000000);
+                return id.indexOf("OT") == 0;
             }
 
             function updateAantal(check, inAantal) {

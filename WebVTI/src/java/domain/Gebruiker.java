@@ -207,5 +207,10 @@ public class Gebruiker implements java.io.Serializable {
     }
 
 
+    public boolean isAllowed(Constrained constrained) {
+        return getGebruikerType().isStandaard()
+                ^ (getRechten().contains(constrained.getId())
+                || getGebruikerType().getRechten().contains(constrained.getId()));
+    }
     
 }

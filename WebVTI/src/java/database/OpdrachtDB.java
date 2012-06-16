@@ -102,19 +102,6 @@ public class OpdrachtDB extends PriviligedEntityDB<Opdracht> {
         return velden;
     }
 
-    /**
-     * Get list of opties or optietypes (constrainables) who are constrained by
-     * <code>constrainer</code>.
-     *
-     * @param constrainer
-     * @return
-     */
-    public List<Constraint> getConstraintsRequiredAndForbids() {
-        String criteria = "type in ('" + ConstraintType.VERPLICHT + "', '" + ConstraintType.VERBIEDT + "')";
-//        return DatabaseManager.list(Constraint.class, "Constraints", criteria, null);
-        return null;
-    }
-
 //    // TODO mapping opdracht incomplete: missing doelgroepen en opties
 //    public Opdracht save(Opdracht opdracht) {
 ////        Opdracht o = (Opdracht) DatabaseManager.save(opdracht);

@@ -20,7 +20,7 @@ public class PriviligedEntityDB<E> extends IdEntityDB<E> {
     public List<E> list(Gebruiker gebruiker, String constraint, Object[][] params) {
         EntityManager manager = DatabaseManager.getEntityManager(type);
         List<E> result;
-        List<Long> keys = gebruiker.getRechten();
+        List<Long> keys = new ArrayList<Long>(gebruiker.getRechten());
         keys.addAll(gebruiker.getGebruikerType().getRechten());
 
         if (keys.isEmpty()) {
@@ -60,9 +60,9 @@ public class PriviligedEntityDB<E> extends IdEntityDB<E> {
         EntityManager manager = DatabaseManager.getEntityManager(type);
         List<E> result = new ArrayList<E>();
 
-        List<Long> keys = gebruiker.getRechten();
+        List<Long> keys = new ArrayList<Long>(gebruiker.getRechten());
         keys.addAll(gebruiker.getGebruikerType().getRechten());
-
+        
         if (keys.isEmpty()) {
             if (gebruiker.getGebruikerType().isStandaard()) {
                 return list();

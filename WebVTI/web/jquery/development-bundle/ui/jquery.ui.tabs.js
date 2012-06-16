@@ -380,7 +380,6 @@ $.widget( "ui.tabs", {
 						showTab( el, $show );
 					});
 
-					// TODO make passing in node possible, see also http://dev.jqueryui.com/ticket/3171
 					self.load( self.anchors.index( this ) );
 
 					this.blur();
