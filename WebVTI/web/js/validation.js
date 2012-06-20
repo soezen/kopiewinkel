@@ -18,11 +18,12 @@ function validate() {
         var type = field.getAttribute("type");
 
         if (type == "text" || type == "number" || type == "file" || type == "email") {
-            if (field.required) {
+            // TODO check to see if this does not cause problems in chrome
+            if (field.required || field.getAttribute("required") == "") {
                 errorOnField = !checkRequiredField(field, true);
             } else if (field.disabled) {
                 errorOnField = !checkForbiddenField(field, true);
-            }
+            } 
 
             if (!errorOnField) {
                 errors = !checkLimits(field, true) || errors;
@@ -88,7 +89,7 @@ function checkLimits(field, report) {
     if (!max) {
         max = field.getAttribute("max");
     }
-	
+    	
     if ((min || max) && !notNumber) {
 		
         if (min) {
@@ -108,7 +109,7 @@ function checkLimits(field, report) {
                 min: min,
                 max: max
             });
-            if (isOptieType(field.id.replace("Aantal", ""))) {
+            if (isOptieType(field.id)) {
                 attributes.optieType = true;
             }
             reportError(field, "limits", attributes);
@@ -161,6 +162,10 @@ function reportError(field, type, attributes) {
         label = label.innerHTML
     }
     
+    if ("Klassen" == label) {
+        attributes.klassen = true;
+    }        
+    
     if (type != "forbidden") {
         var link = document.createElement("a");
         link.href = "#";
@@ -168,13 +173,16 @@ function reportError(field, type, attributes) {
             field.select();
             field.focus();
         };
+     //   if ()
         link.innerHTML = label + getErrorMessage(type, attributes);
         error.appendChild(link);
     } else {
         error.innerHTML = label + getErrorMessage(type, attributes);
     }
     log.appendChild(error);
-	
+    log.parentNode.style.display = "block";
+    // TODO hide log when no errors
+
     field.onkeydown = function() {
         removeError(field);
     };
@@ -190,6 +198,8 @@ function removeError(field) {
     if (error != null) {
         error.parentNode.removeChild(error);
     }
+    
+    // TODO if last error, hide error block
 }
 
 /**
@@ -212,7 +222,12 @@ function getErrorMessage(type, attributes) {
             if (attributes.min && attributes.max) {
                 return " moet een waarde hebben tussen " + attributes.min + " en " + attributes.max;
             } else if (attributes.min) {
-                return " moet een waarde hebben groter dan " + attributes.min;
+                alert("klassen" + attributes.klassen);
+                if (!attributes.klassen) {
+                    return " moet een waarde hebben groter dan " + attributes.min;
+                } else {
+                    return "Er moet minimum " + attributes.min + " klas(sen) geselecteerd hebben";
+                }
             } else if (attributes.max) {
                 return " moet een waarde hebben kleiner dan " + attributes.max;
             }

@@ -45,9 +45,6 @@
             request.setAttribute("velden", velden);
             request.setAttribute("opdrachtType", ot);
 %>
-<div>
-    <button onclick="save()">Volgende</button>
-</div>
 <form id="opdrachtForm" action="InputOpdrachtServlet" method="post" enctype="multipart/form-data">
 
     <div id="top">
@@ -57,8 +54,12 @@
                 <%= "</div>"%>
             </c:if>
             <div id="${veld.inputVeld.id}">
+                <c:choose>
+                    <c:when test="${veld.zichtbaar}">
+                
                 <label for="${veld.inputVeld.id}">${veld.inputVeld.naam}</label>
-
+                    </c:when>
+                </c:choose>
                 <c:choose>
                     <c:when test="${veld.inputVeld.type == 'VAST'}">
                         <c:choose>
@@ -120,7 +121,7 @@
                                     <%= "</div>"%>
                                 </div>
                             </c:when>
-                            <c:when test="${veld.inputVeld.naam == 'Opdrachtgever'}">
+                            <c:when test="${veld.inputVeld.naam == 'Opdrachtgever' && veld.zichtbaar}">
                                 <%  
                                             List<Gebruiker> gebruikers = gdb.getOpdrachtGevers(ot);
                                             request.setAttribute("gebruikers", gebruikers);
@@ -142,7 +143,7 @@
                                     </c:otherwise>
                                 </c:choose>
                             </c:when>
-                            <c:when test="${veld.inputVeld.naam == 'Bestand'}">
+                            <c:when test="${veld.inputVeld.naam == 'Bestand' && veld.zichtbaar}">
                                 <input type="file" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" required accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword" />
                             </c:when>
                             <c:when test="${veld.inputVeld.naam == 'Aantal'}">
@@ -179,7 +180,23 @@
                                     </c:otherwise>
                                 </c:choose>
                             </c:when>
-                            <c:otherwise>
+                            <c:when test="${veld.inputVeld.naam == 'Prijs'}">
+                                    <c:choose>
+                                        <c:when test="${veld.wijzigbaar && veld.verplicht}">
+                                            <input type="number" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" value="0" required />
+                                        </c:when>
+                                        <c:when test="${veld.wijzigbaar && !veld.verplicht}">
+                                            <input type="number" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" value="0" />
+                                        </c:when>
+                                        <c:when test="${!veld.wijzigbaar && veld.verplicht}">
+                                            <input type="number" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" value="0" disabled required />
+                                        </c:when>
+                                        <c:otherwise>
+                                            <input type="number" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" value="0" disabled />
+                                        </c:otherwise>
+                                    </c:choose>
+                            </c:when>
+                            <c:when test="${veld.zichtbaar}">
                                 <c:choose>
                                     <c:when test="${veld.wijzigbaar && veld.verplicht}">
                                         <input type="text" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" required />
@@ -194,7 +211,7 @@
                                         <input type="text" id="${veld.inputVeld.id}" name="${veld.inputVeld.id}" disabled />
                                     </c:otherwise>
                                 </c:choose>
-                            </c:otherwise>
+                            </c:when>
                         </c:choose>
                     </c:when>
                     <c:otherwise>
@@ -231,7 +248,11 @@
                 <c:set var="style" value="style='display:none'" />
             </c:if>
             <div class="opties ui-accordion ui-widget ui-helper-reset ui-accordion-icons" ${style}>
-                <h3 class="ui-widget-header ui-helper-reset ui-state-default ui-state-active ui-corner-top">
+                <c:set var="h3class" value="ui-widget-header ui-helper-reset ui-state-default ui-state-active ui-corner-top" />
+                <c:if test="${optieType.min > 0}">
+                    <c:set var="h3class" value="${h3class} error" />
+                </c:if>
+                <h3 class="${h3class}">
                     <label for="OT${optieType.id}Aantal">${optieType.naam}</label>
                     <input type="number" id="OT${optieType.id}Aantal" required disabled step="1" value="0" min="${optieType.min}" max="${optieType.max}" />
                 </h3>

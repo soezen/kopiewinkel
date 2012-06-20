@@ -46,6 +46,8 @@ public class Gebruiker implements java.io.Serializable {
     private List<Long> rechten = new ArrayList<Long>(0);
     @OneToMany(mappedBy = "eigenaar")
     private List<Aanvraag> aanvragen;
+    @Basic
+    private List<Long> toewijzingen = new ArrayList<Long>();
 
     public Gebruiker() {
     }
@@ -126,6 +128,18 @@ public class Gebruiker implements java.io.Serializable {
 
     public void addRecht(Constrained recht) {
         rechten.add(recht.getId());
+    }
+
+    public void setToewijzingen(List<Long> toewijzingen) {
+        this.toewijzingen = toewijzingen;
+    }
+
+    public List<Long> getToewijzingen() {
+        return toewijzingen;
+    }
+    
+    public void addToewijzing(Doelgroep doelgroep) {
+        toewijzingen.add(doelgroep.getId());
     }
     
 //    public Set<LayoutProperty> getLayoutProperties() {

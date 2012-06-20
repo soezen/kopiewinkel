@@ -64,9 +64,18 @@
                     return setSelected(b, true, origins, callback);
                 } else if (isOptieType(b.id) && a.checked) {
                     callback2 = callback;
-                    otInput = getOptieTypeInput(b.id);
-                    if (otInput.min == 0) {
-                        otInput.min = 1;
+                    var otInput = getOptieTypeInput(b.id);
+                    // TODO put in method
+                    var min = otInput.min;
+                    if (!min) {
+                        min = otInput.getAttribute("min");
+                    }
+                    if (min == 0) {
+                        if (otInput.min) {
+                            otInput.min = 1;
+                        } else {
+                            otInput.setAttribute("min", 1);
+                        }
                         checkNumberInput(otInput);
                         callback2 = function() {
                             b.min = 0;
@@ -81,12 +90,23 @@
                         callback2();
                     });
                 } else if (isOptieType(b.id) && !a.checked) {
-                    otInput = getOptieTypeInput(b.id);
-                    oldMin = otInput.min;
-                    otInput.min = 0;
+                    var otInput = getOptieTypeInput(b.id);
+                    var oldMin = otInput.min;
+                    if (!oldMin) {
+                        oldMin = otInput.getAttribute("min");
+                    }
+                    if (otInput.min) {
+                        otInput.min = 0;
+                    } else {
+                        otInput.setAttribute("min", 0);
+                    }
                     checkNumberInput(otInput);
                     return function() {
-                        otInput.min = oldMin;
+                        if (otInput.min) {
+                            otInput.min = oldMin;
+                        } else {
+                            otInput.setAttribute("min", oldMin);
+                        }
                         checkNumberInput(otInput);
                         callback();
                     };
@@ -107,9 +127,7 @@
             }
 
             save = function() {
-                console.log('save');
                 if (validate()) {
-                    console.log('validated');
                     var xmlhttp;
                     if (window.XMLHttpRequest) {
                         // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -120,7 +138,6 @@
                     }
                     xmlhttp.onreadystatechange = function() {
                         if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-                            console.log('save reply');
                             var response = xmlhttp.responseText;
                             if (response.indexOf("<li>") == 0
                                 && response.lastIndexOf("</li>") == response.length - 5) {
@@ -139,6 +156,7 @@
                             } 
                         }
                     }
+                    // TODO test this in firefox
                     var formData = new FormData(document.getElementById("opdrachtForm"));
                     
                     xmlhttp.open("POST", "InputOpdrachtServlet");
@@ -171,7 +189,16 @@
 
             function checkNumberInput(input) {
                 header = $(input.parentNode.parentNode).children("h3");
-                if ((input.value > input.max && input.max != -1) || input.value < input.min) {
+                var max = input.max;
+                var min = input.min;
+                if (!max) {
+                    max = input.getAttribute("max");
+                }
+                if (!min) {
+                    min = input.getAttribute("min");
+                }
+                
+                if ((input.value > max && max != -1) || input.value < min) {
                     header.addClass("error");
                 } else {
                     header.removeClass("error");
@@ -247,12 +274,17 @@
                         } else {
                             newValue--;
                         }
-                        done = false;
-                        if (otInput.max >= newValue || otInput.max == -1) {
+                        var done = false;
+                        var max = otInput.max;
+                        if (!max) {
+                            max = otInput.getAttribute("max");
+                        }
+                        
+                        if (max >= newValue || max == -1) {
                             a.checked = selected;
                             updateAantalSelected(otInput, selected);
                             done = true;
-                        } else if(otInput.max == 1 && selected) {
+                        } else if(max == 1 && selected) {
                             // deselecting other first
                             newOrigins = origins;
                             newOrigins.push(a.id);

@@ -26,7 +26,6 @@
 
 <script type="text/javascript">
     var getOpdrachtItems = function() {
-        console.log("get opdracht form");
         var select = document.getElementById("typeSelect");
         var option = select.options[select.selectedIndex].id;
                 
@@ -50,7 +49,6 @@
     }
 
     backToOpdrachtType = function() {
-        console.log('back');
         redirect('jsp/newOpdracht.jsp', function(inXmlHttp) {
             var body = document.getElementById("opdrachtBody").parentNode;
             body.innerHTML = inXmlHttp.responseText;

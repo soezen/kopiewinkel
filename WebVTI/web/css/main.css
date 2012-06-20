@@ -29,8 +29,9 @@ root {
     width: 30px;
 }
 
-.top {
+#top {
     margin-bottom: 20px;
+    overflow: hidden;
 }
 
 .klassen {

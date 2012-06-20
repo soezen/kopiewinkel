@@ -32,19 +32,13 @@ public class Util {
         // and of which the constrained is of type optie
         // and which is not wederkerig
         ConstraintDB db = new ConstraintDB();
-        OptieDB odb = new OptieDB();
-
-        List<Long> optieIds = new ArrayList<Long>();
-
-        for (Optie o : odb.list()) {
-            optieIds.add(o.getId());
-        }
-
+      
         // TODO move to service layer
         List<ConnectionConstraint> conns = (List<ConnectionConstraint>) db.list(ConnectionConstraint.class,
-                "e.constrainer = :constrainer and e.wederkerig = :wederkerig and e.constrainedOptie", new Object[][]{
+                "e.constrainer = :constrainer and e.wederkerig = :wederkerig and e.constrainedOptie = :isOptie", new Object[][]{
                     new Object[]{"constrainer", constrainer.getId()},
-                    new Object[]{"wederkerig", false}
+                    new Object[]{"wederkerig", false},
+                    new Object[]{"isOptie", true}
                 });
 
         return !conns.isEmpty();
