@@ -69,6 +69,7 @@
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                 object = eval(xmlhttp.responseText);
+                functions = [];
                 functions.push([object.required, setRequired]);
                 functions.push([object.required, setIsRequiredBy]);
                 functions.push([object.forbidden, setForbidden]);

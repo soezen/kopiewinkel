@@ -24,6 +24,26 @@
         <link media="all" type="text/css" href="jquery/css/cupertino/jquery-ui-1.8.17.custom.css" rel="stylesheet">
         <link type="text/css" href="css/main.css" rel="stylesheet" />
         <script type="text/javascript">
+            function supportAjaxUploadWithProgress() {
+                return supportFileAPI() && supportAjaxUploadProgressEvents();
+            }
+ 
+            function supportFileAPI() {
+                var fi = document.createElement('INPUT');
+                fi.type = 'file';
+                return 'files' in fi;
+            }
+ 
+            function supportAjaxUploadProgressEvents() {
+                var xhr = new XMLHttpRequest();
+                var support = !! (xhr && ('upload' in xhr) && ('onprogress' in xhr.upload));
+                return support;
+            }
+            
+            function supportFormData() {
+                return !! window.FormData;
+            }
+            
             function redirect(page, success) {
                 var xmlhttp;
                 if (window.XMLHttpRequest) {
@@ -113,7 +133,7 @@
                 } 
                 return callback;
             }
-
+            
             setIsRequiredBy = function(a, b, origins, callback) {
                 b = document.getElementById(b);
                 origins.push(a.id);
@@ -156,11 +176,19 @@
                             } 
                         }
                     }
-                    // TODO test this in firefox
-                    var formData = new FormData(document.getElementById("opdrachtForm"));
                     
-                    xmlhttp.open("POST", "InputOpdrachtServlet");
-                    xmlhttp.send(formData);
+                    if (supportFormData()) {
+                        var formData = new FormData(document.getElementById("opdrachtForm"));
+                    
+                        xmlhttp.open("POST", "InputOpdrachtServlet");
+                        xmlhttp.send(formData);
+                    } else if (supportFileAPI()) {
+                        // select file input fields
+                        // TODO catch error if no file input fields are in form
+                        fileList = $(".velden > div > input[type='file']")[0].files;
+                        // set form type as other kind
+                        // post all data to server (including file)
+                    }
                     // TODO show busy sign, so user knows reply is still coming.
                 } 
             }
@@ -414,24 +442,24 @@
             }
         </script>
         <%          Gebruiker gebruiker = (Gebruiker) session.getAttribute("gebruiker");
-                    if (gebruiker == null) {
-                        GebruikerDB gdb = new GebruikerDB();
-                        gebruiker = gdb.getGastGebruiker();
-                        session.setAttribute("gebruiker", gebruiker);
-                    }
+            if (gebruiker == null) {
+                GebruikerDB gdb = new GebruikerDB();
+                gebruiker = gdb.getGastGebruiker();
+                session.setAttribute("gebruiker", gebruiker);
+            }
         %>
     </head>
     <body>
         <div id="menu">
             <ul>
                 <%
-                            MenuItemDB dbMenu = new MenuItemDB();
-                            List<MenuItem> items = dbMenu.list(gebruiker);
-                            if (items != null) {
-                                for (MenuItem item : items) {
-                                    out.println("<li><a href='jsp/" + item.getLink() + "'>" + item.getNaam() + "</a></li>");
-                                }
-                            }
+                    MenuItemDB dbMenu = new MenuItemDB();
+                    List<MenuItem> items = dbMenu.list(gebruiker);
+                    if (items != null) {
+                        for (MenuItem item : items) {
+                            out.println("<li><a href='jsp/" + item.getLink() + "'>" + item.getNaam() + "</a></li>");
+                        }
+                    }
                 %>
             </ul>
         </div>

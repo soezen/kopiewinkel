@@ -49,15 +49,16 @@
 
     <div id="top">
         <%= "<div class='velden'>"%>
+        <c:set var="closer" value="</div>" />
         <c:forEach items="${velden}" var="veld">
             <c:if test="${veld.inputVeld.naam == 'Klassen'}">
-                <%= "</div>"%>
+                ${closer}
+                <c:set var="closer" value="" />
             </c:if>
             <div id="${veld.inputVeld.id}">
                 <c:choose>
                     <c:when test="${veld.zichtbaar}">
-                
-                <label for="${veld.inputVeld.id}">${veld.inputVeld.naam}</label>
+                        <label for="${veld.inputVeld.id}">${veld.inputVeld.naam}</label>
                     </c:when>
                 </c:choose>
                 <c:choose>
@@ -118,7 +119,9 @@
                                             </div>
                                         </c:forEach>
                                     </c:forEach>
-                                    <%= "</div>"%>
+                                    <c:if test="${prev != 0}">
+                                        <%= "</div>"%>
+                                    </c:if>
                                 </div>
                             </c:when>
                             <c:when test="${veld.inputVeld.naam == 'Opdrachtgever' && veld.zichtbaar}">
@@ -234,7 +237,7 @@
                 </c:choose>
             </div>
         </c:forEach>
-        <%= "</div>"%>
+        ${closer}
     </div>
     <div id="opties">
         <%

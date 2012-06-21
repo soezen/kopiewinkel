@@ -79,6 +79,10 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
+        <script>
+            
+
+        </script>
     </head>
     <body>
         <h1>Hello World!</h1>
@@ -106,7 +110,7 @@
                 OpdrachtTypeInputDB otidb = new OpdrachtTypeInputDB();
                 OpdrachtDB oddb = new OpdrachtDB();
                 InputWaardeDB iwdb = new InputWaardeDB();
-                
+
                 GebruikerType gt = null;
                 Gebruiker g = null;
                 MenuItem mi1 = null;
@@ -126,14 +130,14 @@
                 OpdrachtTypeInput oti = null;
                 Opdracht od = null;
                 InputWaarde iw = null;
-                
+
                 if (rebuild) {
                     gt = new GebruikerType("Leerkrachten", false);
                     gt = gtdb.persist(gt);
 
                     g = new Gebruiker(gt, "Anne Saelens");
                     gdb.persist(g);
-                    
+
                     Gebruiker g2 = new Gebruiker(gtdb.getWithName("Leerkrachten"), "GAST");
                     gdb.persist(g2);
 
@@ -207,31 +211,31 @@
 
                     opt = new OpdrachtType(pk, "Administratie", "Opdrachten voor administratie", DateUtil.date(2012, 1, 1));
                     opt = optdb.persist(opt);
-                 
+
                     oti = new OpdrachtTypeInput(iv, opt, true, false, false, 1);
                     otidb.persist(oti);
-               
+
                     od = new Opdracht(g, opt, "c:/test.doc", 50, DateUtil.today(), OpdrachtStatus.AANGEVRAAGD);
                     od = oddb.persist(od);
-                
+
                     iw = new InputWaarde(iv, od, "Bla");
                     iw = iwdb.persist(iw);
-                    
-                
+
+
                 }
-                
-                   
-              
+
+
+
                 gt = gtdb.getWithName("Leerkrachten");
                 g = gdb.getGastGebruiker();
                 ot = otdb.getCurrentWithName("Kleur");
                 o = odb.getCurrentOfTypeWithName(ot, "Rood");
                 iv = ivdb.getWithName("Aantal");
                 c = cdb.getWithName("A3 geselecteerd");
-             //   d = ddb.getWithNameInGrade("1ste jaar Praktijk", 1);
+                //   d = ddb.getWithNameInGrade("1ste jaar Praktijk", 1);
                 pk = pkdb.getWithName("Gratis");
                 opt = optdb.getWithName("Administratie");
-                   
+
                 out.println("<br />" + gt);
                 out.println("<br />" + g);
                 out.println("<br />" + ot);
@@ -241,25 +245,25 @@
                 out.println("<br />" + d);
                 out.println("<br />" + pk);
                 out.println("<br />" + opt);
-                
+
                 out.println("<br />Alle OpdrachtTypes:<ul>");
                 for (OpdrachtType aot : optdb.list()) {
                     out.println("<li>" + aot + "</li>");
                 }
                 out.println("</ul>");
-                
+
                 out.println("<br />Alle OpdrachtTypes voor gebruiker Anne Saelens:<ul>");
                 for (OpdrachtType aot : optdb.list(gdb.getWithName("Anne Saelens"))) {
                     out.println("<li>" + aot + "</li>");
                 }
                 out.println("</ul>");
- 
+
                 out.println("<br />Actieve OpdrachtTypes voor Monique Lefebvre:<ul>");
                 for (OpdrachtType aot : optdb.getActieveOpdrachtTypes(gdb.getWithName("Monique Lefebvre"))) {
                     out.println("<li>" + aot + "</li>");
                 }
                 out.println("</ul>");
- 
+
                 out.println("<br />Opdrachten:<ul>");
                 for (Opdracht opdracht : oddb.list()) {
                     out.println("<li>" + opdracht + "</li>");
@@ -270,7 +274,7 @@
                     out.println("</ul>");
                 }
                 out.println("</ul>");
-                
+
                 out.println("<br />Inputvelden voor opdracht type:<ul>");
                 for (OpdrachtTypeInput input : opt.getInputVelden()) {
                     out.println("<li>" + input + "</li>");
@@ -282,7 +286,7 @@
                     out.println("<li>" + opdrachtType + "</li>");
                 }
                 out.println("</ul>");
-                
+
                 out.println("<br />Prijzen uit prijs klasse:<ul>");
                 for (Key prijs : pk.getPrijzen()) {
                     out.println("<li>" + pdb.get(prijs) + "</li>");
@@ -295,15 +299,15 @@
                 }
                 out.println("</ul>");
 
-           //     out.println("<br />Leerlingen van doelgroep per groep:<ul>");
-           //     for (SchooljaarGroep sg : d.getGroepen()) {
-           //         out.println("<li>" + sg + "</li><ul>");
-           //         for (Leerling lln : sg.getLeerlingen()) {
-           //             out.println("<li>" + lln + "</li>");
-           //         }
-           //         out.println("</ul>");
-           //     }
-           //     out.println("</ul>");
+                //     out.println("<br />Leerlingen van doelgroep per groep:<ul>");
+                //     for (SchooljaarGroep sg : d.getGroepen()) {
+                //         out.println("<li>" + sg + "</li><ul>");
+                //         for (Leerling lln : sg.getLeerlingen()) {
+                //             out.println("<li>" + lln + "</li>");
+                //         }
+                //         out.println("</ul>");
+                //     }
+                //     out.println("</ul>");
 
                 out.println("<br />All MenuItems:<ul>");
                 List<MenuItem> all = midb.list();

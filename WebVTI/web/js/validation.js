@@ -162,7 +162,9 @@ function reportError(field, type, attributes) {
         label = label.innerHTML
     }
     
+    var klassen = false;
     if ("Klassen" == label) {
+        klassen = true;
         attributes.klassen = true;
     }        
     
@@ -173,7 +175,9 @@ function reportError(field, type, attributes) {
             field.select();
             field.focus();
         };
-     //   if ()
+        if (klassen) {
+            label = "";
+        }
         link.innerHTML = label + getErrorMessage(type, attributes);
         error.appendChild(link);
     } else {
@@ -222,11 +226,10 @@ function getErrorMessage(type, attributes) {
             if (attributes.min && attributes.max) {
                 return " moet een waarde hebben tussen " + attributes.min + " en " + attributes.max;
             } else if (attributes.min) {
-                alert("klassen" + attributes.klassen);
                 if (!attributes.klassen) {
                     return " moet een waarde hebben groter dan " + attributes.min;
                 } else {
-                    return "Er moet minimum " + attributes.min + " klas(sen) geselecteerd hebben";
+                    return "Er moet minimum " + attributes.min + " klas(sen) geselecteerd zijn";
                 }
             } else if (attributes.max) {
                 return " moet een waarde hebben kleiner dan " + attributes.max;
