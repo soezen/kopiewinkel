@@ -188,6 +188,8 @@
                         fileList = $(".velden > div > input[type='file']")[0].files;
                         // set form type as other kind
                         // post all data to server (including file)
+                        var form = document.getElementById("opdrachtForm");
+                        form.submit();
                     }
                     // TODO show busy sign, so user knows reply is still coming.
                 } 
