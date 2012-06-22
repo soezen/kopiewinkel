@@ -4,6 +4,7 @@
  */
 package database;
 
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
@@ -21,5 +22,11 @@ public class IdEntityDB<E> extends EntityDB<E> {
 
         System.out.println("QUERY: " + stmt.replaceAll(":id", "" + id));
         return (E) query.getSingleResult();
+    }
+    
+    public List<E> list(List<Long> ids) {
+        return list("e.id member of :ids", new Object[][] {
+           new Object[] { "ids", ids } 
+        });
     }
 }

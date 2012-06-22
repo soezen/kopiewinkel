@@ -146,6 +146,24 @@
                 return callback;
             }
 
+           processResult = function(response) {
+                if (response.indexOf("<li>") == 0
+                    && response.lastIndexOf("</li>") == response.length - 5) {
+                    var errors = document.getElementById("errors");
+                    errors.innerHTML = response;
+                    errors.style.display = "block";
+                } else {
+                    redirect(response, function(inXmlHttp) {
+                        var body = document.getElementById("opdrachtBody");
+                        body.innerHTML = inXmlHttp.responseText;
+                        $("#opdrachtBody").on('click', "#next", getOpdrachtItems);
+                        $("#opdrachtBody").off('click', "#next", save);
+                        $("#previous").attr('disabled', '');
+                        $("#opdrachtBody").off('click', '#previous', backToOpdrachtType);
+                    });
+                } 
+            }
+
             save = function() {
                 if (validate()) {
                     var xmlhttp;
@@ -158,22 +176,8 @@
                     }
                     xmlhttp.onreadystatechange = function() {
                         if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-                            var response = xmlhttp.responseText;
-                            if (response.indexOf("<li>") == 0
-                                && response.lastIndexOf("</li>") == response.length - 5) {
-                                var errors = document.getElementById("errors");
-                                errors.innerHTML = response;
-                                errors.style.display = "block";
-                            } else {
-                                redirect(response, function(inXmlHttp) {
-                                    var body = document.getElementById("opdrachtBody");
-                                    body.innerHTML = inXmlHttp.responseText;
-                                    $("#opdrachtBody").on('click', "#next", getOpdrachtItems);
-                                    $("#opdrachtBody").off('click', "#next", save);
-                                    $("#previous").attr('disabled', '');
-                                    $("#opdrachtBody").off('click', '#previous', backToOpdrachtType);
-                                });
-                            } 
+                            processResult(xmlhttp.responseText);
+                            
                         }
                     }
                     
@@ -189,7 +193,19 @@
                         // set form type as other kind
                         // post all data to server (including file)
                         var form = document.getElementById("opdrachtForm");
-                        form.submit();
+                        $(form).submit(function() {
+                            jQuery.ajax({
+                               data: this,
+                               url: this.action,
+                               type: this.method,
+                               error: function() {
+                                   // TODO show message to user
+                               },
+                               success: processResult
+                            });
+                            return false;
+                        });
+                        $(form).submit();
                     }
                     // TODO show busy sign, so user knows reply is still coming.
                 } 

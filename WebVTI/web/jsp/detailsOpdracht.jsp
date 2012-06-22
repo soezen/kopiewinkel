@@ -4,15 +4,32 @@
     Author     : soezen
 --%>
 
+<%@page import="database.OpdrachtTypeDB"%>
+<%@page import="database.GebruikerDB"%>
+<%@page import="java.util.List"%>
+<%@page import="database.OptieDB"%>
+<%@page import="domain.Optie"%>
+<%@page import="database.OpdrachtDB"%>
 <%@page import="domain.enums.OpdrachtStatus"%>
-<%@page import="database.ConnectionManager"%>
 <%@page import="domain.Opdracht"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%
-            int id = Integer.valueOf(request.getParameter("id"));
-            Opdracht newOpdracht = (Opdracht) ConnectionManager.getObjectWithId(Opdracht.class, id);
+            Long id = Long.valueOf(request.getParameter("id"));
+            OpdrachtDB db = new OpdrachtDB();
+            Opdracht newOpdracht = db.getWithId(id);
             request.setAttribute("newOpdracht", newOpdracht);
+            
+            GebruikerDB gdb = new GebruikerDB();
+            request.setAttribute("opdrachtgever", gdb.get(newOpdracht.getOpdrachtgever()));
+            request.setAttribute("uitvoerder", gdb.get(newOpdracht.getUitvoerder()));
+            
+            OpdrachtTypeDB otdb = new OpdrachtTypeDB();
+            request.setAttribute("opdrachttype", otdb.get(newOpdracht.getOpdrachtType()));
+            
+            OptieDB odb = new OptieDB();
+            List<Optie> opties = odb.list(newOpdracht.getOpties());
+            request.setAttribute("opties", opties);
 %>
 <style type="text/css">
     #opdrachtBody>div>div>label {
@@ -48,9 +65,9 @@
         <label>ID</label>
         <div>${newOpdracht.id}</div>
         <label>Opdrachtgever</label>
-        <div>${newOpdracht.opdrachtgever.naam}</div>
+        <div>${opdrachtgever.naam}</div>
         <label>Type</label>
-        <div>${newOpdracht.opdrachtType.naam}</div>
+        <div>${opdrachtType.naam}</div>
         <label>Aanmaakdatum</label>
         <div>${newOpdracht.aanmaakDatum}</div>
         <label>Bestand</label>
@@ -62,7 +79,11 @@
         <label>Printdatum</label>
         <div>${newOpdracht.printDatum}</div>
         <label>Uitvoerder</label>
-        <div>${newOpdracht.uitvoerder}</div>
+        <div>
+            <c:if test="${uitvoerder != null}">
+                ${uitvoerder.naam}
+            </c:if>
+        </div>
         <label>Commentaar</label>
         <div>${newOpdracht.commentaar}</div>
     </div>
@@ -70,7 +91,7 @@
         <label>Opties</label>
         <div>
             <c:set var="previousType" value="" />
-            <c:forEach items="${newOpdracht.opties}" var="optie">
+            <c:forEach items="${opties}" var="optie">
                 <c:if test="${previousType != optie.optieType.id}">
                     <label>${optie.optieType.naam}</label>
                 </c:if>

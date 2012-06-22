@@ -19,10 +19,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.*;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import utils.Validator;
@@ -111,6 +108,8 @@ public class InputOpdrachtServlet extends HttpServlet {
                 // List items = handler.parseRequest(request);
                 FileItemIterator items = handler.getItemIterator(request);
                 setData(opdracht, velden, items);
+            } catch (FileUploadBase.InvalidContentTypeException e) {
+                setData(opdracht, velden, request);
             } catch (FileUploadException e) {
                 // process errors and report to user
                 e.printStackTrace();
@@ -134,11 +133,13 @@ public class InputOpdrachtServlet extends HttpServlet {
 
     private OpdrachtTypeInput getField(List<OpdrachtTypeInput> velden, String fieldName) {
         System.out.println("fieldname = " + fieldName);
-        for (OpdrachtTypeInput oti : velden) {
-            System.out.println("oti id = " + oti.getInputVeld().getId());
-            if (oti.getInputVeld().getId().compareTo(Long.valueOf(fieldName)) == 0) {
-                System.out.println("found");
-                return oti;
+        if (!fieldName.startsWith("OP")) {
+            for (OpdrachtTypeInput oti : velden) {
+                System.out.println("oti id = " + oti.getInputVeld().getId());
+                if (oti.getInputVeld().getId().compareTo(Long.valueOf(fieldName)) == 0) {
+                    System.out.println("found");
+                    return oti;
+                }
             }
         }
         return null;
@@ -233,17 +234,22 @@ public class InputOpdrachtServlet extends HttpServlet {
     private void putDataInOpdracht(OpdrachtTypeInput veld, FileItemStream item, Opdracht opdracht) {
         GebruikerDB gdb = new GebruikerDB();
         InputStream input;
-        StringBuilder strBuilder = new StringBuilder();
-            
+        String output = "";
+
         try {
             input = item.openStream();
+            PrintStream out = System.out;
+            StringWriter writer = new StringWriter();
 
             int len;
             byte[] buffer = new byte[8192];
-            while ((len = input.read(buffer, 0, buffer.length)) != -1) {
-                System.out.println(buffer);
+            while (input.available() > 0) {
+                writer.write(input.read());
                 // TODO put input from stream in string or file
             }
+            output = writer.toString();
+            System.out.println(output);
+
         } catch (IOException ex) {
             Logger.getLogger(InputOpdrachtServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -254,21 +260,30 @@ public class InputOpdrachtServlet extends HttpServlet {
             case VAST:
                 String naam = iv.getNaam();
                 if (naam.equals("Opdrachtgever")) {
-                    Gebruiker opdrachtgever = gdb.getWithId(Long.valueOf(strBuilder.toString()));
+                    Gebruiker opdrachtgever = gdb.getWithId(Long.valueOf(output));
                     opdracht.setOpdrachtgever(opdrachtgever);
                 } else if (naam.equals("Bestand")) {
                     if (!item.isFormField()) {
                         InputStream stream = null;
+                        File file = new File("d:/upload", item.getName());
+                        FileWriter writer = null;
+                                    
                         try {
                             FileItemStream streamItem = (FileItemStream) item;
                             stream = streamItem.openStream();
+                          //  writer = new FileWriter(file);
                             // TODO get unique name by using opdrachtid
                             // TODO output folder in property file steken zodat het makkelijk te wijzigen valt
-                            File file = new File("d:/upload", item.getName());
                             try {
                                 // TODO uncomment this when deploying
+                                while (stream.available() > 0) {
+                            //        writer.write(stream.read());
+                                }
+                        
                                 //     item.write(file);
                                 opdracht.setBestand("d:/upload/" + item.getName());
+                            } catch (IOException e) {
+                                System.out.println("Error writing file");
                             } catch (Exception e) {
                                 System.out.println("Error trying to write file");
                                 e.printStackTrace();
@@ -277,17 +292,22 @@ public class InputOpdrachtServlet extends HttpServlet {
                             Logger.getLogger(InputOpdrachtServlet.class.getName()).log(Level.SEVERE, null, ex);
                         } finally {
                             try {
-                                stream.close();
+                                if (stream != null) {
+                                    stream.close();
+                                }
+                                if (writer != null) {
+                                    writer.close();
+                                }
                             } catch (IOException ex) {
                                 Logger.getLogger(InputOpdrachtServlet.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
                     }
                 } else if (naam.equals("Aantal")) {
-                    opdracht.setAantal(Integer.valueOf(strBuilder.toString()));
+                    opdracht.setAantal(Integer.valueOf(output));
                 } else if (naam.equals("Commentaar")) {
-                    if (!"".equals(strBuilder.toString())) {
-                        opdracht.setCommentaar(strBuilder.toString());
+                    if (!"".equals(output)) {
+                        opdracht.setCommentaar(output);
                     }
                 } else if (naam.equals("Klassen")) {
                     // doelgroep wordt gelinkt met opdracht
@@ -299,7 +319,7 @@ public class InputOpdrachtServlet extends HttpServlet {
                     // of deze opdracht ook voor hem werd uitgevoerd
                     // TODO correct this.
                     DoelgroepDB ddb = new DoelgroepDB();
-                    Doelgroep doelgroep = ddb.getWithId(Long.valueOf(strBuilder.toString()));
+                    Doelgroep doelgroep = ddb.getWithId(Long.valueOf(output));
                     if (doelgroep != null) {
                         opdracht.addDoelgroep(doelgroep);
                     }
@@ -310,8 +330,8 @@ public class InputOpdrachtServlet extends HttpServlet {
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
                 format.setLenient(false);
                 try {
-                    format.parse(strBuilder.toString());
-                    opdracht.addInputWaarde(iv, strBuilder.toString());
+                    format.parse(output);
+                    opdracht.addInputWaarde(iv, output);
                 } catch (ParseException ex) {
                     // TODO show error to user
                     ex.printStackTrace();
@@ -320,14 +340,14 @@ public class InputOpdrachtServlet extends HttpServlet {
                 break;
             case GETAL:
                 try {
-                    Integer.parseInt(strBuilder.toString());
-                    opdracht.addInputWaarde(iv, strBuilder.toString());
+                    Integer.parseInt(output);
+                    opdracht.addInputWaarde(iv, output);
                 } catch (NumberFormatException e) {
                     // TODO show error to user
                 }
                 break;
             case TEKST:
-                opdracht.addInputWaarde(iv, strBuilder.toString());
+                opdracht.addInputWaarde(iv, output);
                 break;
         }
     }
@@ -342,7 +362,7 @@ public class InputOpdrachtServlet extends HttpServlet {
                 if (veld != null) {
                     putDataInOpdracht(veld, item, opdracht);
                 } else {
-                    Long optieId = Long.valueOf(item.getFieldName());
+                    Long optieId = Long.valueOf(item.getFieldName().substring(2));
                     OptieDB odb = new OptieDB();
                     Optie optie = odb.getWithId(optieId);
                     if (optie != null) {
@@ -379,6 +399,14 @@ public class InputOpdrachtServlet extends HttpServlet {
         }
     }
 
+    private void setData(Opdracht opdracht, List<OpdrachtTypeInput> velden, HttpServletRequest request) {
+        Set<String> names = request.getParameterMap().keySet();
+        
+        for (String name : names) {
+            System.out.println(name + " - " + request.getParameter(name));
+        }
+    }
+    
     /**
      * Returns a short description of the servlet.
      *

@@ -55,16 +55,17 @@ public abstract class EntityDB<E> {
     public List<E> list(String constraint, Object[][] params) {
         EntityManager manager = DatabaseManager.getEntityManager(type);
 
-        String stmt = "select e from " + clazz.getSimpleName() + " e and " + constraint;
+        String stmt = "select e from " + clazz.getSimpleName() + " e where " + constraint;
         Query query = manager.createQuery(stmt);
 
         for (Object[] param : params) {
             query.setParameter(param[0].toString(), param[1]);
+            stmt = stmt.replaceAll(":" + param[0].toString(), param[1].toString());
         }
 
         List<E> result = query.getResultList();
-        result.size();
         System.out.println("QUERY: " + stmt);
+        System.out.println("RESULT: " + result.size());
         return query.getResultList();
 
     }
@@ -82,6 +83,9 @@ public abstract class EntityDB<E> {
     }
 
     public E get(Key key) {
+        if (key == null) {
+            return null;
+        }
         EntityManager manager = DatabaseManager.getEntityManager(type);
         return manager.find(clazz, key);
     }
