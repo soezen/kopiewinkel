@@ -147,11 +147,12 @@
             }
 
            processResult = function(response) {
+               console.log(response);
                 if (response.indexOf("<li>") == 0
                     && response.lastIndexOf("</li>") == response.length - 5) {
                     var errors = document.getElementById("errors");
                     errors.innerHTML = response;
-                    errors.style.display = "block";
+                    errors.parentNode.style.display = "block";
                 } else {
                     redirect(response, function(inXmlHttp) {
                         var body = document.getElementById("opdrachtBody");
@@ -195,7 +196,7 @@
                         var form = document.getElementById("opdrachtForm");
                         $(form).submit(function() {
                             jQuery.ajax({
-                               data: this,
+                               data: $(this).serialize(),
                                url: this.action,
                                type: this.method,
                                error: function() {

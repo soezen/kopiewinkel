@@ -284,6 +284,9 @@ public class SetupDB {
         
         OpdrachtTypeInput oti14 = new OpdrachtTypeInput(ivdb.getWithName("Prijs"), otdb.getWithName("Prive"), true, false, true, 2);
         db.persist(oti14);
+        
+        OpdrachtTypeInput oti15 = new OpdrachtTypeInput(ivdb.getWithName("Deadline"), otdb.getWithName("Prive"), false, true, true, 4);
+        db.persist(oti15);
     }
 
     private static void createOptieTypes() {
@@ -414,6 +417,9 @@ public class SetupDB {
 
         InputVeld ivKlassen = new InputVeld("Klassen", InputVeldType.VAST);
         db.persist(ivKlassen);
+        
+        InputVeld ivDeadline = new InputVeld("Deadline", InputVeldType.DATUM);
+        db.persist(ivDeadline);
     }
 
     public static void createDoelgroepen() {

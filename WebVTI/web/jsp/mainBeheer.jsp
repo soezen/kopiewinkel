@@ -4,9 +4,10 @@
     Author     : soezen
 --%>
 
+<%@page import="database.GebruikerDB"%>
+<%@page import="database.OpdrachtTypeDB"%>
 <%@page import="domain.OpdrachtType"%>
 <%@page import="domain.enums.OpdrachtStatus"%>
-<%@page import="database.ConnectionManager"%>
 <%@page import="domain.Gebruiker"%>
 <%@page import="database.OpdrachtDB"%>
 <%@page import="java.util.List"%>
@@ -18,8 +19,11 @@
 <%
             Gebruiker gebruiker = (Gebruiker) session.getAttribute("gebruiker");
             if (gebruiker == null) {
-                gebruiker = ConnectionManager.getGastGebruiker();
+                GebruikerDB gdb = new GebruikerDB();
+                gebruiker = gdb.getGastGebruiker();
             }
+            
+    request.setAttribute("statusList", OpdrachtStatus.values());
 %>
 
 <link rel="stylesheet" type="text/css"
@@ -29,19 +33,19 @@
         display: none;
     }
 
-    .statusGeweigerd>td {
+    .status5>td {
         background-color: wheat !important;
     }
 
-    .statusDataTekort>td {
+    .status4>td {
         background-color: #EE5757 !important;
     }
 
-    .statusInBehandeling>td {
+    .status2>td {
         background-color: #FECA40 !important;
     }
 
-    .statusAfgewerkt > td {
+    .status3 > td {
         background-color: #aaaaaa !important;
     }
 
@@ -90,6 +94,21 @@
     td>div>ul>li:last-child {
         margin-top: inherit;
     }
+    
+    ul[status="1"]>li>a.starten, ul[status="1"]>li>a.dataTekort, ul[status="1"]>li>a.weigeren, 
+    ul[status="2"]>li>a.dataTekort, ul[status="2"]>li>a.weigeren, ul[status="2"]>li>a.afwerken,
+    ul[status="4"]>li>a.starten, ul[status="4"]>li>a.weigeren {
+        display:block;
+    }
+    
+    ul[status="1"]>li>a.afwerken, 
+    ul[status="2"]>li>a.starten, 
+    ul[status="3"]>li>a.starten, ul[status="3"]>li>a.dataTekort, ul[status="3"]>li>a.weigeren, ul[status="3"]>li>a.afwerken,
+    ul[status="4"]>li>a.dataTekort, ul[status="4"]>li>a.afwerken,
+    ul[status="5"]>li>a.starten, ul[status="5"]>li>a.dataTekort, ul[status="5"]>li>a.weigeren, ul[status="5"]>li>a.afwerken {
+        display:none;
+    }
+    
 </style>
 <link rel="stylesheet" href="../jquery/development-bundle/themes/cupertino/jquery.ui.all.css">
 
@@ -280,12 +299,35 @@
         }
         return visible;
     }
-
-    function startenOpdracht() {
-        
-    }
+    
+    var statusList = [];
+    
+    
+<c:forEach items="${statusList}" var="status">
+        statusList.push(${status.code}, {
+           name: "${status.naam}",
+           code: ${status.code},
+           commentRequired: ${status.commentRequired}
+        });
+</c:forEach>
 
     var reverse = false;
+
+    function startenOpdracht(opdrachtId, list) {
+        changeStatus(opdrachtId, 2, list);
+    }
+    
+    function afwerkenOpdracht(opdrachtId, list) {
+        changeStatus(opdrachtId, 3, list);
+    }
+    
+    function weigerenOpdracht(opdrachtId, list) {
+        changeStatus(opdrachtId, 5, list);
+    }
+    
+    function dataTekortOpdracht(opdrachtId, list) {
+        changeStatus(opdrachtId, 4, list);
+    }
 
     $(document).ready(
     function() {
@@ -296,9 +338,13 @@
             },
             format : function(s) {
                 // add type here, if possible (and also if order stored in db)
-                return s.toLowerCase().replace(/geweigerd/, 4).replace(
-                /afgewerkt/, 5).replace(/aangevraagd/, 2)
-                .replace(/in behandeling/, 1).replace(/data tekort/, 3);
+                var lower = s.toLowerCase();
+                var i = 1;
+                for (i=1; i<statusList.length; i+=2) {
+                    var status = statusList[i];
+                    lower = lower.replace(new RegExp(status.name.toLowerCase()), status.code);
+                }
+                return lower;
             },
             type : 'numeric'
         });
@@ -375,27 +421,51 @@
                     var valid = true;
                     var opdrachtId = $(this).dialog("option", "opdrachtId");
                     var newStatus = $(this).dialog("option", "newStatus");
+                    var oldStatus = $(this).dialog("option", "oldStatus");
                     allFields.removeClass("ui-state-error");
 
-                    valid = checkLength(comments, "comments", 3, 50);
+                    if (newStatus.commentRequired) {
+                        valid = checkLength(comments, "comments", 3, 50);
+                    }
 
+                    var form = document.getElementById("updateOpdrachtForm");
                     if (valid) {
-                        // try to change status
-                        // TODO replace with ajax
-                        var newRow = "<td rowspan='2'>468</td><td>01-01-2012</td><td>Eline Rogge</td><td>Examens</td><td>bestand.om.te.kopieren.doc</td>"
-                            + "<td>24</td><td>Afgewerkt</td>";
-                        var newRowDetails = "<td colspan='7'><div class='details'><div>Acties:<ul>"
-                            + "<li><a href='#'>Wijzigen</a></li></ul></div><div><i>Uitgevoerd op 20-05-2012 door Monique Lefebvre</i><br /> <br />"
-                            + "<strong>Commentaar:</strong> ................................<br /><br /> <strong>Extra gegevens:</strong> <br />"
-                            + "<table><tr><td>Veldnaam</td><td>Waarde</td></tr><tr><td>Veldnaam</td><td>Waarde</td></tr></table></div><div>"
-                            + "<strong>Opties:</strong><table><tr><td>optie type</td><td>optie</td></tr><tr><td>optie type</td><td><ul><li>optie</li>"
-                            + "<li>optie</li></ul></td></tr><tr><td>optie type</td><td>optie</td></tr></table></div></div></td>";
-
-                        // if succeeded replace rows with new rows
-                        // TODO put in success function
-                        // redirect(jsp/rowDetails.jsp?opdrachtId=??, function() { getNewRow from responseText, getNewRowDetails from responseText, nextLine })
-                        $("#" + opdrachtId).html(newRow).next(".rowDetails").html(newRowDetails);
-                        $(this).dialog("close");
+                        if (supportFormData()) {
+                            var formData = new FormData(form);
+                            // TODO add status to data;
+                           
+                            xmlhttp.open("POST", "UpdateOpdrachtServlet");
+                            xmlhttp.send(formData);
+                        } else {
+                            var dialog = $(this);
+                            var list = dialog.dialog("option", "list");
+                            $(form).submit(function() {
+                                jQuery.ajax({
+                                    data: $(this).serialize(),
+                                    url: "UpdateOpdrachtServlet",
+                                    type: "POST",
+                                    error: function(a, b, c) {
+                                        // TODO show message to user
+                                        alert("error: " + b + " - " + c)
+                                    },
+                                    success: function(response) {
+                                        if (response == "S") {
+                                            var row = $("#" + opdrachtId);
+                                            row.removeClass("status" + oldStatus.code);
+                                            row.addClass("status" + newStatus.code);
+                                            row.find("td:nth-child(7)").text(newStatus.name);
+                                            // TODO and add comment to display
+                                            list.setAttribute("status", newStatus.code);
+                                            dialog.dialog("close");
+                                        } else {
+                                            // save not successful, show message to user;
+                                        }
+                                    }
+                                });
+                                return false;
+                            });
+                            $(form).submit();
+                        }
                     }
                 },
                 "Annuleer": function() {
@@ -408,19 +478,27 @@
         });
     });
 
-    function changeStatus(opdrachtId, newStatus) {
+    function changeStatus(opdrachtId, newStatus, list) {
 
-        // first show form to enter comments (only in certain situations)
-        // in certain cases, comments are mandatory.
-        // only show form in case of mandatory comments or other fields
-        // other cases: add button to add comments
-
+        document.getElementById("oldStatus").value = list.getAttribute("status");
+        document.getElementById("newStatus").value = newStatus;
+        document.getElementById("opdrachtId").value = opdrachtId;
+        
         $("#formUpdateOpdracht").dialog("option", {
             opdrachtId: opdrachtId,
-            newStatus: newStatus
+            newStatus: getStatus(newStatus),
+            oldStatus: getStatus(list.getAttribute("status")),
+            list: list
         });
         $("#formUpdateOpdracht").dialog("open");
 
+    }
+    
+    function getStatus(statusCode) {
+        var index = statusList.indexOf(Number(statusCode));
+        if (index != -1) {
+            return statusList[index+1];
+        }
     }
 </script>
 
@@ -451,8 +529,8 @@
                     <select onchange="searchSelection(this, 3)" placeholder="Type">
                         <option></option>
                         <%
-                                    OpdrachtDB db = new OpdrachtDB();
-                                    List<OpdrachtType> types = db.getActieveOpdrachtTypes(gebruiker);
+                                    OpdrachtTypeDB otdb = new OpdrachtTypeDB();
+                                    List<OpdrachtType> types = otdb.getActieveOpdrachtTypes(gebruiker);
                                     request.setAttribute("types", types);
                         %>
 
@@ -481,7 +559,8 @@
         </thead>
         <tbody>
             <%
-                        List<Opdracht> opdrachten = db.getOpdrachten(gebruiker);
+                OpdrachtDB db = new OpdrachtDB();
+                List<Opdracht> opdrachten = db.list(gebruiker);
                         request.setAttribute("opdrachten", opdrachten);
             %>
             <c:forEach items="${opdrachten}" var="opdracht">
@@ -497,10 +576,14 @@
 <div id="formUpdateOpdracht" title="Wijzigen Opdracht">
     <p class="validateTips">Alle velden zijn verplicht in te vullen.</p>
 
-    <form>
+    <form id="updateOpdrachtForm">
         <fieldset>
+            <input type="hidden" id="opdrachtId" name="opdrachtId" value="" />
+            <input type="hidden" id="action" name="action" value="updateStatus" />
+            <input type="hidden" id="newStatus" name="newStatus" value="" />
+            <input type="hidden" id="oldStatus" name="oldStatus" value="" />
             <label for="comments">Commentaar</label>
-            <textarea rows="10" cols="40" id="comments"></textarea>
+            <textarea rows="10" cols="40" name="comments" id="comments"></textarea>
         </fieldset>
     </form>
 </div>

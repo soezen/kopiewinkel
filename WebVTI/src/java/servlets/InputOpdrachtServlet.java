@@ -4,9 +4,11 @@
  */
 package servlets;
 
+import utils.InvalidContentException;
 import database.*;
 import decorators.OpdrachtDecorator;
 import domain.*;
+import domain.enums.InputVeldType;
 import domain.enums.OpdrachtStatus;
 import java.io.*;
 import java.text.ParseException;
@@ -96,6 +98,7 @@ public class InputOpdrachtServlet extends HttpServlet {
             OpdrachtTypeDB otdb = new OpdrachtTypeDB();
             OpdrachtTypeInputDB otidb = new OpdrachtTypeInputDB();
             Opdracht opdracht = new Opdracht();
+            HashMap<String, String> errors = new HashMap<String, String>();
             opdracht.setAanmaakDatum(new Date());
             opdracht.setStatus(OpdrachtStatus.AANGEVRAAGD);
             opdracht.setOpdrachtgever(gebruiker);
@@ -105,22 +108,30 @@ public class InputOpdrachtServlet extends HttpServlet {
             DiskFileItemFactory factory = new DiskFileItemFactory();
             ServletFileUpload handler = new ServletFileUpload(factory);
             try {
-                // List items = handler.parseRequest(request);
-                FileItemIterator items = handler.getItemIterator(request);
-                setData(opdracht, velden, items);
-            } catch (FileUploadBase.InvalidContentTypeException e) {
-                setData(opdracht, velden, request);
-            } catch (FileUploadException e) {
-                // process errors and report to user
-                e.printStackTrace();
-                HashMap<String, String> errors = new HashMap<String, String>();
-                errors.put("Bestand", "Laden van het bestand is niet gelukt");
+                try {
+                    System.out.println("TRYING 1");
+                    // List items = handler.parseRequest(request);
+                    FileItemIterator items = handler.getItemIterator(request);
+                    setData(opdracht, velden, items);
+                } catch (FileUploadBase.InvalidContentTypeException e) {
+                    System.out.println("1 FAILED, TRYING 2");
+                    setData(opdracht, velden, request);
+                } catch (FileUploadException e) {
+                    // process errors and report to user
+                    e.printStackTrace();
+                    errors.put("Bestand", "Laden van het bestand is niet gelukt");
+                    request.setAttribute("errors", errors);
+                    processRequest(request, response);
+                    return;
+                }
+            } catch (InvalidContentException e) {
+                errors.put(e.getFieldName(), e.getMessage());
                 request.setAttribute("errors", errors);
                 processRequest(request, response);
                 return;
             }
 
-            HashMap<String, String> errors = Validator.getErrors(opdracht);
+            errors.putAll(Validator.getErrors(opdracht));
             if (errors.isEmpty()) {
                 opdracht = db.persist(opdracht);
                 request.setAttribute("result", opdracht.getId());
@@ -145,10 +156,11 @@ public class InputOpdrachtServlet extends HttpServlet {
         return null;
     }
 
-    private void putDataInOpdracht(OpdrachtTypeInput veld, FileItem item, Opdracht opdracht) {
+    private void putDataInOpdracht(OpdrachtTypeInput veld, FileItem item, Opdracht opdracht) throws InvalidContentException {
         GebruikerDB gdb = new GebruikerDB();
         String input = item.getString();
         InputVeld iv = veld.getInputVeld();
+        System.out.println("TYPE: " + iv.getType());
         switch (iv.getType()) {
             case VAST:
                 String naam = iv.getNaam();
@@ -183,7 +195,11 @@ public class InputOpdrachtServlet extends HttpServlet {
 //                        }
                     }
                 } else if (naam.equals("Aantal")) {
-                    opdracht.setAantal(Integer.valueOf(input));
+                    try {
+                        opdracht.setAantal(Integer.valueOf(input));
+                    } catch (NumberFormatException e) {
+                        throw new InvalidContentException(InputVeldType.GETAL, naam, input);
+                    }
                 } else if (naam.equals("Commentaar")) {
                     if (!"".equals(input)) {
                         opdracht.setCommentaar(input);
@@ -212,9 +228,9 @@ public class InputOpdrachtServlet extends HttpServlet {
                     format.parse(input);
                     opdracht.addInputWaarde(iv, input);
                 } catch (ParseException ex) {
-                    // TODO show error to user
-                    ex.printStackTrace();
+                    throw new InvalidContentException(InputVeldType.DATUM, iv.getNaam(), input);
                 }
+                System.out.println("DATUM: " + input);
 
                 break;
             case GETAL:
@@ -222,7 +238,7 @@ public class InputOpdrachtServlet extends HttpServlet {
                     Integer.parseInt(input);
                     opdracht.addInputWaarde(iv, input);
                 } catch (NumberFormatException e) {
-                    // TODO show error to user
+                    throw new InvalidContentException(InputVeldType.GETAL, iv.getNaam(), input);
                 }
                 break;
             case TEKST:
@@ -231,7 +247,7 @@ public class InputOpdrachtServlet extends HttpServlet {
         }
     }
 
-    private void putDataInOpdracht(OpdrachtTypeInput veld, FileItemStream item, Opdracht opdracht) {
+    private void putDataInOpdracht(OpdrachtTypeInput veld, FileItemStream item, Opdracht opdracht) throws InvalidContentException {
         GebruikerDB gdb = new GebruikerDB();
         InputStream input;
         String output = "";
@@ -241,11 +257,8 @@ public class InputOpdrachtServlet extends HttpServlet {
             PrintStream out = System.out;
             StringWriter writer = new StringWriter();
 
-            int len;
-            byte[] buffer = new byte[8192];
             while (input.available() > 0) {
                 writer.write(input.read());
-                // TODO put input from stream in string or file
             }
             output = writer.toString();
             System.out.println(output);
@@ -256,6 +269,7 @@ public class InputOpdrachtServlet extends HttpServlet {
 
 
         InputVeld iv = veld.getInputVeld();
+        System.out.println("TYPE: " + iv.getType());
         switch (iv.getType()) {
             case VAST:
                 String naam = iv.getNaam();
@@ -267,19 +281,19 @@ public class InputOpdrachtServlet extends HttpServlet {
                         InputStream stream = null;
                         File file = new File("d:/upload", item.getName());
                         FileWriter writer = null;
-                                    
+
                         try {
                             FileItemStream streamItem = (FileItemStream) item;
                             stream = streamItem.openStream();
-                          //  writer = new FileWriter(file);
+                            //  writer = new FileWriter(file);
                             // TODO get unique name by using opdrachtid
                             // TODO output folder in property file steken zodat het makkelijk te wijzigen valt
                             try {
                                 // TODO uncomment this when deploying
                                 while (stream.available() > 0) {
-                            //        writer.write(stream.read());
+                                    //        writer.write(stream.read());
                                 }
-                        
+
                                 //     item.write(file);
                                 opdracht.setBestand("d:/upload/" + item.getName());
                             } catch (IOException e) {
@@ -304,7 +318,11 @@ public class InputOpdrachtServlet extends HttpServlet {
                         }
                     }
                 } else if (naam.equals("Aantal")) {
-                    opdracht.setAantal(Integer.valueOf(output));
+                    try {
+                        opdracht.setAantal(Integer.valueOf(output));
+                    } catch (NumberFormatException e) {
+                        throw new InvalidContentException(InputVeldType.GETAL, naam, output);
+                    }
                 } else if (naam.equals("Commentaar")) {
                     if (!"".equals(output)) {
                         opdracht.setCommentaar(output);
@@ -333,17 +351,16 @@ public class InputOpdrachtServlet extends HttpServlet {
                     format.parse(output);
                     opdracht.addInputWaarde(iv, output);
                 } catch (ParseException ex) {
-                    // TODO show error to user
-                    ex.printStackTrace();
+                    throw new InvalidContentException(InputVeldType.DATUM, iv.getNaam(), output);
                 }
-
+                System.out.println("DATUM: " + output);
                 break;
             case GETAL:
                 try {
                     Integer.parseInt(output);
                     opdracht.addInputWaarde(iv, output);
                 } catch (NumberFormatException e) {
-                    // TODO show error to user
+                    throw new InvalidContentException(InputVeldType.GETAL, iv.getNaam(), output);
                 }
                 break;
             case TEKST:
@@ -352,7 +369,7 @@ public class InputOpdrachtServlet extends HttpServlet {
         }
     }
 
-    private void setData(Opdracht opdracht, List<OpdrachtTypeInput> velden, FileItemIterator items) {
+    private void setData(Opdracht opdracht, List<OpdrachtTypeInput> velden, FileItemIterator items) throws InvalidContentException {
         try {
             while (items.hasNext()) {
                 FileItemStream item = (FileItemStream) items.next();
@@ -378,7 +395,7 @@ public class InputOpdrachtServlet extends HttpServlet {
         }
     }
 
-    private void setData(Opdracht opdracht, List<OpdrachtTypeInput> velden, List items) {
+    private void setData(Opdracht opdracht, List<OpdrachtTypeInput> velden, List items) throws InvalidContentException {
         Iterator it = items.iterator();
         while (it.hasNext()) {
             FileItem item = (FileItem) it.next();
@@ -401,12 +418,12 @@ public class InputOpdrachtServlet extends HttpServlet {
 
     private void setData(Opdracht opdracht, List<OpdrachtTypeInput> velden, HttpServletRequest request) {
         Set<String> names = request.getParameterMap().keySet();
-        
+
         for (String name : names) {
             System.out.println(name + " - " + request.getParameter(name));
         }
     }
-    
+
     /**
      * Returns a short description of the servlet.
      *

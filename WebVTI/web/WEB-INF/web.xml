@@ -8,6 +8,10 @@
         <servlet-name>DataServlet</servlet-name>
         <servlet-class>servlets.DataServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>UpdateOpdrachtServlet</servlet-name>
+        <servlet-class>servlets.UpdateOpdrachtServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>InputOpdrachtServlet</servlet-name>
         <url-pattern>/InputOpdrachtServlet</url-pattern>
@@ -15,6 +19,10 @@
     <servlet-mapping>
         <servlet-name>DataServlet</servlet-name>
         <url-pattern>/DataServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateOpdrachtServlet</servlet-name>
+        <url-pattern>/UpdateOpdrachtServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

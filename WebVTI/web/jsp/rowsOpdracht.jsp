@@ -4,6 +4,7 @@
     Author     : soezen
 --%>
 
+<%@page import="domain.enums.OpdrachtStatus"%>
 <%@page import="domain.Opdracht"%>
 <%@page import="database.OpdrachtDB"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -13,30 +14,17 @@
 <%
     OpdrachtDB db = new OpdrachtDB();
     String opdrachtId = request.getParameter("opdracht");
-    Opdracht opdracht = db.getOpdracht(Integer.valueOf(opdrachtId));
-    request.setAttribute("opdracht", opdracht);
+    Opdracht opdracht = db.getWithId(Long.valueOf(opdrachtId));
+    request.setAttribute("opdracht", opdracht); 
 %>
-<c:set var="class" value="statusAangevraagd" />
-<c:choose>
-    <c:when test="${opdracht.status == 'IN_BEHANDELING'}">
-        <c:set var="class" value="statusInBehandeling" />
-    </c:when>
-    <c:when test="${opdracht.status == 'AFGEWERKT'}">
-        <c:set var="class" value="statusAfgewerkt" />
-    </c:when>
-    <c:when test="${opdracht.status == 'DATA_TEKORT'}">
-        <c:set var="class" value="statusDataTekort" />
-    </c:when>
-    <c:when test="${opdracht.status == 'GEWEIGERD'}">
-        <c:set var="class" value="statusGeweigerd" />
-    </c:when>
-</c:choose>
+<c:set var="class" value="status${opdracht.status.code}" />
 
-<tr class="${class}">
+
+<tr id="${opdracht.id}" class="${class}">
     <td>${opdracht.id}</td>
     <td>${opdracht.aanmaakDatum}</td>
-    <td>${opdracht.opdrachtgever.naam}</td>
-    <td>${opdracht.opdrachtType.naam}</td>
+    <td>${opdrachtgever.naam}</td>
+    <td>${opdrachtType.naam}</td>
     <!-- change to link on server -->
     <td>${opdracht.bestand}</td>
     <td>${opdracht.aantal}</td>
@@ -47,7 +35,14 @@
         <div class="details">
             <div>
                 <strong>Acties:</strong>
-                <ul>
+                <ul status="${opdracht.status.code}">
+                    <li><a onclick="startenOpdracht(${opdracht.id}, this.parentNode.parentNode)" class="starten">Starten</a></li>
+                    <li><a onclick="afwerkenOpdracht(${opdracht.id}, this.parentNode.parentNode)" class="afwerken">Afwerken</a></li>
+                    <li><a onclick="dataTekortOpdracht(${opdracht.id}, this.parentNode.parentNode)" class="dataTekort">Data Tekort</a></li>
+                    <li><a onclick="weigerenOpdracht(${opdracht.id}, this.parentNode.parentNode)" class="weigeren">Weigeren</a></li>
+                    <li><a onclick="wijzigenOpdracht(${opdracht.id}, this.parentNode.parentNode)">Wijzigen</a></li>
+                    
+                    <!--
                     <c:if test="${opdracht.status == 'AANGEVRAAGD' || opdracht.status == 'DATA_TEKORT'}">
                         <li><a onclick="startenOpdracht(${opdracht.id})">Starten</a></li>
                     </c:if>
@@ -59,8 +54,7 @@
                     </c:if>
                     <c:if test="${opdracht.status == 'AANGEVRAAGD' || opdracht.status == 'IN_BEHANDELING' || opdracht.status == 'DATA_TEKORT'}">
                         <li><a onclick="weigerenOpdracht(${opdracht.id})">Weigeren</a></li>
-                    </c:if>
-                    <li><a onclick="wijzigenOpdracht(${opdracht.id})">Wijzigen</a></li>
+                    </c:if> -->
                 </ul>
             </div>
             <div>
@@ -81,7 +75,7 @@
             <div>
                 <strong>Opties:</strong>
                 <table>
-                    <c:forEach items="${opdracht.opties}" var="optie">
+                    <c:forEach items="${opties}" var="optie">
                         <tr>
                             <td>${optie.optieType.naam}</td>
                             <td>${optie.naam}</td>

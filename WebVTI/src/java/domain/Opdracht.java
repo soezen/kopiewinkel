@@ -171,6 +171,10 @@ public class Opdracht implements java.io.Serializable, Constrained {
     public void setCommentaar(String commentaar) {
         this.commentaar = commentaar;
     }
+    
+    public void appendCommentaar(String commentaar) {
+        this.commentaar += "<br />" + commentaar;
+    }
 
     public List<InputWaarde> getInputWaarden() {
         return this.inputWaarden;
