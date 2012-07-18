@@ -5,9 +5,13 @@
 package database;
 
 import domain.Doelgroep;
+import domain.SchooljaarGroep;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
+import utils.GlobalValues;
 
 /**
  *
@@ -36,6 +40,23 @@ public class DoelgroepDB extends IdEntityDB<Doelgroep> {
         } finally {
             tx.commit();
         }
+    }
+    
+    public List<Doelgroep> getDoelgroepenHuidigSchooljaar() {
+        SchooljaarGroepDB sgdb = new SchooljaarGroepDB();
+        List<SchooljaarGroep> groepen = sgdb.list("e.schooljaar = :jaar", new Object[][] {
+           new Object[] { "jaar", GlobalValues.HUIDIG_SCHOOLJAAR } 
+        });
+        
+        List<Doelgroep> result = new ArrayList<Doelgroep>();
+        
+        for (SchooljaarGroep groep : groepen) {
+            if (!result.contains(groep.getDoelgroep())) {
+                result.add(groep.getDoelgroep());
+            }
+        }
+        
+        return result;
     }
     
 }

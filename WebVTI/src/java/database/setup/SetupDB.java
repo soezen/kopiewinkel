@@ -4,7 +4,7 @@
  */
 package database.setup;
 
-//import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVReader;
 import com.google.appengine.api.datastore.Key;
 import database.*;
 import domain.*;
@@ -45,7 +45,7 @@ public class SetupDB {
             new OpdrachtTypeDB(),
             new DoelgroepDB(),
             new SchooljaarGroepDB(),
-            //       new LeerlingDB(),
+            new LeerlingDB(),
             new OptieTypeDB(),
             new OptieDB(),
             new MenuItemDB(),
@@ -194,21 +194,21 @@ public class SetupDB {
         pcdb.persist(new OptieTypePrijsConstraint(otdb.getCurrentWithName("Kleur"), p23, false));
         pcdb.persist(new FormuleConstraint(db.get(p23.getKey()), new PrijsFormule("2*DEFAULT")));
     }
-    
+
     private static void createCondities() {
         ConditieDB db = new ConditieDB();
         OptieDB odb = new OptieDB();
         OptieTypeDB otdb = new OptieTypeDB();
-        
+
         db.persist(new Conditie("empty", "", ""));
         db.persist(new Conditie("A3 geselecteerd", "enkel van toepassing indien de optie 'A3' geselecteerd is", "O(" + odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Formaat"), "A3").getId() + ")"));
         db.persist(new Conditie("Geen opties geselecteerd", "enkel van toepassing indien geen enkele optie geselecteerd is", "O(LIST)=" + odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Druktype"), "Recto").getId()));
     }
-    
+
     private static void createOpties() {
         OptieDB db = new OptieDB();
         OptieTypeDB otdb = new OptieTypeDB();
-        
+
         db.persist(new Optie(otdb.getCurrentWithName("Druktype"), "Recto", "pagina's enkel aan de voorkant bedrukken", DateUtil.date(2012, 1, 1), OptieStatus.HUIDIG, 1));
         db.persist(new Optie(otdb.getCurrentWithName("Druktype"), "Recto Verso", "pagina's aan beidie kanten bedrukken", DateUtil.date(2012, 1, 1), OptieStatus.HUIDIG, 2));
         db.persist(new Optie(otdb.getCurrentWithName("Druktype"), "Blanco", "pagina's niet bedrukken", DateUtil.date(2012, 1, 1), OptieStatus.HUIDIG, 0));
@@ -235,53 +235,53 @@ public class SetupDB {
         db.persist(new Optie(otdb.getCurrentWithName("Gewicht Kaft"), "160gr", "kaft van 160 gram gebruiken", DateUtil.date(2012, 1, 1), OptieStatus.HUIDIG, 2));
         db.persist(new Optie(otdb.getCurrentWithName("Gewicht Kaft"), "170gr", "kaft van 170 gram gebruiken", DateUtil.date(2012, 1, 1), OptieStatus.HUIDIG, 3));
         db.persist(new Optie(otdb.getCurrentWithName("Gewicht Kaft"), "200gr", "kaft van 200 gram gebruiken", DateUtil.date(2012, 1, 1), OptieStatus.HUIDIG, 4));
-        
+
     }
-    
+
     private static void createOpdrachtTypeInput() {
         OpdrachtTypeInputDB db = new OpdrachtTypeInputDB();
         OpdrachtTypeDB otdb = new OpdrachtTypeDB();
         InputVeldDB ivdb = new InputVeldDB();
-        
+
         OpdrachtTypeInput oti1 = new OpdrachtTypeInput(ivdb.getWithName("Opdrachtgever"), otdb.getWithName("Standaard"), true, true, false, 0);
         db.persist(oti1);
-        
+
         OpdrachtTypeInput oti2 = new OpdrachtTypeInput(ivdb.getWithName("Bestand"), otdb.getWithName("Standaard"), true, true, true, 1);
         db.persist(oti2);
-        
+
         OpdrachtTypeInput oti3 = new OpdrachtTypeInput(ivdb.getWithName("Aantal"), otdb.getWithName("Standaard"), true, true, true, 2);
         db.persist(oti3);
-        
+
         OpdrachtTypeInput oti4 = new OpdrachtTypeInput(ivdb.getWithName("Commentaar"), otdb.getWithName("Standaard"), false, true, true, 4);
         db.persist(oti4);
-        
+
         OpdrachtTypeInput oti5 = new OpdrachtTypeInput(ivdb.getWithName("Prijs"), otdb.getWithName("Standaard"), true, false, false, 3);
         db.persist(oti5);
-        
+
         OpdrachtTypeInput oti6 = new OpdrachtTypeInput(ivdb.getWithName("Klassen"), otdb.getWithName("Standaard"), true, true, true, 5);
         db.persist(oti6);
-        
+
         OpdrachtTypeInput oti7 = new OpdrachtTypeInput(ivdb.getWithName("Opdrachtgever"), otdb.getWithName("Administratie"), true, true, false, 0);
         db.persist(oti7);
-        
+
         OpdrachtTypeInput oti8 = new OpdrachtTypeInput(ivdb.getWithName("Bestand"), otdb.getWithName("Administratie"), true, true, true, 1);
         db.persist(oti8);
-        
+
         OpdrachtTypeInput oti9 = new OpdrachtTypeInput(ivdb.getWithName("Aantal"), otdb.getWithName("Administratie"), true, true, true, 2);
         db.persist(oti9);
-        
+
         OpdrachtTypeInput oti10 = new OpdrachtTypeInput(ivdb.getWithName("Commentaar"), otdb.getWithName("Administratie"), false, true, true, 3);
         db.persist(oti10);
-        
+
         OpdrachtTypeInput oti11 = new OpdrachtTypeInput(ivdb.getWithName("Bestand"), otdb.getWithName("Prive"), true, true, true, 0);
         db.persist(oti11);
-        
+
         OpdrachtTypeInput oti12 = new OpdrachtTypeInput(ivdb.getWithName("Aantal"), otdb.getWithName("Prive"), true, true, true, 1);
         db.persist(oti12);
-        
+
         OpdrachtTypeInput oti13 = new OpdrachtTypeInput(ivdb.getWithName("Commentaar"), otdb.getWithName("Prive"), false, true, true, 3);
         db.persist(oti13);
-        
+
         OpdrachtTypeInput oti14 = new OpdrachtTypeInput(ivdb.getWithName("Prijs"), otdb.getWithName("Prive"), true, false, true, 2);
         db.persist(oti14);
         
@@ -424,60 +424,70 @@ public class SetupDB {
 
     public static void createDoelgroepen() {
         DoelgroepDB db = new DoelgroepDB();
+        GebruikerDB gdb = new GebruikerDB();
 
-//        CSVReader reader;
-//        try {
-//            reader = new CSVReader(new FileReader("data/db-data-Doelgroepen.csv"), ';');
-//            
-//            String[] line;
-//            while ((line = reader.readNext()) != null) {
-//                if (line.length == 2) {
-//                    Doelgroep dgr = new Doelgroep(line[1], Integer.valueOf(line[0]));
-//                    db.persist(dgr);
-//                } 
-//            }
-//        } catch (FileNotFoundException ex) {
-//            Logger.getLogger(SetupDB.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (IOException ex) {
-//            Logger.getLogger(SetupDB.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+        CSVReader reader;
+        try {
+            reader = new CSVReader(new FileReader("data/db-data-Doelgroepen.csv"), ';');
+            
+            int count = 0;
+            
+            String[] line;
+            while ((line = reader.readNext()) != null) {
+                if (line.length == 2) {
+                    Doelgroep dgr = new Doelgroep(line[1], Integer.valueOf(line[0]));
+                    db.persist(dgr);
+                    
+                    if (count < 3) {
+                        Gebruiker gebruiker = gdb.getGastGebruiker();
+                        gebruiker.addToewijzing(dgr);
+                        gdb.update(gebruiker);
+                        count++;
+                    }
+                } 
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SetupDB.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(SetupDB.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private static void createLeerlingen() {
-//        try {
-//            LeerlingDB db = new LeerlingDB();
-//            DoelgroepDB dgrdb = new DoelgroepDB();
-//            SchooljaarGroepDB sdb = new SchooljaarGroepDB();
-//            
-//            CSVReader reader = new CSVReader(new FileReader("data/db-data-DoelgroepLeerlingen.csv"), ';');
-//            
-//            String[] line;
-//            while ((line = reader.readNext()) != null) {
-//                // Leerling
-//                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-//                Leerling lln = new Leerling(line[0], formatter.parse(line[1]));
-//                if (line[2] != null && !"".equals(line[2])) {
-//                    lln.setEindDatum(formatter.parse(line[2]));
-//                }
-//                
-//                // doelgroepen
-//                String[] groep = line[3].substring(1, line[3].length()-1).split(";");
-//                
-//                for (int i=0; i<groep.length-1; i+=2) {
-//                    Doelgroep dgr = dgrdb.getWithNameInGrade(groep[0], Integer.valueOf(groep[1]));
-//                    SchooljaarGroep sg = new SchooljaarGroep(dgr, groep[2], Integer.valueOf(groep[3]));
-//                    sg = sdb.persist(sg);
-//                    lln.addGroep(sg);
-//                }
-//                
-//                db.persist(lln);
-//            }
-//        } catch (ParseException ex) {
-//            Logger.getLogger(SetupDB.class.getName()).log(Level.SEVERE, "Error parsing start or end date of Leerling", ex);
-//        } catch (FileNotFoundException ex) {
-//            Logger.getLogger(SetupDB.class.getName()).log(Level.SEVERE, "Error locating file: data/db-data-DoelgroepLeerlingen.csv", ex);
-//        } catch (IOException ex) {
-//            Logger.getLogger(SetupDB.class.getName()).log(Level.SEVERE, "Error reading file data/db-data-DoelgroepLeerlingen.csv", ex);
-//        }
+        try {
+            LeerlingDB db = new LeerlingDB();
+            DoelgroepDB dgrdb = new DoelgroepDB();
+            SchooljaarGroepDB sdb = new SchooljaarGroepDB();
+            
+            CSVReader reader = new CSVReader(new FileReader("data/db-data-DoelgroepLeerlingen.csv"), ';');
+            
+            String[] line;
+            while ((line = reader.readNext()) != null) {
+                // Leerling
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                Leerling lln = new Leerling(line[0], formatter.parse(line[1]));
+                if (line[2] != null && !"".equals(line[2])) {
+                    lln.setEindDatum(formatter.parse(line[2]));
+                }
+                
+                // doelgroepen
+                String[] groep = line[3].substring(1, line[3].length()-1).split(";");
+                
+                for (int i=0; i<groep.length-1; i+=2) {
+                    Doelgroep dgr = dgrdb.getWithNameInGrade(groep[0], Integer.valueOf(groep[1]));
+                    SchooljaarGroep sg = new SchooljaarGroep(dgr, groep[2], Integer.valueOf(groep[3]));
+                    sg = sdb.persist(sg);
+                    lln.addGroep(sg);
+                }
+                
+                db.persist(lln);
+            }
+        } catch (ParseException ex) {
+            Logger.getLogger(SetupDB.class.getName()).log(Level.SEVERE, "Error parsing start or end date of Leerling", ex);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SetupDB.class.getName()).log(Level.SEVERE, "Error locating file: data/db-data-DoelgroepLeerlingen.csv", ex);
+        } catch (IOException ex) {
+            Logger.getLogger(SetupDB.class.getName()).log(Level.SEVERE, "Error reading file data/db-data-DoelgroepLeerlingen.csv", ex);
+        }
     }
 }

@@ -37,7 +37,7 @@ public class Opdracht implements java.io.Serializable, Constrained {
     @Basic(fetch= FetchType.EAGER)
     private List<InputWaarde> inputWaarden = new ArrayList<InputWaarde>(0);
     @Basic
-    private List<Key> doelgroepen = new ArrayList<Key>(0);
+    private List<Long> doelgroepen = new ArrayList<Long>(0);
     @Basic
     private List<Long> opties = new ArrayList<Long>(0);
 
@@ -74,7 +74,7 @@ public class Opdracht implements java.io.Serializable, Constrained {
     }
 
     public void addDoelgroep(Doelgroep doelgroep) {
-        doelgroepen.add(doelgroep.getKey());
+        doelgroepen.add(doelgroep.getId());
     }
 
     public void addOptie(Optie optie) {
@@ -184,11 +184,11 @@ public class Opdracht implements java.io.Serializable, Constrained {
         this.inputWaarden = inputWaarden;
     }
     
-    public List<Key> getDoelgroepen() {
+    public List<Long> getDoelgroepen() {
         return this.doelgroepen;
     }
 
-    public void setDoelgroepen(List<Key> doelgroepen) {
+    public void setDoelgroepen(List<Long> doelgroepen) {
         this.doelgroepen = doelgroepen;
     }
     

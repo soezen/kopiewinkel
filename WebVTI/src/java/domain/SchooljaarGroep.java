@@ -25,7 +25,7 @@ public class SchooljaarGroep implements java.io.Serializable {
     private Doelgroep doelgroep;
     private String groep;
     private int schooljaar;
-    @OneToMany(mappedBy = "currentGroep", cascade= CascadeType.REMOVE)
+    @OneToMany(mappedBy = "currentGroep")
     @Basic
     private List<Leerling> leerlingen = new ArrayList<Leerling>();
     
@@ -78,6 +78,10 @@ public class SchooljaarGroep implements java.io.Serializable {
         this.schooljaar = schooljaar;
     }
 
+    public int getAantal() {
+        return leerlingen.size();
+    }
+    
     @Override
     public String toString() {
         return "GROEP [" + schooljaar + ", " + doelgroep + " " + groep + ", " + leerlingen.size() + "]";

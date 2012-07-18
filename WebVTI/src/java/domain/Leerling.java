@@ -27,7 +27,7 @@ public class Leerling implements java.io.Serializable {
     @Temporal(TemporalType.DATE)
     @Column(nullable=true)
     private Date eindDatum;
-    @ManyToOne
+    @ManyToOne(cascade= CascadeType.REMOVE)
     private SchooljaarGroep currentGroep;
     private List<Key> groepen = new ArrayList<Key>(0);
 
@@ -89,10 +89,20 @@ public class Leerling implements java.io.Serializable {
     // TODO make it so that SchooljaarGroep has start and end date per student
     public void addGroep(SchooljaarGroep groep) {
         if (GlobalValues.HUIDIG_SCHOOLJAAR == groep.getSchooljaar()) {
+            // groep is currentGroep if it is for the current school year
             if (currentGroep != null) {
                 groepen.remove(currentGroep.getKey());
             }
             currentGroep = groep;           
+        } else if (currentGroep == null) {
+            // groep is current groep if it is not for the current school year when there is no current groep set yet
+            currentGroep = groep;
+        } else if (currentGroep.getSchooljaar() <= groep.getSchooljaar() && currentGroep.getSchooljaar() < GlobalValues.HUIDIG_SCHOOLJAAR) {
+            // groep is current groep if it is not for the current school year 
+            // and when there is already a current groep set 
+            // when the current groep is of a year earlier than the new groep
+            // but only if the current groep is before the current school year
+            currentGroep = groep;
         }
         groepen.add(groep.getKey());
     }

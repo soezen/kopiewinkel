@@ -5,11 +5,13 @@
 
 package decorators;
 
+import java.io.Serializable;
+
 /**
  *
  * @author soezen
  */
-public class OpdrachtDecorator {
+public class OpdrachtDecorator implements Serializable {
     public Long opdrachtType;
 
     public Long getOpdrachtType() {

@@ -29,7 +29,7 @@ public abstract class EntityDB<E> {
 
         for (E e : list()) {
             try {
-                delete((Key) clazz.getMethod("getKey", null).invoke(e, null));
+                delete((Key) clazz.getMethod("getKey", (Class<?>[]) null).invoke(e, (Object[]) null));
             } catch (IllegalAccessException ex) {
                 Logger.getLogger(EntityDB.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IllegalArgumentException ex) {

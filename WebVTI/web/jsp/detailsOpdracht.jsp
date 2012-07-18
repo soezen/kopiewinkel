@@ -4,6 +4,9 @@
     Author     : soezen
 --%>
 
+<%@page import="domain.Doelgroep"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="database.DoelgroepDB"%>
 <%@page import="database.OpdrachtTypeDB"%>
 <%@page import="database.GebruikerDB"%>
 <%@page import="java.util.List"%>
@@ -13,6 +16,7 @@
 <%@page import="domain.enums.OpdrachtStatus"%>
 <%@page import="domain.Opdracht"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
             Long id = Long.valueOf(request.getParameter("id"));
@@ -25,11 +29,18 @@
             request.setAttribute("uitvoerder", gdb.get(newOpdracht.getUitvoerder()));
             
             OpdrachtTypeDB otdb = new OpdrachtTypeDB();
-            request.setAttribute("opdrachttype", otdb.get(newOpdracht.getOpdrachtType()));
+            request.setAttribute("opdrachtType", otdb.get(newOpdracht.getOpdrachtType()));
             
             OptieDB odb = new OptieDB();
             List<Optie> opties = odb.list(newOpdracht.getOpties());
             request.setAttribute("opties", opties);
+            
+            DoelgroepDB ddb = new DoelgroepDB();
+            List<Doelgroep> doelgroepen = new ArrayList<Doelgroep>();
+            if (!newOpdracht.getDoelgroepen().isEmpty()) {
+                doelgroepen = ddb.list(newOpdracht.getDoelgroepen());
+            }
+            request.setAttribute("doelgroepen", doelgroepen);
 %>
 <style type="text/css">
     #opdrachtBody>div>div>label {
@@ -69,7 +80,7 @@
         <label>Type</label>
         <div>${opdrachtType.naam}</div>
         <label>Aanmaakdatum</label>
-        <div>${newOpdracht.aanmaakDatum}</div>
+        <div><fmt:formatDate value="${newOpdracht.aanmaakDatum}" pattern="dd-MM-yyyy" /></div>
         <label>Bestand</label>
         <div>${newOpdracht.bestand}</div>
         <label>Aantal</label>
@@ -77,13 +88,9 @@
         <label>Status</label>
         <div>${newOpdracht.status.naam}</div>
         <label>Printdatum</label>
-        <div>${newOpdracht.printDatum}</div>
+        <div><fmt:formatDate value="${newOpdracht.printDatum}" /></div>
         <label>Uitvoerder</label>
-        <div>
-            <c:if test="${uitvoerder != null}">
-                ${uitvoerder.naam}
-            </c:if>
-        </div>
+        <div>${uitvoerder.naam}</div>
         <label>Commentaar</label>
         <div>${newOpdracht.commentaar}</div>
     </div>
@@ -104,7 +111,7 @@
         <label>Klassen</label>
         <div>
             <c:set var="previousKlas" value="" />
-            <c:forEach items="${newOpdracht.doelgroepen}" var="doelgroep">
+            <c:forEach items="${doelgroepen}" var="doelgroep">
                 <c:if test="${previousKlas != doelgroep.graad}">
                     <c:if test="${previousKlas != ''}">
                         <%= "</ul>"%>

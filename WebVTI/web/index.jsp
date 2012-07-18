@@ -146,7 +146,7 @@
                 return callback;
             }
 
-           processResult = function(response) {
+            processResult = function(response) {
                console.log(response);
                 if (response.indexOf("<li>") == 0
                     && response.lastIndexOf("</li>") == response.length - 5) {
@@ -196,13 +196,16 @@
                         var form = document.getElementById("opdrachtForm");
                         $(form).submit(function() {
                             jQuery.ajax({
-                               data: $(this).serialize(),
-                               url: this.action,
-                               type: this.method,
-                               error: function() {
-                                   // TODO show message to user
-                               },
-                               success: processResult
+                                data: form,
+                                processData: false,
+                                contentType: "multipart/form-data",
+                                url: this.action,
+                                type: this.method,
+                                error: function() {
+                                    alert('errors exist on form');
+                                    // TODO show message to user
+                                },
+                                success: processResult
                             });
                             return false;
                         });

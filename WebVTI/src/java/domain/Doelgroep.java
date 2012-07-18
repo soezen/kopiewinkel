@@ -3,6 +3,7 @@ package domain;
 
 import com.google.appengine.api.datastore.Key;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import javax.persistence.*;
 
@@ -68,6 +69,20 @@ public class Doelgroep implements java.io.Serializable {
         return groepen;
     }
 
+    public HashMap<String, Integer> getAantallenPerGroep() {
+        HashMap<String, Integer> result = new HashMap<String, Integer>();
+        
+        for (SchooljaarGroep groep : groepen) {
+            if (result.containsKey(groep.getGroep())) {
+                result.put(groep.getGroep(), result.get(groep.getGroep())+ 1);
+            } else {
+                result.put(groep.getGroep(), 1);
+            }
+        }
+        
+        return result;
+    }
+    
     public void setGroepen(List<SchooljaarGroep> groepen) {
         this.groepen = groepen;
     }

@@ -4,6 +4,7 @@
     Author     : soezen
 --%>
 
+<%@page import="database.DoelgroepDB"%>
 <%@page import="database.OptieTypeDB"%>
 <%@page import="database.OpdrachtTypeInputDB"%>
 <%@page import="database.OpdrachtTypeDB"%>
@@ -28,22 +29,22 @@
 <jsp:useBean id="opdracht" scope="session" class="decorators.OpdrachtDecorator" />
 <jsp:setProperty name="opdracht" property="opdrachtType" param="type" />
 <%
-            GebruikerDB gdb = new GebruikerDB();
-            Gebruiker gebruiker = (Gebruiker) session.getAttribute("gebruiker");
-            if (gebruiker == null) {
-                gebruiker = gdb.getGastGebruiker();
-            }
-            OpdrachtDB odb = new OpdrachtDB();
-            OpdrachtTypeDB otdb = new OpdrachtTypeDB();
-            Opdracht o = new Opdracht();
-            OpdrachtType ot = otdb.getWithId(opdracht.opdrachtType);
-            o.setOpdrachtType(ot);
+    GebruikerDB gdb = new GebruikerDB();
+    Gebruiker gebruiker = (Gebruiker) session.getAttribute("gebruiker");
+    if (gebruiker == null) {
+        gebruiker = gdb.getGastGebruiker();
+    }
+    OpdrachtDB odb = new OpdrachtDB();
+    OpdrachtTypeDB otdb = new OpdrachtTypeDB();
+    Opdracht o = new Opdracht();
+    OpdrachtType ot = otdb.getWithId(opdracht.opdrachtType);
+    o.setOpdrachtType(ot);
 
-            OpdrachtTypeInputDB otidb = new OpdrachtTypeInputDB();
-            // TODO get only for gebruiker?
-            List<OpdrachtTypeInput> velden = ot.getInputVelden();
-            request.setAttribute("velden", velden);
-            request.setAttribute("opdrachtType", ot);
+    OpdrachtTypeInputDB otidb = new OpdrachtTypeInputDB();
+    // TODO get only for gebruiker?
+    List<OpdrachtTypeInput> velden = ot.getInputVelden();
+    request.setAttribute("velden", velden);
+    request.setAttribute("opdrachtType", ot);
 %>
 <form id="opdrachtForm" action="InputOpdrachtServlet" method="post" enctype="multipart/form-data">
 
@@ -76,17 +77,12 @@
                                 <a href="#" onclick="toggleToewijzingen(${veld.inputVeld.id})">toon selectie</a>
                                 <div id="klassen">
                                     <%
-                                            // TODO
-                                            //     List<Doelgroep> doelgroepen = db.getDoelgroepenHuidigSchooljaar();
-                                            //    HashMap<Integer, Doelgroep> toewijzingen = new HashMap<Integer, Doelgroep>();
-                                            //    for (Doelgroep d : gebruiker.getDoelgroepen()) {
-                                            //        toewijzingen.put(d.getId(), d);
-                                            //    }
-                                            //    request.setAttribute("doelgroepen", doelgroepen);
-                                            //    request.setAttribute("toewijzingen", toewijzingen);
+                                        DoelgroepDB ddb = new DoelgroepDB();
+                                        List<Doelgroep> doelgroepen = ddb.getDoelgroepenHuidigSchooljaar();
+                                        request.setAttribute("doelgroepen", doelgroepen);
 
-                                                // TODO constraints tussen kleur en gewicht kaft maken
-                                    %>
+                                        // TODO constraints tussen kleur en gewicht kaft maken
+%>
                                     <c:set var="prev" value="0" />
                                     <c:forEach items="${doelgroepen}" var="doelgroep">
                                         <c:if test="${prev < doelgroep.graad}">
@@ -125,9 +121,9 @@
                                 </div>
                             </c:when>
                             <c:when test="${veld.inputVeld.naam == 'Opdrachtgever' && veld.zichtbaar}">
-                                <%  
-                                            List<Gebruiker> gebruikers = gdb.getOpdrachtGevers(ot);
-                                            request.setAttribute("gebruikers", gebruikers);
+                                <%
+                                    List<Gebruiker> gebruikers = gdb.getOpdrachtGevers(ot);
+                                    request.setAttribute("gebruikers", gebruikers);
                                 %>
                                 <c:choose>
                                     <c:when test="${veld.wijzigbaar}">

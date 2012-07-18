@@ -53,7 +53,6 @@ root {
 
 #opties {
     height:100%;
-
     overflow: auto;
 }
 
@@ -62,8 +61,8 @@ root {
 }
 
 .opties {
-    width:300px;
-    height:300px;
+    width:250px;
+    height:250px;
     float:left;
     margin-left: 5px;
     margin-right: 5px;
@@ -88,4 +87,47 @@ form input[type='number']:not([readonly]):disabled {
     float:left;
     width: 300px;
     overflow: hidden;
+}
+
+td>input[type="search"] {
+    width: 95%;
+}
+
+td>select {
+    width: 95%;
+}
+
+.details>div>table {
+    float:left;
+}
+
+div>.div-header {
+    background-color:lightgrey;
+    margin: 0px;
+    margin-bottom: 5px;
+    padding: 2px;
+    padding-left: 5px;
+    font-weight: bold;
+}
+
+.strong {
+    font-weight: bold;
+}
+
+.list-buttons>li:hover {
+    background-color: lightgrey;
+}
+
+.list-buttons {
+    width: 100px;
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+.list-buttons>li {
+   width: 85%;
+   padding: 5px;
+   margin: 2px;
+   border: 2px solid lightgrey;
 }

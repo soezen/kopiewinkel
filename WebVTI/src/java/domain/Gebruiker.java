@@ -217,7 +217,7 @@ public class Gebruiker implements java.io.Serializable {
 
     @Override
     public String toString() {
-        return "GEBRUIKER [" + id + ", " + naam + ", " + creationDate + ", " + gebruikerType + "]";
+        return "GEBRUIKER [" + id + ", " + naam + ", " + creationDate + ", " + gebruikerType + ", " + toewijzingen.size() + "]";
     }
 
 

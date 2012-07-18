@@ -4,23 +4,15 @@
  */
 package utils;
 
-import com.google.appengine.api.datastore.Key;
 import database.*;
 import domain.*;
 import domain.constraints.ConnectionConstraint;
-import domain.constraints.Constraint;
-import domain.enums.ConstraintType;
 import domain.enums.InputVeldType;
 import domain.interfaces.Constrainable;
-import domain.interfaces.Constrained;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
@@ -84,7 +76,6 @@ public class Validator {
     }
 
     public static void checkSelectedOpties(HashMap<String, String> errors, Opdracht opdracht) {
-        OpdrachtDB db = new OpdrachtDB();
         GebruikerDB gdb = new GebruikerDB();
         OptieDB odb = new OptieDB();
         
@@ -132,11 +123,11 @@ public class Validator {
             }
             
             if (constraint.isVerplicht()) {
-                if (contains) {
+                if (!contains) {
                     errors.put(optie.getNaam(), "Niet alle benodigde opties voor optie " + optie.getNaam() + " zijn geselecteerd");
                 }
             } else {
-                if (!contains) {
+                if (contains) {
                     errors.put(optie.getNaam(), "Bepaalde opties zijn geselecteerd die niet in combinatie mogen met optie " + optie.getNaam());
                 }
             }
