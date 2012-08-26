@@ -4,6 +4,7 @@ package domain;
 import com.google.appengine.api.datastore.Key;
 import domain.enums.OpdrachtStatus;
 import domain.interfaces.Constrained;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,10 +32,12 @@ public class Opdracht implements java.io.Serializable, Constrained {
     @Temporal(javax.persistence.TemporalType.DATE)
     @Column(nullable=true)
     private Date printDatum;
+    private BigDecimal prijs;
+    private boolean prijsUpToDate;
     private OpdrachtStatus status;
     private String commentaar;
-    @OneToMany(mappedBy="opdracht")
-    @Basic(fetch= FetchType.EAGER)
+    @OneToMany(mappedBy="opdracht", cascade={CascadeType.PERSIST})
+    @Basic
     private List<InputWaarde> inputWaarden = new ArrayList<InputWaarde>(0);
     @Basic
     private List<Long> doelgroepen = new ArrayList<Long>(0);
@@ -55,6 +58,10 @@ public class Opdracht implements java.io.Serializable, Constrained {
 
     public Key getKey() {
         return key;
+    }
+    
+    public BigDecimal getPrijs() {
+        return prijs;
     }
     
     public InputWaarde addInputWaarde(InputVeld veld, String waarde) {
@@ -79,6 +86,7 @@ public class Opdracht implements java.io.Serializable, Constrained {
 
     public void addOptie(Optie optie) {
         opties.add(optie.getId());
+        prijsUpToDate = false;
     }
 
     public InputWaarde getInputWaardeFor(InputVeld veld) {
@@ -198,7 +206,22 @@ public class Opdracht implements java.io.Serializable, Constrained {
 
     public void setOpties(List<Long> opties) {
         this.opties = opties;
+        prijsUpToDate = false;
     }
+
+    public void setPrijs(BigDecimal prijs) {
+        this.prijs = prijs;
+    }
+
+    public void setPrijsUpToDate(boolean prijsUpToDate) {
+        this.prijsUpToDate = prijsUpToDate;
+    }
+
+    public boolean isPrijsUpToDate() {
+        return prijsUpToDate;
+    }
+    
+    
     
     @Override
     public String toString() {

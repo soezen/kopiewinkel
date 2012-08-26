@@ -5,7 +5,6 @@
 package database.setup;
 
 import au.com.bytecode.opencsv.CSVReader;
-import com.google.appengine.api.datastore.Key;
 import database.*;
 import domain.*;
 import domain.constraints.ConnectionConstraint;
@@ -120,13 +119,17 @@ public class SetupDB {
         ConstraintDB pcdb = new ConstraintDB();
         OptieDB odb = new OptieDB();
         OptieTypeDB otdb = new OptieTypeDB();
+        PrijsFormuleDB pfdb = new PrijsFormuleDB();
+        
+        // TODO SUR fake price, remove later.
+        Prijs p0 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(100), Eenheid.PAGINA, PrijsType.OPDRACHT));
         
         Prijs p1 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.01), Eenheid.PAGINA, PrijsType.OPTIE));
         pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Druktype"), "Recto"), p1, true));
         
         Prijs p2 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.02), Eenheid.PAGINA, PrijsType.OPTIETYPE));
         pcdb.persist(new OptieTypePrijsConstraint(otdb.getCurrentWithName("Druktype"), p2, true));
-        
+      
         Prijs p3 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.013), Eenheid.PAGINA, PrijsType.OPTIETYPE, cdb.getWithName("Geen opties geselecteerd")));
         pcdb.persist(new OptieTypePrijsConstraint(otdb.getCurrentWithName("Druktype"), p3, false));
         
@@ -141,15 +144,21 @@ public class SetupDB {
         
         Prijs p7 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), Eenheid.PAGINA, cdb.getWithName("A3 geselecteerd")));
         pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "120gr"), p7, false));
-        pcdb.persist(new FormuleConstraint(db.get(p7.getKey()), new PrijsFormule("DEFAULT*(3+2/(DEFAULT*1000))")));
+        PrijsFormule pf1 = new PrijsFormule("DEFAULT*(3+2/(DEFAULT*1000))");
+        pf1 = pfdb.persist(pf1);
+        pcdb.persist(new FormuleConstraint(db.get(p7.getKey()), pf1));
         
         Prijs p8 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), Eenheid.PAGINA, cdb.getWithName("A3 geselecteerd")));
         pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "160gr"), p8, false));
-        pcdb.persist(new FormuleConstraint(db.get(p8.getKey()), new PrijsFormule("DEFAULT*(3+8/(DEFAULT*1000))")));
+        PrijsFormule pf2 = new PrijsFormule("DEFAULT*(3+8/(DEFAULT*1000))");
+        pf2 = pfdb.persist(pf2);
+        pcdb.persist(new FormuleConstraint(db.get(p8.getKey()), pf2));
         
         Prijs p9 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), Eenheid.PAGINA, cdb.getWithName("A3 geselecteerd")));
         pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "170gr"), p9, false));
-        pcdb.persist(new FormuleConstraint(db.get(p9.getKey()), new PrijsFormule("DEFAULT*(3+8/(DEFAULT*1000))")));
+        PrijsFormule pf3 = new PrijsFormule("DEFAULT*(3+8/(DEFAULT*1000))");
+        pf3 = pfdb.persist(pf3);
+        pcdb.persist(new FormuleConstraint(db.get(p9.getKey()), pf3));
         
         Prijs p10 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), BigDecimal.valueOf(0.1), Eenheid.PAGINA, PrijsType.OPTIE, cdb.getWithName("A3 geselecteerd")));
         pcdb.persist(new OptiePrijsConstraint(odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Gewicht"), "200gr"), p10, false));
@@ -192,7 +201,9 @@ public class SetupDB {
         
         Prijs p23 = db.persist(new Prijs(DateUtil.date(2012, 1, 1), Eenheid.PAGINA));
         pcdb.persist(new OptieTypePrijsConstraint(otdb.getCurrentWithName("Kleur"), p23, false));
-        pcdb.persist(new FormuleConstraint(db.get(p23.getKey()), new PrijsFormule("2*DEFAULT")));
+        PrijsFormule pf4 = new PrijsFormule("2*DEFAULT");
+        pf4 = pfdb.persist(pf4);
+        pcdb.persist(new FormuleConstraint(db.get(p23.getKey()), pf4));
     }
 
     private static void createCondities() {
@@ -201,8 +212,8 @@ public class SetupDB {
         OptieTypeDB otdb = new OptieTypeDB();
 
         db.persist(new Conditie("empty", "", ""));
-        db.persist(new Conditie("A3 geselecteerd", "enkel van toepassing indien de optie 'A3' geselecteerd is", "O(" + odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Formaat"), "A3").getId() + ")"));
-        db.persist(new Conditie("Geen opties geselecteerd", "enkel van toepassing indien geen enkele optie geselecteerd is", "O(LIST)=" + odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Druktype"), "Recto").getId()));
+        db.persist(new Conditie("A3 geselecteerd", "enkel van toepassing indien de optie 'A3' geselecteerd is", "O-" + odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Formaat"), "A3").getId()));
+        db.persist(new Conditie("Geen opties geselecteerd", "enkel van toepassing indien geen enkele optie geselecteerd is", "O.SIZE = 1 AND O-" + odb.getCurrentOfTypeWithName(otdb.getCurrentWithName("Druktype"), "Recto").getId()));
     }
 
     private static void createOpties() {
@@ -243,7 +254,7 @@ public class SetupDB {
         OpdrachtTypeDB otdb = new OpdrachtTypeDB();
         InputVeldDB ivdb = new InputVeldDB();
 
-        OpdrachtTypeInput oti1 = new OpdrachtTypeInput(ivdb.getWithName("Opdrachtgever"), otdb.getWithName("Standaard"), true, true, false, 0);
+        OpdrachtTypeInput oti1 = new OpdrachtTypeInput(ivdb.getWithName("Opdrachtgever"), otdb.getWithName("Standaard"), true, true, true, 0);
         db.persist(oti1);
 
         OpdrachtTypeInput oti2 = new OpdrachtTypeInput(ivdb.getWithName("Bestand"), otdb.getWithName("Standaard"), true, true, true, 1);
@@ -261,7 +272,7 @@ public class SetupDB {
         OpdrachtTypeInput oti6 = new OpdrachtTypeInput(ivdb.getWithName("Klassen"), otdb.getWithName("Standaard"), true, true, true, 5);
         db.persist(oti6);
 
-        OpdrachtTypeInput oti7 = new OpdrachtTypeInput(ivdb.getWithName("Opdrachtgever"), otdb.getWithName("Administratie"), true, true, false, 0);
+        OpdrachtTypeInput oti7 = new OpdrachtTypeInput(ivdb.getWithName("Opdrachtgever"), otdb.getWithName("Administratie"), true, true, true, 0);
         db.persist(oti7);
 
         OpdrachtTypeInput oti8 = new OpdrachtTypeInput(ivdb.getWithName("Bestand"), otdb.getWithName("Administratie"), true, true, true, 1);

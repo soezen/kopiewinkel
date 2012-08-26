@@ -93,6 +93,8 @@
         <div>${uitvoerder.naam}</div>
         <label>Commentaar</label>
         <div>${newOpdracht.commentaar}</div>
+        <label>Prijs</label>
+        <div><a src="">${newOpdracht.prijs}</a></div>
     </div>
     <div>
         <label>Opties</label>

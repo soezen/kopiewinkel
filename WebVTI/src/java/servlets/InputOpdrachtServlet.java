@@ -4,11 +4,16 @@
  */
 package servlets;
 
+import business.PrijsService;
 import database.*;
 import decorators.OpdrachtDecorator;
 import domain.*;
+import domain.constraints.OptiePrijsConstraint;
+import domain.constraints.OptieTypePrijsConstraint;
+import domain.constraints.PrijsConstraint;
 import domain.enums.InputVeldType;
 import domain.enums.OpdrachtStatus;
+import domain.enums.PrijsType;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,6 +29,7 @@ import org.apache.commons.fileupload.*;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import utils.InvalidContentException;
+import utils.Util;
 import utils.Validator;
 
 /**
@@ -133,6 +139,10 @@ public class InputOpdrachtServlet extends HttpServlet {
 
             errors.putAll(Validator.getErrors(opdracht));
             if (errors.isEmpty()) {
+                ConstraintDB cdb = new ConstraintDB();
+                OptieDB odb = new OptieDB();
+                PrijsService prijsService = new PrijsService();
+                opdracht.setPrijs(prijsService.calculatePrijs(opdracht.getOpties()));
                 opdracht = db.persist(opdracht);
                 request.setAttribute("result", opdracht.getId());
             } else {
@@ -155,102 +165,104 @@ public class InputOpdrachtServlet extends HttpServlet {
     }
 
     private void putDataInOpdracht(OpdrachtTypeInput veld, FileItem item, Opdracht opdracht) throws InvalidContentException {
-        GebruikerDB gdb = new GebruikerDB();
         String input = item.getString();
-        InputVeld iv = veld.getInputVeld();
-        System.out.println("TYPE: " + iv.getType());
-        switch (iv.getType()) {
-            case VAST:
-                String naam = iv.getNaam();
-                if (naam.equals("Opdrachtgever")) {
-                    Gebruiker opdrachtgever = gdb.getWithId(Long.valueOf(input));
-                    opdracht.setOpdrachtgever(opdrachtgever);
-                } else if (naam.equals("Bestand")) {
-                    if (!item.isFormField()) {
+        if ("Bestand".equals(veld.getInputVeld().getNaam())) {
+            if (!item.isFormField()) {
 //                        InputStream stream = null;
 //                        try {
-                        //     FileItemStream streamItem = (FileItemStream) item;
-                        //     stream = streamItem.openStream();
-                        // TODO get unique name by using opdrachtid
-                        // TODO output folder in property file steken zodat het makkelijk te wijzigen valt
+                //     FileItemStream streamItem = (FileItemStream) item;
+                //     stream = streamItem.openStream();
+                // TODO get unique name by using opdrachtid
+                // TODO output folder in property file steken zodat het makkelijk te wijzigen valt
 //                        File file = new File("d:/upload", item.getName());
-                        try {
-                            // TODO uncomment this when deploying
-                            //     item.write(file);
-                            opdracht.setBestand("d:/upload/" + item.getName());
-                        } catch (Exception e) {
-                            System.out.println("Error trying to write file");
-                            e.printStackTrace();
-                        }
-                        //    } catch (IOException ex) {
-                        //        Logger.getLogger(InputOpdrachtServlet.class.getName()).log(Level.SEVERE, null, ex);
-                        //    } finally {
+                try {
+                    // TODO uncomment this when deploying
+                    //     item.write(file);
+                    opdracht.setBestand("d:/upload/" + item.getName());
+                } catch (Exception e) {
+                    System.out.println("Error trying to write file");
+                    e.printStackTrace();
+                }
+                //    } catch (IOException ex) {
+                //        Logger.getLogger(InputOpdrachtServlet.class.getName()).log(Level.SEVERE, null, ex);
+                //    } finally {
 //                            try {
 //                                stream.close();
 //                            } catch (IOException ex) {
 //                                Logger.getLogger(InputOpdrachtServlet.class.getName()).log(Level.SEVERE, null, ex);
 //                            }
 //                        }
-                    }
-                } else if (naam.equals("Aantal")) {
+            }
+        } else {
+            putDataInOpdracht(veld, input, opdracht);
+        }
+    }
+
+    private void putDataInOpdracht(OpdrachtTypeInput veld, String value, Opdracht opdracht) throws InvalidContentException {
+        GebruikerDB gdb = new GebruikerDB();
+        InputVeld iv = veld.getInputVeld();
+        System.out.println("TYPE: " + iv.getType());
+        if (!"".equals(value)) {
+            switch (iv.getType()) {
+                case VAST:
+                    String naam = iv.getNaam();
+                    if (naam.equals("Opdrachtgever")) {
+                        Gebruiker opdrachtgever = gdb.getWithId(Long.valueOf(value));
+                        opdracht.setOpdrachtgever(opdrachtgever);
+                    } else if (naam.equals("Aantal")) {
+                        try {
+                            opdracht.setAantal(Integer.valueOf(value));
+                        } catch (NumberFormatException e) {
+                            throw new InvalidContentException(InputVeldType.GETAL, naam, value);
+                        }
+                    } else if (naam.equals("Commentaar")) {
+                        if (!"".equals(value)) {
+                            opdracht.setCommentaar(value);
+                        }
+                    } else if (naam.equals("Klassen")) {
+                        // doelgroep wordt gelinkt met opdracht
+                        // om te factureren aan leerlingen wordt gekeken naar de opdracht aanmaakdatum
+                        // die wordt gebruikt om het schooljaar te bepalen
+                        // dan wordt in de tabel doelgroepleerlingen gekeken welke leerlingen er allemaal in die doelgroep
+                        // zaten in dat schooljaar
+                        // en dan wordt ook nog eens extra gekeken naar de leerling geldigheid om te zien
+                        // of deze opdracht ook voor hem werd uitgevoerd
+                        // TODO correct this.
+                        DoelgroepDB ddb = new DoelgroepDB();
+                        Doelgroep doelgroep = ddb.getWithId(Long.valueOf(value));
+                        if (doelgroep != null) {
+                            opdracht.addDoelgroep(doelgroep);
+                        }
+
+                    } 
+                    break;
+                case DATUM:
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                    format.setLenient(false);
                     try {
-                        opdracht.setAantal(Integer.valueOf(input));
+                        format.parse(value);
+                        opdracht.addInputWaarde(iv, value);
+                    } catch (ParseException ex) {
+                        throw new InvalidContentException(InputVeldType.DATUM, iv.getNaam(), value);
+                    }
+                    System.out.println("DATUM: " + value);
+                    break;
+                case GETAL:
+                    try {
+                        Integer.parseInt(value);
+                        opdracht.addInputWaarde(iv, value);
                     } catch (NumberFormatException e) {
-                        throw new InvalidContentException(InputVeldType.GETAL, naam, input);
+                        throw new InvalidContentException(InputVeldType.GETAL, iv.getNaam(), value);
                     }
-                } else if (naam.equals("Commentaar")) {
-                    if (!"".equals(input)) {
-                        // replace new lines with <br />
-                        System.out.println("commentaar: " + input);
-                        input = input.replaceAll(System.getProperty("line.separator"), "<br />");
-                        System.out.println("char 5 " + input.charAt(5));
-                        opdracht.setCommentaar(input);
-                    }
-                } else if (naam.equals("Klassen")) {
-                    // doelgroep wordt gelinkt met opdracht
-                    // om te factureren aan leerlingen wordt gekeken naar de opdracht aanmaakdatum
-                    // die wordt gebruikt om het schooljaar te bepalen
-                    // dan wordt in de tabel doelgroepleerlingen gekeken welke leerlingen er allemaal in die doelgroep
-                    // zaten in dat schooljaar
-                    // en dan wordt ook nog eens extra gekeken naar de leerling geldigheid om te zien
-                    // of deze opdracht ook voor hem werd uitgevoerd
-                    // TODO correct this.
-                    DoelgroepDB ddb = new DoelgroepDB();
-                    Doelgroep doelgroep = ddb.getWithId(Long.valueOf(input));
-                    if (doelgroep != null) {
-                        opdracht.addDoelgroep(doelgroep);
-                    }
-
-                }
-                break;
-            case DATUM:
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                format.setLenient(false);
-                try {
-                    format.parse(input);
-                    opdracht.addInputWaarde(iv, input);
-                } catch (ParseException ex) {
-                    throw new InvalidContentException(InputVeldType.DATUM, iv.getNaam(), input);
-                }
-                System.out.println("DATUM: " + input);
-
-                break;
-            case GETAL:
-                try {
-                    Integer.parseInt(input);
-                    opdracht.addInputWaarde(iv, input);
-                } catch (NumberFormatException e) {
-                    throw new InvalidContentException(InputVeldType.GETAL, iv.getNaam(), input);
-                }
-                break;
-            case TEKST:
-                opdracht.addInputWaarde(iv, input);
-                break;
+                    break;
+                case TEKST:
+                    opdracht.addInputWaarde(iv, value);
+                    break;
+            }
         }
     }
 
     private void putDataInOpdracht(OpdrachtTypeInput veld, FileItemStream item, Opdracht opdracht) throws InvalidContentException {
-        GebruikerDB gdb = new GebruikerDB();
         InputStream input;
         String output = "";
 
@@ -268,106 +280,50 @@ public class InputOpdrachtServlet extends HttpServlet {
             Logger.getLogger(InputOpdrachtServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        if ("Bestand".equals(veld.getInputVeld().getNaam())) {
+            if (!item.isFormField()) {
+                InputStream stream = null;
+                File file = new File("d:/upload", item.getName());
+                FileWriter writer = null;
 
-        InputVeld iv = veld.getInputVeld();
-        System.out.println("TYPE: " + iv.getType());
-        switch (iv.getType()) {
-            case VAST:
-                String naam = iv.getNaam();
-                if (naam.equals("Opdrachtgever")) {
-                    Gebruiker opdrachtgever = gdb.getWithId(Long.valueOf(output));
-                    opdracht.setOpdrachtgever(opdrachtgever);
-                } else if (naam.equals("Bestand")) {
-                    if (!item.isFormField()) {
-                        InputStream stream = null;
-                        File file = new File("d:/upload", item.getName());
-                        FileWriter writer = null;
-
-                        try {
-                            FileItemStream streamItem = (FileItemStream) item;
-                            stream = streamItem.openStream();
-                            // TODO fix permission problem
-                          //  writer = new FileWriter(file);
-                            // TODO get unique name by using opdrachtid
-                            // TODO output folder in property file steken zodat het makkelijk te wijzigen valt
-                            try {
-                                // TODO uncomment this when deploying
-                                while (stream.available() > 0) {
-                                    //        writer.write(stream.read());
-                                }
-
-                                //     item.write(file);
-                                opdracht.setBestand("d:/upload/" + item.getName());
-                            } catch (IOException e) {
-                                System.out.println("Error writing file");
-                            } catch (Exception e) {
-                                System.out.println("Error trying to write file");
-                                e.printStackTrace();
-                            }
-                        } catch (IOException ex) {
-                            Logger.getLogger(InputOpdrachtServlet.class.getName()).log(Level.SEVERE, null, ex);
-                        } finally {
-                            try {
-                                if (stream != null) {
-                                    stream.close();
-                                }
-                                if (writer != null) {
-                                    writer.close();
-                                }
-                            } catch (IOException ex) {
-                                Logger.getLogger(InputOpdrachtServlet.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        }
-                    }
-                } else if (naam.equals("Aantal")) {
+                try {
+                    FileItemStream streamItem = (FileItemStream) item;
+                    stream = streamItem.openStream();
+                    // TODO fix permission problem
+                    //  writer = new FileWriter(file);
+                    // TODO get unique name by using opdrachtid
+                    // TODO output folder in property file steken zodat het makkelijk te wijzigen valt
                     try {
-                        opdracht.setAantal(Integer.valueOf(output));
-                    } catch (NumberFormatException e) {
-                        throw new InvalidContentException(InputVeldType.GETAL, naam, output);
-                    }
-                } else if (naam.equals("Commentaar")) {
-                    if (!"".equals(output)) {
-                        opdracht.setCommentaar(output);
-                    }
-                } else if (naam.equals("Klassen")) {
-                    // doelgroep wordt gelinkt met opdracht
-                    // om te factureren aan leerlingen wordt gekeken naar de opdracht aanmaakdatum
-                    // die wordt gebruikt om het schooljaar te bepalen
-                    // dan wordt in de tabel doelgroepleerlingen gekeken welke leerlingen er allemaal in die doelgroep
-                    // zaten in dat schooljaar
-                    // en dan wordt ook nog eens extra gekeken naar de leerling geldigheid om te zien
-                    // of deze opdracht ook voor hem werd uitgevoerd
-                    // TODO correct this.
-                    DoelgroepDB ddb = new DoelgroepDB();
-                    Doelgroep doelgroep = ddb.getWithId(Long.valueOf(output));
-                    if (doelgroep != null) {
-                        opdracht.addDoelgroep(doelgroep);
-                    }
+                        // TODO uncomment this when deploying
+                        while (stream.available() > 0) {
+                            //        writer.write(stream.read());
+                        }
 
+                        //     item.write(file);
+                        opdracht.setBestand("d:/upload/" + item.getName());
+                    } catch (IOException e) {
+                        System.out.println("Error writing file");
+                    } catch (Exception e) {
+                        System.out.println("Error trying to write file");
+                        e.printStackTrace();
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(InputOpdrachtServlet.class.getName()).log(Level.SEVERE, null, ex);
+                } finally {
+                    try {
+                        if (stream != null) {
+                            stream.close();
+                        }
+                        if (writer != null) {
+                            writer.close();
+                        }
+                    } catch (IOException ex) {
+                        Logger.getLogger(InputOpdrachtServlet.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
-                break;
-            case DATUM:
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                format.setLenient(false);
-                try {
-                    format.parse(output);
-                    opdracht.addInputWaarde(iv, output);
-                } catch (ParseException ex) {
-                    throw new InvalidContentException(InputVeldType.DATUM, iv.getNaam(), output);
-                }
-                System.out.println("DATUM: " + output);
-                break;
-            case GETAL:
-                try {
-                    Integer.parseInt(output);
-                    opdracht.addInputWaarde(iv, output);
-                } catch (NumberFormatException e) {
-                    throw new InvalidContentException(InputVeldType.GETAL, iv.getNaam(), output);
-                }
-                break;
-            case TEKST:
-                opdracht.addInputWaarde(iv, output);
-                break;
+            }
+        } else {
+            putDataInOpdracht(veld, output, opdracht);
         }
     }
 

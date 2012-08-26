@@ -5,12 +5,11 @@
 package utils;
 
 import database.ConstraintDB;
-import database.OptieDB;
-import domain.Optie;
+import domain.Opdracht;
 import domain.constraints.ConnectionConstraint;
-import domain.constraints.Constraint;
+import domain.constraints.OptiePrijsConstraint;
+import domain.constraints.OptieTypePrijsConstraint;
 import domain.interfaces.Constrainer;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +17,7 @@ import java.util.List;
  * @author soezen
  */
 public class Util {
-
+    
     /**
      * check to see if an optieType or optie requires an optie to be selected
      *

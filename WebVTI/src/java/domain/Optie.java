@@ -21,7 +21,7 @@ public class Optie implements java.io.Serializable, Constrainer, Constrainable, 
     @SequenceGenerator(name = "OT_SEQUENCE")
     @Column(nullable=false)
     private Long id;
-   @ManyToOne(cascade= CascadeType.PERSIST)
+    @ManyToOne(cascade= CascadeType.PERSIST)
     private OptieType optieType;
     private String naam;
     private String omschrijving;

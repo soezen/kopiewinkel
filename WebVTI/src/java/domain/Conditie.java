@@ -4,6 +4,7 @@ package domain;
 import com.google.appengine.api.datastore.Key;
 import java.util.List;
 import javax.persistence.*;
+import utils.ExpressionValidator;
 
 /**
  * Conditie object.
@@ -34,11 +35,6 @@ public class Conditie implements java.io.Serializable {
     }
     
     /**
-     * Create a Conditie with one sub conditie and an expressie.
-     * Operator cannot be NOT, it has to be AND or OR.
-     * 
-     * First the upper parent has to be saved, the sub conditie will be filled in automatically when saving the child.
-     * This constructor is used for creating parent condities.
      * 
      * @param naam
      * @param commentaar
@@ -50,6 +46,16 @@ public class Conditie implements java.io.Serializable {
         this.expressie = expressie;
     }
 
+    /**
+     * Checks if this Conditie is met given the selected opties.
+     * 
+     * @param opties
+     * @return 
+     */
+    public boolean isApplicable(List<Optie> opties) {
+        return ExpressionValidator.validate(expressie, opties);
+    }
+    
     public Key getKey() {
         return key;
     }
